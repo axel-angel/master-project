@@ -1,0 +1,20 @@
+* read papers from email
+* see video for intuition Are Deep Networks a Solution to Curse of Dimensionality
+* read blog colah (article Visualizing Representations)
+
+* reproduce colah visualisation on MNIST (because small dataset), t-SNE map (see how projections are clustered)
+* then on subset of ImageNet (link in blog, ILSVRC)
+* compare output difference (invariance) in t-SNE space wrt to:
+    - translation
+    - rotation (take bigger image, crop with enough margin)
+    - deformation (translate with local direction for displacement)
+    - illumination/brightness
+    - colors (raw vs "enhanced")
+* compare CNN code for similar objects (animals breeds, similar to article), eg: v(bulldog) - v(dalmatian) ~ v(cat siamoi) - v(cat egyptian)
+* compare line-wise in CNN code space, find directions/segments that make sense, perpendicular, other directions?
+  CNN code is taken from the layer before the last (before softmax) in article
+* can use t-SNE again (or show as image for conv layers)
+* try on other lower layers
+* explore other articles on colah, eg: NLP cluster map, table
+
+* intriguing props of NN -> no result yet on CNN? for MNIST advanced noise, what about ImageNet?

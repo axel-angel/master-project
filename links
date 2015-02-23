@@ -1,0 +1,21 @@
+http://colah.github.io/
+
+to get started with CNNs in general you can read this paper:
+http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf
+
+Also there are a lot of tutorials, video lectures, etc. online
+here is an example: http://deeplearning.net/tutorial/lenet.html
+here a list of implementations of CNNS: http://deeplearning.net/software_links/ if you want to play with them.
+
+More specific to the projects:
+
+for proj 1:
+the talk I told you about:
++http://techtalks.tv/talks/plenary-talk-are-deep-networks-a-solution-to-curse-of-dimensionality/60315/
+and a couple of papers
+http://cs.nyu.edu/~zaremba/docs/understanding.pdf
+http://theorycenter.cs.uchicago.edu/REU/2014/final-papers/sauder.pdf
+
+(for proj2:)
+http://www-etud.iro.umontreal.ca/~kivinenj/papers/aistats14.pdf
+http://infoscience.epfl.ch/record/203512/files/preprint_1.pdf

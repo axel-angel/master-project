@@ -1,0 +1,38 @@
+Towards Distortion-Predictable Embedding of Neural Networks.
+
+This repository contains the work for the aforementioned master project in the
+labCV (Computer Vision Lab) at EPFL (Switzerland) by Axel Angel in 2015. This
+work is released under the GPLv3 license, see LICENSE.
+
+Read the thesis.pdf for the entire text.
+
+The repository is published to:
+ (1) Provide tools for datasets generation and visualisation with the Caffe deep
+     learning framework and the Python programming language.
+ (2) Demonstrate a new state-of-the-art method to control embedding of neural
+     networks without imposing hard constraint (unlike regression).
+ (3) Provide models, results and all tools to reproduce the work of this master
+     project with minor efforts.
+
+The directories are structured as follows.
+
+The work is separated by datasets into three folders containing model definition
+prototxt, the model snapshots, dataset in npz for Python and Python scripts.
+
+ * lenet_mnist: t-SNE applied on MNIST with LeNet (for comparison).
+ * siamese_mnist: our method applied to MNIST.
+ * siamese_norb: our method applied to NORB.
+
+Other folders are:
+
+ * caffe: submodule for Caffe (dependency of this project).
+ * deps_caffe: Debian dependency for Caffe.
+ * links: useful links for Caffe and Deep Learning.
+ * papers: references papers.
+ * pres: contains the final presentation slides.
+ * report: contains the final report.
+ * src: scripts for handling datasets, computing measures, etc.
+ * todo: personal notes
+
+ * caffenet_imagenet: unused directory.
+ * housenumbers: unused directory.
