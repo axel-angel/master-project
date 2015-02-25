@@ -1,12 +1,11 @@
 import sys
 import caffe
-import cv2
 import matplotlib
 import numpy as np
 import lmdb
 
 MODEL_FILE = 'lenet.prototxt'
-PRETRAINED = 'snapshots/lenet_mnist_v2_iter_5000.caffemodel'
+PRETRAINED = 'snapshots/lenet_mnist_v2_iter_10000.caffemodel'
 
 net = caffe.Net(MODEL_FILE, PRETRAINED, caffe.TEST)
 caffe.set_mode_cpu()
