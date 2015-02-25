@@ -8,7 +8,7 @@ import lmdb
 MODEL_FILE = 'lenet.prototxt'
 PRETRAINED = 'snapshots/lenet_mnist_v2_iter_5000.caffemodel'
 
-net = caffe.Net(MODEL_FILE, PRETRAINED)
+net = caffe.Net(MODEL_FILE, PRETRAINED, caffe.TEST)
 caffe.set_mode_cpu()
 db_path = 'examples/mnist/mnist_test_lmdb'
 lmdb_env = lmdb.open(db_path)

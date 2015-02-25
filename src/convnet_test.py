@@ -34,7 +34,7 @@ assert data.shape[0] == labels.shape[0]
 count = data.shape[0]
 
 dims = (data.shape[1], data.shape[2])
-m = caffe.Net(args.proto, args.model)
+m = caffe.Net(args.proto, args.model, caffe.TEST)
 
 matrix = defaultdict(int) # (real,pred) -> int
 
