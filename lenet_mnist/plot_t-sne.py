@@ -22,6 +22,11 @@ X = np.load('mnist_test.npz')
 datas = X['arr_0']
 labels = X['arr_1']
 
+limit = 1000 # FIXME
+datas = datas[:limit]
+labels = labels[:limit]
+print "Loaded images, shape %s" % (str(datas.shape))
+
 print "Forward pass data"
 dim = 500
 blobs = np.array([ [0.] * dim for i in range(len(datas)) ])
@@ -35,9 +40,14 @@ pca = PCA(n_components=50)
 pts_pca = pca.fit_transform(blobs)
 blobs = None
 
+#pts = pts_pca
 print "Computing t-SNE"
 tsne = TSNE(n_components=2, random_state=0)
 pts = tsne.fit_transform(pts_pca)
+
+colors = labels
+plt.scatter(pts[:,0], pts[:,1], s=25, c=colors, cmap='bwr')
+plt.show()
 
 def plot(data):
     plt.imshow(data)
