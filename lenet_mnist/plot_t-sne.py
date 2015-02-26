@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 plt.rcParams['figure.figsize'] = (10, 10)
 plt.rcParams['image.interpolation'] = 'nearest'
-plt.rcParams['image.cmap'] = 'gray'
+plt.rcParams['image.cmap'] = 'bwr'
 
 MODEL_FILE = 'lenet.prototxt'
 PRETRAINED = 'snapshots/lenet_mnist_v2_iter_10000.caffemodel'
@@ -22,9 +22,9 @@ X = np.load('mnist_test.npz')
 datas = X['arr_0']
 labels = X['arr_1']
 
-limit = 1000 # FIXME
-datas = datas[:limit]
-labels = labels[:limit]
+#limit = 2000 # FIXME
+#datas = datas[:limit]
+#labels = labels[:limit]
 print "Loaded images, shape %s" % (str(datas.shape))
 
 print "Forward pass data"
@@ -46,7 +46,7 @@ tsne = TSNE(n_components=2, random_state=0)
 pts = tsne.fit_transform(pts_pca)
 
 colors = labels
-plt.scatter(pts[:,0], pts[:,1], s=25, c=colors, cmap='bwr')
+plt.scatter(pts[:,0], pts[:,1], s=25, c=colors)
 plt.show()
 
 def plot(data):
