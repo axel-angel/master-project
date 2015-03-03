@@ -23,4 +23,6 @@
 * try on other lower layers
 * explore other articles on colah, eg: NLP cluster map, table
 
-* intriguing props of NN -> no result yet on CNN? for MNIST advanced noise, what about ImageNet?
+papers said "further study needed" for:
+* intriguing props of NN: For MNIST, we do not have results for convolutional models yet, but […] may behave similarly as well.
+* towards deep NN arch robust to adversial examples: Evaluate the performance loss due to layer-wise penalties […]. In addition, exploring non-Euclidean adversarial examples […] could lead to insights into semantic attributes of features learned at high levels of representation.

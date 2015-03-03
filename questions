@@ -1,0 +1,19 @@
+how colors handled/feeded into CNN?
+
+grayscale may be better for ImageNet? (sRGB, YUV worse?)
+
+multi-stage networks? connection by-pass layers?
+
+no papers on ImageNet for invariance testing, t-SNE?
+
+use methods of invariance measure (paper) for our study?
+
+explore t-SNE for input versus in-layer output, MNIST too easy?
+ImageNet too big?
+PCA pre-process how many dimensions?
+how many images?
+learn PCA/t-SNE on separated set train/test?
+
+deep belief network? auto-encoders? pre-train/unsupervised learning layerwise?
+
+CNN on NLP not very clear (blog, document vector, unsupervised?)
