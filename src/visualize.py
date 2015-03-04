@@ -8,6 +8,8 @@ import numpy as np
 from functools import partial
 import caffe
 import matplotlib.pyplot as plt
+import scipy.ndimage
+import scipy.misc
 
 try:
     _encoding = QApplication.UnicodeUTF8
@@ -32,8 +34,16 @@ class Ui_MainWindow(object):
 
         self.graphicsView_3 = QLabel(self.verticalLayoutWidget)
         pxmap = QPixmap(fpath) \
-                .scaled(QtCore.QSize(300,300), QtCore.Qt.KeepAspectRatio)
+                .scaled(QtCore.QSize(28,28)) \
+                .scaled(QtCore.QSize(28*5,28*5))
         self.graphicsView_3.setPixmap(pxmap)
+
+        imgnp = scipy.ndimage.imread(fpath, flatten=True)
+        imgnp = scipy.misc.imresize(imgnp, size=(28,28))
+        res = net.forward_all(data=np.array([[ imgnp ]]))
+        print "res:", np.argmax(res['prob'][0])
+        self.graphicsView_4 = QLabel(self.verticalLayoutWidget)
+        plot_probas(self.graphicsView_4, res['prob'][0].tolist())
 
         self.verticalLayout_3 = QVBoxLayout()
 
@@ -46,7 +56,7 @@ class Ui_MainWindow(object):
             QtCore.QObject.connect(s, QtCore.SIGNAL('valueChanged(int)'), fn)
 
         self.graphicsView_2 = QLabel(self.verticalLayoutWidget)
-        plot_tnse(self.graphicsView_2)
+        plot_tnse(self.graphicsView_2, pts, labels)
 
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
@@ -54,6 +64,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addLayout(self.verticalLayout_3)
         for s in self.sliders:
             self.verticalLayout_3.addWidget(s)
+        self.horizontalLayout.addWidget(self.graphicsView_4)
         self.verticalLayout_2.addWidget(self.graphicsView_2)
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -91,7 +102,7 @@ def matplot2np(fig):
 
     return buf
 
-def plot_tnse(widget):
+def plot_tnse(widget, pts, labels):
     colors = labels
     fig = plt.figure(figsize=(6,4))
     plot = fig.add_subplot(1, 1, 1)
@@ -104,11 +115,25 @@ def plot_tnse(widget):
     pxmap = QPixmap.fromImage(qimg)
     widget.setPixmap(pxmap)
 
+def plot_probas(widget, probas):
+    fig = plt.figure(figsize=(2,4))
+    plot = fig.add_subplot(1, 1, 1)
+    print "probas:", probas
+    plot.hist(probas, len(probas), histtype='stepfilled', orientation='horizontal')
+    plotnp = matplot2np(fig)
+    isizex, isizey = plotnp.shape[0:2]
+
+    qimg = QImage(plotnp.data, isizex, isizey, QImage.Format_ARGB32)
+    pxmap = QPixmap.fromImage(qimg)
+    widget.setPixmap(pxmap)
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--image', type=str, required=True)
     parser.add_argument('--tsne-npz', type=str, required=True)
+    parser.add_argument('--proto', type=str, required=True)
+    parser.add_argument('--model', type=str, required=True)
     args = parser.parse_args()
 
     fpath = args.image
@@ -118,6 +143,9 @@ if __name__ == "__main__":
     pca = X['pca']
     pts = X['pts']
     labels = X['labels']
+
+    net = caffe.Net(args.proto, args.model, caffe.TEST)
+    caffe.set_mode_cpu()
 
     app = QApplication(sys.argv)
     myapp = StartQT4()
