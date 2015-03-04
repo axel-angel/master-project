@@ -2,41 +2,44 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore
+from PyQt4.QtGui import *
 
 try:
-    _encoding = QtGui.QApplication.UnicodeUTF8
+    _encoding = QApplication.UnicodeUTF8
     def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+        return QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig)
+        return QApplication.translate(context, text, disambig)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.resize(800, 600)
 
-        self.centralwidget = QtGui.QWidget(MainWindow)
+        self.centralwidget = QWidget(MainWindow)
 
-        self.verticalLayoutWidget = QtGui.QWidget(self.centralwidget)
+        self.verticalLayoutWidget = QWidget(self.centralwidget)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(50, 50, 501, 481))
 
-        self.verticalLayout_2 = QtGui.QVBoxLayout(self.verticalLayoutWidget)
+        self.verticalLayout_2 = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout_2.setMargin(0)
 
-        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout = QHBoxLayout()
 
-        self.graphicsView_3 = QtGui.QGraphicsView(self.verticalLayoutWidget)
+        self.graphicsView_3 = QGraphicsView(self.verticalLayoutWidget)
+        pxmap = QPixmap(sys.argv[1])
+        self.graphicsView_3.setPixmap(pxmap)
 
-        self.verticalLayout_3 = QtGui.QVBoxLayout()
+        self.verticalLayout_3 = QVBoxLayout()
 
         self.sliders = []
         for i in range(3):
-            s = QtGui.QSlider(self.verticalLayoutWidget)
+            s = QSlider(self.verticalLayoutWidget)
             s.setOrientation(QtCore.Qt.Horizontal)
             self.sliders.append(s)
 
-        self.graphicsView_2 = QtGui.QGraphicsView(self.verticalLayoutWidget)
+        self.graphicsView_2 = QGraphicsView(self.verticalLayoutWidget)
 
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
@@ -54,15 +57,15 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
 
-class StartQT4(QtGui.QMainWindow):
+class StartQT4(QMainWindow):
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QWidget.__init__(self, parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
 
 if __name__ == "__main__":
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     myapp = StartQT4()
     myapp.show()
     sys.exit(app.exec_())
