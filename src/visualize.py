@@ -4,6 +4,10 @@
 import sys
 from PyQt4 import QtCore
 from PyQt4.QtGui import *
+import numpy as np
+from functools import partial
+import caffe
+import matplotlib.pyplot as plt
 
 try:
     _encoding = QApplication.UnicodeUTF8
@@ -20,15 +24,15 @@ class Ui_MainWindow(object):
         self.centralwidget = QWidget(MainWindow)
 
         self.verticalLayoutWidget = QWidget(self.centralwidget)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(50, 50, 501, 481))
 
         self.verticalLayout_2 = QVBoxLayout(self.verticalLayoutWidget)
-        self.verticalLayout_2.setMargin(0)
+        self.verticalLayout_2.setMargin(15)
 
         self.horizontalLayout = QHBoxLayout()
 
-        self.graphicsView_3 = QGraphicsView(self.verticalLayoutWidget)
-        pxmap = QPixmap(sys.argv[1])
+        self.graphicsView_3 = QLabel(self.verticalLayoutWidget)
+        pxmap = QPixmap(fpath) \
+                .scaled(QtCore.QSize(300,300), QtCore.Qt.KeepAspectRatio)
         self.graphicsView_3.setPixmap(pxmap)
 
         self.verticalLayout_3 = QVBoxLayout()
@@ -38,8 +42,11 @@ class Ui_MainWindow(object):
             s = QSlider(self.verticalLayoutWidget)
             s.setOrientation(QtCore.Qt.Horizontal)
             self.sliders.append(s)
+            fn = lambda v,i=i: self.onSlide(i, v)
+            QtCore.QObject.connect(s, QtCore.SIGNAL('valueChanged(int)'), fn)
 
-        self.graphicsView_2 = QGraphicsView(self.verticalLayoutWidget)
+        self.graphicsView_2 = QLabel(self.verticalLayoutWidget)
+        plot_tnse(self.graphicsView_2)
 
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
@@ -54,6 +61,9 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def onSlide(self, i, value):
+        print "slider:", i, value
+
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
 
@@ -63,8 +73,52 @@ class StartQT4(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+# Source: http://www.icare.univ-lille1.fr/wiki/index.php/How_to_convert_a_matplotlib_figure_to_a_numpy_array_or_a_PIL_image
+def matplot2np(fig):
+    """
+    @brief Convert a Matplotlib figure to a 3D numpy array with RGB channels
+        and return it
+    @param fig a matplotlib figure
+    @return a numpy 3D array of RGB values
+    """
+    # draw the renderer
+    fig.canvas.draw()
+
+    # Get the RGB buffer from the figure
+    w,h = fig.canvas.get_width_height()
+    buf = np.fromstring(fig.canvas.tostring_argb(), dtype=np.uint8)
+    buf.shape = (w, h, 4)
+
+    return buf
+
+def plot_tnse(widget):
+    colors = labels
+    fig = plt.figure(figsize=(6,4))
+    plot = fig.add_subplot(1, 1, 1)
+    plot.scatter(pts[:,0], pts[:,1], s=25, c=colors, cmap='bwr')
+    plot.axis('off')
+    plotnp = matplot2np(fig)
+    isizex, isizey = plotnp.shape[0:2]
+
+    qimg = QImage(plotnp.data, isizex, isizey, QImage.Format_ARGB32)
+    pxmap = QPixmap.fromImage(qimg)
+    widget.setPixmap(pxmap)
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--image', type=str, required=True)
+    parser.add_argument('--tsne-npz', type=str, required=True)
+    args = parser.parse_args()
+
+    fpath = args.image
+
+    X = np.load(args.tsne_npz)
+    tsne = X['tsne']
+    pca = X['pca']
+    pts = X['pts']
+    labels = X['labels']
+
     app = QApplication(sys.argv)
     myapp = StartQT4()
     myapp.show()
