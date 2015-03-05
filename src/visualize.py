@@ -25,7 +25,6 @@ class Ui_MainWindow(object):
     def __init__(self):
         self.fpath = None
         self.imgnp = None
-        self.isize = (28, 28)
 
     def loadImg(self, fpath):
         imgnp = scipy.ndimage.imread(fpath, flatten=True)
@@ -78,7 +77,7 @@ class Ui_MainWindow(object):
     def computeDisplays(self, imgnp):
         # input display
         print "Plot input"
-        qimg = QImage(imgnp.data, self.isize[0], self.isize[1],
+        qimg = QImage(imgnp.data, imgnp.shape[0], imgnp.shape[1],
                 QImage.Format_Indexed8)
         pxmap = QPixmap.fromImage(qimg)
         self.inputView.setPixmap(pxmap.scaled(QtCore.QSize(28*5,28*5)))
@@ -103,10 +102,10 @@ class Ui_MainWindow(object):
     def addSliders(self):
         self.sliders = []
         self.sfn = {
-            'shift_x': lambda i,v: scipy.ndimage.interpolation.shift(i, (v,0)),
-            'shift_y': lambda i,v: scipy.ndimage.interpolation.shift(i, (0,v)),
-            'blur': lambda i,v: scipy.ndimage.filters.gaussian_filter(i, v/10),
-            'rotation': lambda i,v: scipy.ndimage.interpolation.rotate(i, v*3.6, reshape=False),
+            'shift_x': lambda i,v: scipy.ndimage.interpolation.shift(i, (v*28,0)),
+            'shift_y': lambda i,v: scipy.ndimage.interpolation.shift(i, (0,v*28)),
+            'blur': lambda i,v: scipy.ndimage.filters.gaussian_filter(i, v*10),
+            'rotation': lambda i,v: scipy.ndimage.interpolation.rotate(i, v*180., reshape=False),
         }
         self.svalues = { k:0 for k in self.sfn.keys() }
 
@@ -115,8 +114,9 @@ class Ui_MainWindow(object):
             s.setOrientation(QtCore.Qt.Horizontal)
             s.setSliderPosition(50)
             self.sliders.append(s)
-            fn = lambda v,k=k,sfn=sfn: self.onSlider(k, sfn, v - 50)
+            fn = lambda v,k=k,sfn=sfn: self.onSlider(k, sfn, v/50. - 1.)
             QtCore.QObject.connect(s, QtCore.SIGNAL('valueChanged(int)'), fn)
+            self.verticalLayout_3.addWidget(QLabel(k))
             self.verticalLayout_3.addWidget(s)
 
     def onSlider(self, k, sfn, value):
