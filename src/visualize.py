@@ -20,6 +20,17 @@ except AttributeError:
         return QApplication.translate(context, text, disambig)
 
 class Ui_MainWindow(object):
+    def __init__(self):
+        self.fpath = None
+        self.imgnp = None
+        self.isize = (28, 28)
+
+    def loadImg(self, fpath):
+        imgnp = scipy.ndimage.imread(fpath, flatten=True)
+        imgnp = scipy.misc.imresize(imgnp, size=(28,28))
+        self.fpath = fpath
+        self.imgnp = imgnp
+
     def setupUi(self, MainWindow):
         MainWindow.resize(800, 600)
 
@@ -33,30 +44,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QHBoxLayout()
 
         self.graphicsView_3 = QLabel(self.verticalLayoutWidget)
-        pxmap = QPixmap(fpath) \
-                .scaled(QtCore.QSize(28,28)) \
-                .scaled(QtCore.QSize(28*5,28*5))
-        self.graphicsView_3.setPixmap(pxmap)
 
-        imgnp = scipy.ndimage.imread(fpath, flatten=True)
-        imgnp = scipy.misc.imresize(imgnp, size=(28,28))
-        res = net.forward_all(data=np.array([[ imgnp ]]))
-        print "res:", np.argmax(res['prob'][0])
         self.graphicsView_4 = QLabel(self.verticalLayoutWidget)
-        plot_probas(self.graphicsView_4, res['prob'][0].tolist())
 
         self.verticalLayout_3 = QVBoxLayout()
 
-        self.sliders = []
-        for i in range(3):
-            s = QSlider(self.verticalLayoutWidget)
-            s.setOrientation(QtCore.Qt.Horizontal)
-            self.sliders.append(s)
-            fn = lambda v,i=i: self.onSlide(i, v)
-            QtCore.QObject.connect(s, QtCore.SIGNAL('valueChanged(int)'), fn)
+        self.addSliders()
 
         self.graphicsView_2 = QLabel(self.verticalLayoutWidget)
-        plot_tnse(self.graphicsView_2, pts, labels)
 
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
@@ -72,8 +67,58 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def onSlide(self, i, value):
-        print "slider:", i, value
+        self.loadImg(fpath)
+        self.computeDisplays(self.imgnp)
+        plot_tnse(self.graphicsView_2, pts, labels) # FIXME: slow (once)
+
+
+    def computeDisplays(self, imgnp):
+        # input display
+        print "Plot input"
+        qimg = QImage(imgnp.data, self.isize[0], self.isize[1],
+                QImage.Format_Indexed8)
+        pxmap = QPixmap.fromImage(qimg)
+        self.graphicsView_3.setPixmap(pxmap.scaled(QtCore.QSize(28*5,28*5)))
+
+        # probas display
+        print "Forward network"
+        res = net.forward_all(data=np.array([[ imgnp ]]))
+        probas = res['prob'][0].flatten().tolist()
+        print "probas:", probas
+        print "Plot probas"
+        plot_probas(self.graphicsView_4, probas)
+
+        # t-SNE display
+        print "Plot t-SNE"
+        #plot_tnse(self.graphicsView_2, pts, labels) # FIXME: slow (once)
+
+    def addSliders(self):
+        self.sliders = []
+        self.sfn = {
+            'shift_x': lambda i,v: scipy.ndimage.interpolation.shift(i, (v,0)),
+            'shift_y': lambda i,v: scipy.ndimage.interpolation.shift(i, (0,v)),
+            'rotation': lambda i,v: scipy.ndimage.interpolation.rotate(i, v*3.6, reshape=False),
+        }
+        self.svalues = { k:0 for k in self.sfn.keys() }
+
+        for k, sfn in self.sfn.iteritems():
+            s = QSlider(self.verticalLayoutWidget)
+            s.setOrientation(QtCore.Qt.Horizontal)
+            s.setSliderPosition(50)
+            self.sliders.append(s)
+            fn = lambda v,k=k,sfn=sfn: self.onSlider(k, sfn, v - 50)
+            QtCore.QObject.connect(s, QtCore.SIGNAL('valueChanged(int)'), fn)
+
+    def onSlider(self, k, sfn, value):
+        print "slider:", k, sfn, value
+        self.svalues[k] = value
+
+        # apply transformations
+        imgnp = self.imgnp
+        for k, sfn in self.sfn.iteritems():
+            imgnp = sfn(imgnp, self.svalues[k])
+
+        self.computeDisplays(imgnp)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
@@ -114,18 +159,20 @@ def plot_tnse(widget, pts, labels):
     qimg = QImage(plotnp.data, isizex, isizey, QImage.Format_ARGB32)
     pxmap = QPixmap.fromImage(qimg)
     widget.setPixmap(pxmap)
+    plt.close()
 
 def plot_probas(widget, probas):
     fig = plt.figure(figsize=(2,4))
     plot = fig.add_subplot(1, 1, 1)
-    print "probas:", probas
-    plot.hist(probas, len(probas), histtype='stepfilled', orientation='horizontal')
+    print "plot_probas:", range(10), probas
+    plot.bar(range(10), probas, width=0.5)
     plotnp = matplot2np(fig)
     isizex, isizey = plotnp.shape[0:2]
 
     qimg = QImage(plotnp.data, isizex, isizey, QImage.Format_ARGB32)
     pxmap = QPixmap.fromImage(qimg)
     widget.setPixmap(pxmap)
+    plt.close()
 
 if __name__ == "__main__":
     import argparse
