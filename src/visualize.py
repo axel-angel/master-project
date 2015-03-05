@@ -44,8 +44,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QHBoxLayout()
 
         self.graphicsView_3 = QLabel(self.verticalLayoutWidget)
-
         self.graphicsView_4 = QLabel(self.verticalLayoutWidget)
+        self.graphicsView_5 = QLabel(self.verticalLayoutWidget)
 
         self.verticalLayout_3 = QVBoxLayout()
 
@@ -60,7 +60,8 @@ class Ui_MainWindow(object):
         for s in self.sliders:
             self.verticalLayout_3.addWidget(s)
         self.horizontalLayout.addWidget(self.graphicsView_4)
-        self.verticalLayout_2.addWidget(self.graphicsView_2)
+        #self.verticalLayout_2.addWidget(self.graphicsView_2) # FIXME
+        self.verticalLayout_2.addWidget(self.graphicsView_5)
 
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -69,7 +70,6 @@ class Ui_MainWindow(object):
 
         self.loadImg(fpath)
         self.computeDisplays(self.imgnp)
-        plot_tnse(self.graphicsView_2, pts, labels) # FIXME: slow (once)
 
 
     def computeDisplays(self, imgnp):
@@ -82,7 +82,7 @@ class Ui_MainWindow(object):
 
         # probas display
         print "Forward network"
-        res = net.forward_all(data=np.array([[ imgnp ]]))
+        res = net.forward_all(data=np.array([[ imgnp ]]), blobs=['conv1'])
         probas = res['prob'][0].flatten().tolist()
         print "probas:", probas
         print "Plot probas"
@@ -92,11 +92,17 @@ class Ui_MainWindow(object):
         print "Plot t-SNE"
         #plot_tnse(self.graphicsView_2, pts, labels) # FIXME: slow (once)
 
+        # features display
+        print "Plot conv1 features"
+        fsconv1 = res['conv1'][0]
+        plot_features(self.graphicsView_5, fsconv1)
+
     def addSliders(self):
         self.sliders = []
         self.sfn = {
             'shift_x': lambda i,v: scipy.ndimage.interpolation.shift(i, (v,0)),
             'shift_y': lambda i,v: scipy.ndimage.interpolation.shift(i, (0,v)),
+            'blur': lambda i,v: scipy.ndimage.filters.gaussian_filter(i, v/10),
             'rotation': lambda i,v: scipy.ndimage.interpolation.rotate(i, v*3.6, reshape=False),
         }
         self.svalues = { k:0 for k in self.sfn.keys() }
@@ -168,6 +174,34 @@ def plot_probas(widget, probas):
     plt.xlim(0, 1)
     plt.ylim(0, 10)
     plt.grid(True)
+    plotnp = matplot2np(fig)
+    isizex, isizey = plotnp.shape[0:2]
+
+    qimg = QImage(plotnp.data, isizex, isizey, QImage.Format_ARGB32)
+    pxmap = QPixmap.fromImage(qimg)
+    widget.setPixmap(pxmap)
+    plt.close()
+
+# inspired by http://nbviewer.ipython.org/github/BVLC/caffe/blob/master/examples/filter_visualization.ipynb
+def plot_features(widget, data, padsize=1, padval=0):
+    data -= data.min()
+    data /= data.max() - data.min()
+
+    # force the number of filters to be square
+    n = int(np.ceil(np.sqrt(data.shape[0])))
+    padding = ((0, n ** 2 - data.shape[0]), (0, padsize), (0, padsize)) \
+            + ((0, 0),) * (data.ndim - 3)
+    data = np.pad(data, padding, mode='constant', constant_values=(padval, padval))
+
+    # tile the filters into an image
+    data = data.reshape((n, n) + data.shape[1:]) \
+               .transpose((0, 2, 1, 3) + tuple(range(4, data.ndim + 1)))
+    data = data.reshape((n * data.shape[1], n * data.shape[3]) + data.shape[4:])
+
+    fig = plt.figure(figsize=(6,4))
+    plot = fig.add_subplot(1, 1, 1)
+    plt.axis('off')
+    plot.imshow(data)
     plotnp = matplot2np(fig)
     isizex, isizey = plotnp.shape[0:2]
 
