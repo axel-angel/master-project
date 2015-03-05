@@ -164,8 +164,10 @@ def plot_tnse(widget, pts, labels):
 def plot_probas(widget, probas):
     fig = plt.figure(figsize=(2,4))
     plot = fig.add_subplot(1, 1, 1)
-    print "plot_probas:", range(10), probas
-    plot.bar(range(10), probas, width=0.5)
+    plot.barh(range(10), probas, height=0.5, align='center')
+    plt.xlim(0, 1)
+    plt.ylim(0, 10)
+    plt.grid(True)
     plotnp = matplot2np(fig)
     isizex, isizey = plotnp.shape[0:2]
 
