@@ -10,6 +10,8 @@ import caffe
 import matplotlib.pyplot as plt
 import scipy.ndimage
 import scipy.misc
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 try:
     _encoding = QApplication.UnicodeUTF8
@@ -43,25 +45,26 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout = QHBoxLayout()
 
-        self.graphicsView_3 = QLabel(self.verticalLayoutWidget)
-        self.graphicsView_4 = QLabel(self.verticalLayoutWidget)
-        self.graphicsView_5 = QLabel(self.verticalLayoutWidget)
+        self.inputView = QLabel(self.verticalLayoutWidget)
+
+        self.figure_2 = Figure((6, 4))
+        self.figure_4 = Figure((2, 4))
+        self.figure_5 = Figure((6, 4))
+        self.figureCanvas_2 = FigureCanvas(self.figure_2)
+        self.figureCanvas_4 = FigureCanvas(self.figure_4)
+        self.figureCanvas_5 = FigureCanvas(self.figure_5)
 
         self.verticalLayout_3 = QVBoxLayout()
 
         self.addSliders()
 
-        self.graphicsView_2 = QLabel(self.verticalLayoutWidget)
-
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
-        self.horizontalLayout.addWidget(self.graphicsView_3)
+        self.horizontalLayout.addWidget(self.inputView)
         self.horizontalLayout.addLayout(self.verticalLayout_3)
-        for s in self.sliders:
-            self.verticalLayout_3.addWidget(s)
-        self.horizontalLayout.addWidget(self.graphicsView_4)
-        #self.verticalLayout_2.addWidget(self.graphicsView_2) # FIXME
-        self.verticalLayout_2.addWidget(self.graphicsView_5)
+        self.horizontalLayout.addWidget(self.figureCanvas_4)
+        #self.verticalLayout_2.addWidget(self.figureCanvas_2) # FIXME
+        self.verticalLayout_2.addWidget(self.figureCanvas_5)
 
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -78,7 +81,7 @@ class Ui_MainWindow(object):
         qimg = QImage(imgnp.data, self.isize[0], self.isize[1],
                 QImage.Format_Indexed8)
         pxmap = QPixmap.fromImage(qimg)
-        self.graphicsView_3.setPixmap(pxmap.scaled(QtCore.QSize(28*5,28*5)))
+        self.inputView.setPixmap(pxmap.scaled(QtCore.QSize(28*5,28*5)))
 
         # probas display
         print "Forward network"
@@ -86,16 +89,16 @@ class Ui_MainWindow(object):
         probas = res['prob'][0].flatten().tolist()
         print "probas:", probas
         print "Plot probas"
-        plot_probas(self.graphicsView_4, probas)
+        plot_probas(self.figure_4, self.figureCanvas_4, probas)
 
         # t-SNE display
         print "Plot t-SNE"
-        #plot_tnse(self.graphicsView_2, pts, labels) # FIXME: slow (once)
+        #plot_tnse(self.figure_2, self.figureCanvas_2, pts, labels) # FIXME: slow (once)
 
         # features display
         print "Plot conv1 features"
         fsconv1 = res['conv1'][0]
-        plot_features(self.graphicsView_5, fsconv1)
+        plot_features(self.figure_5, self.figureCanvas_5, fsconv1)
 
     def addSliders(self):
         self.sliders = []
@@ -114,6 +117,7 @@ class Ui_MainWindow(object):
             self.sliders.append(s)
             fn = lambda v,k=k,sfn=sfn: self.onSlider(k, sfn, v - 50)
             QtCore.QObject.connect(s, QtCore.SIGNAL('valueChanged(int)'), fn)
+            self.verticalLayout_3.addWidget(s)
 
     def onSlider(self, k, sfn, value):
         print "slider:", k, sfn, value
@@ -135,55 +139,25 @@ class StartQT4(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-# Source: http://www.icare.univ-lille1.fr/wiki/index.php/How_to_convert_a_matplotlib_figure_to_a_numpy_array_or_a_PIL_image
-def matplot2np(fig):
-    """
-    @brief Convert a Matplotlib figure to a 3D numpy array with RGB channels
-        and return it
-    @param fig a matplotlib figure
-    @return a numpy 3D array of RGB values
-    """
-    # draw the renderer
-    fig.canvas.draw()
-
-    # Get the RGB buffer from the figure
-    w,h = fig.canvas.get_width_height()
-    buf = np.fromstring(fig.canvas.tostring_argb(), dtype=np.uint8)
-    buf.shape = (w, h, 4)
-
-    return buf
-
-def plot_tnse(widget, pts, labels):
+def plot_tnse(fig, canvas, pts, labels):
     colors = labels
-    fig = plt.figure(figsize=(6,4))
+    fig.clf()
     plot = fig.add_subplot(1, 1, 1)
     plot.scatter(pts[:,0], pts[:,1], s=25, c=colors, cmap='bwr')
     plot.axis('off')
-    plotnp = matplot2np(fig)
-    isizex, isizey = plotnp.shape[0:2]
+    canvas.draw()
 
-    qimg = QImage(plotnp.data, isizex, isizey, QImage.Format_ARGB32)
-    pxmap = QPixmap.fromImage(qimg)
-    widget.setPixmap(pxmap)
-    plt.close()
-
-def plot_probas(widget, probas):
-    fig = plt.figure(figsize=(2,4))
+def plot_probas(fig, canvas, probas):
+    fig.clf()
     plot = fig.add_subplot(1, 1, 1)
     plot.barh(range(10), probas, height=0.5, align='center')
-    plt.xlim(0, 1)
-    plt.ylim(0, 10)
-    plt.grid(True)
-    plotnp = matplot2np(fig)
-    isizex, isizey = plotnp.shape[0:2]
-
-    qimg = QImage(plotnp.data, isizex, isizey, QImage.Format_ARGB32)
-    pxmap = QPixmap.fromImage(qimg)
-    widget.setPixmap(pxmap)
-    plt.close()
+    plot.set_xlim(0, 1)
+    plot.set_ylim(0, 10)
+    plot.grid(True)
+    canvas.draw()
 
 # inspired by http://nbviewer.ipython.org/github/BVLC/caffe/blob/master/examples/filter_visualization.ipynb
-def plot_features(widget, data, padsize=1, padval=0):
+def plot_features(fig, canvas, data, padsize=1, padval=0):
     data -= data.min()
     data /= data.max() - data.min()
 
@@ -198,17 +172,11 @@ def plot_features(widget, data, padsize=1, padval=0):
                .transpose((0, 2, 1, 3) + tuple(range(4, data.ndim + 1)))
     data = data.reshape((n * data.shape[1], n * data.shape[3]) + data.shape[4:])
 
-    fig = plt.figure(figsize=(6,4))
+    fig.clf()
     plot = fig.add_subplot(1, 1, 1)
-    plt.axis('off')
-    plot.imshow(data)
-    plotnp = matplot2np(fig)
-    isizex, isizey = plotnp.shape[0:2]
-
-    qimg = QImage(plotnp.data, isizex, isizey, QImage.Format_ARGB32)
-    pxmap = QPixmap.fromImage(qimg)
-    widget.setPixmap(pxmap)
-    plt.close()
+    plot.axis('off')
+    plot.imshow(data, cmap='gray')
+    canvas.draw()
 
 if __name__ == "__main__":
     import argparse
