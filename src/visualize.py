@@ -99,12 +99,12 @@ class Ui_MainWindow(object):
         print "Fit t-SNE"
         Y = tsne.fit_transform(pca.transform(X))
         labels2 = np.concatenate((labels, [ 11 ]))
-        plot_tnse(self.figure_2, self.figureCanvas_2, Y, labels2)
+        self.plot_tnse(Y, labels2)
 
     def computeDisplays(self, imgnp):
         # input display
         print "Plot input"
-        plot_input(self.figure_0, self.figureCanvas_0, imgnp)
+        self.plot_input(imgnp)
 
         # probas display
         print "Forward network"
@@ -112,16 +112,16 @@ class Ui_MainWindow(object):
         probas = res['prob'][0].flatten().tolist()
         print "probas:", probas
         print "Plot probas"
-        plot_probas(self.figure_4, self.figureCanvas_4, probas)
+        self.plot_probas(probas)
 
         # t-SNE display
         print "Plot t-SNE"
-        plot_tnse(self.figure_2, self.figureCanvas_2, pts, labels) # FIXME: slow (once)
+        self.plot_tnse(pts, labels) # FIXME: slow (once)
 
         # features display
         print "Plot conv1 features"
         fsconv1 = res['conv1'][0]
-        plot_features(self.figure_5, self.figureCanvas_5, fsconv1)
+        self.plot_features(fsconv1)
 
     def addSliders(self):
         self.sliders = []
@@ -158,57 +158,72 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
 
+    def plot_input(self, data):
+        fig = self.figure_0
+        canvas = self.figureCanvas_0
+
+        fig.clf()
+        plot = fig.add_subplot(1, 1, 1)
+        plot.axis('off')
+        plot.imshow(data, cmap='gray', interpolation='nearest',
+                vmin=0, vmax=255)
+        canvas.draw()
+
+    def plot_tnse(self, pts, labels):
+        fig = self.figure_2
+        canvas = self.figureCanvas_2
+
+        colors = labels
+        fig.clf()
+        plot = fig.add_subplot(1, 1, 1)
+        plot.scatter(pts[:,0], pts[:,1], s=25, c=colors, cmap='bwr')
+        plot.axis('off')
+        canvas.draw()
+
+    def plot_probas(self, probas):
+        fig = self.figure_4
+        canvas = self.figureCanvas_4
+
+        fig.clf()
+        plot = fig.add_subplot(1, 1, 1)
+        plot.barh(range(10), probas, height=0.5, align='center')
+        plot.set_xlim(0, 1)
+        plot.set_ylim(0, 10)
+        plot.grid(True)
+        canvas.draw()
+
+    # inspired by http://nbviewer.ipython.org/github/BVLC/caffe/blob/master/examples/filter_visualization.ipynb
+    def plot_features(self, data, padsize=1, padval=0):
+        fig = self.figure_5
+        canvas = self.figureCanvas_5
+
+        data -= data.min()
+        data /= data.max() - data.min()
+
+        # force the number of filters to be square
+        n = int(np.ceil(np.sqrt(data.shape[0])))
+        padding = ((0, n ** 2 - data.shape[0]), (0, padsize), (0, padsize)) \
+                + ((0, 0),) * (data.ndim - 3)
+        data = np.pad(data, padding, mode='constant',
+                constant_values=(padval, padval))
+
+        # tile the filters into an image
+        data = data.reshape((n, n) + data.shape[1:]) \
+                   .transpose((0, 2, 1, 3) + tuple(range(4, data.ndim + 1)))
+        data = data.reshape((n * data.shape[1], n * data.shape[3]) + data.shape[4:])
+
+        fig.clf()
+        plot = fig.add_subplot(1, 1, 1)
+        plot.axis('off')
+        plot.imshow(data, cmap='gray', interpolation='nearest', vmin=0, vmax=1)
+        canvas.draw()
+
+
 class StartQT4(QMainWindow):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
-def plot_input(fig, canvas, data):
-    fig.clf()
-    plot = fig.add_subplot(1, 1, 1)
-    plot.axis('off')
-    plot.imshow(data, cmap='gray', interpolation='nearest', vmin=0, vmax=255)
-    canvas.draw()
-
-def plot_tnse(fig, canvas, pts, labels):
-    colors = labels
-    fig.clf()
-    plot = fig.add_subplot(1, 1, 1)
-    plot.scatter(pts[:,0], pts[:,1], s=25, c=colors, cmap='bwr')
-    plot.axis('off')
-    canvas.draw()
-
-def plot_probas(fig, canvas, probas):
-    fig.clf()
-    plot = fig.add_subplot(1, 1, 1)
-    plot.barh(range(10), probas, height=0.5, align='center')
-    plot.set_xlim(0, 1)
-    plot.set_ylim(0, 10)
-    plot.grid(True)
-    canvas.draw()
-
-# inspired by http://nbviewer.ipython.org/github/BVLC/caffe/blob/master/examples/filter_visualization.ipynb
-def plot_features(fig, canvas, data, padsize=1, padval=0):
-    data -= data.min()
-    data /= data.max() - data.min()
-
-    # force the number of filters to be square
-    n = int(np.ceil(np.sqrt(data.shape[0])))
-    padding = ((0, n ** 2 - data.shape[0]), (0, padsize), (0, padsize)) \
-            + ((0, 0),) * (data.ndim - 3)
-    data = np.pad(data, padding, mode='constant', constant_values=(padval, padval))
-
-    # tile the filters into an image
-    data = data.reshape((n, n) + data.shape[1:]) \
-               .transpose((0, 2, 1, 3) + tuple(range(4, data.ndim + 1)))
-    data = data.reshape((n * data.shape[1], n * data.shape[3]) + data.shape[4:])
-
-    fig.clf()
-    plot = fig.add_subplot(1, 1, 1)
-    plot.axis('off')
-    plot.imshow(data, cmap='gray', interpolation='nearest', vmin=0, vmax=1)
-    canvas.draw()
 
 if __name__ == "__main__":
     import argparse
