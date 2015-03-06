@@ -44,11 +44,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout = QHBoxLayout()
 
-        self.inputView = QLabel(self.verticalLayoutWidget)
-
+        self.figure_0 = Figure((2, 2))
         self.figure_2 = Figure((6, 4))
         self.figure_4 = Figure((2, 4))
         self.figure_5 = Figure((6, 4))
+        self.figureCanvas_0 = FigureCanvas(self.figure_0)
         self.figureCanvas_2 = FigureCanvas(self.figure_2)
         self.figureCanvas_4 = FigureCanvas(self.figure_4)
         self.figureCanvas_5 = FigureCanvas(self.figure_5)
@@ -59,7 +59,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
-        self.horizontalLayout.addWidget(self.inputView)
+        self.horizontalLayout.addWidget(self.figureCanvas_0)
         self.horizontalLayout.addLayout(self.verticalLayout_3)
         self.horizontalLayout.addWidget(self.figureCanvas_4)
         #self.verticalLayout_2.addWidget(self.figureCanvas_2) # FIXME
@@ -77,10 +77,7 @@ class Ui_MainWindow(object):
     def computeDisplays(self, imgnp):
         # input display
         print "Plot input"
-        qimg = QImage(imgnp.data, imgnp.shape[0], imgnp.shape[1],
-                QImage.Format_Indexed8)
-        pxmap = QPixmap.fromImage(qimg)
-        self.inputView.setPixmap(pxmap.scaled(QtCore.QSize(28*5,28*5)))
+        plot_input(self.figure_0, self.figureCanvas_0, imgnp)
 
         # probas display
         print "Forward network"
@@ -138,6 +135,13 @@ class StartQT4(QMainWindow):
         QWidget.__init__(self, parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+def plot_input(fig, canvas, data):
+    fig.clf()
+    plot = fig.add_subplot(1, 1, 1)
+    plot.axis('off')
+    plot.imshow(data, cmap='gray', interpolation='nearest', vmin=0, vmax=255)
+    canvas.draw()
 
 def plot_tnse(fig, canvas, pts, labels):
     colors = labels
