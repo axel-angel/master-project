@@ -179,7 +179,7 @@ def plot_features(fig, canvas, data, padsize=1, padval=0):
     fig.clf()
     plot = fig.add_subplot(1, 1, 1)
     plot.axis('off')
-    plot.imshow(data, cmap='gray')
+    plot.imshow(data, cmap='gray', interpolation='nearest', vmin=0, vmax=1)
     canvas.draw()
 
 if __name__ == "__main__":
