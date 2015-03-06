@@ -1,0 +1,47 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[utf8x]{inputenc}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{a4wide}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{lastpage}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+
+\lhead{Axel Angel}
+\rhead{Properties of Convolutional Neural Networks}
+\chead{Report}
+\rfoot{Page \thepage\ of \pageref{LastPage}}
+\lfoot{\today}
+
+\pdfinfo{
+    /Author (Authors)
+    /Title (Title)
+    /Subject (Subject)
+    }
+
+\begin{document}
+Write about results, raw sketch to complete.
+
+why chose caffe? because easy, various models available, optimized and flexible.
+
+papers use pca before t-sne, sklearn recommends too, in practice it works well.
+
+some papers found that cnn models are easily fooled by adversial noise, because too linear? because image space too wide?
+
+some papers can train using adversial examples. mnist dataset is not resistant to many generations of adversial training. imagenet works better (because natural images?)
+
+we need a way to formalize invariance, resitance to adversial noise, deformations. present results and compare models, attacks and present numbers.
+
+lenet on mnist can be easily fooled by translations, because dataset is heavily normalized, translation-invariance is weak. small rotations works well but can fool easily. seems invariant to contrast (invariant filters?).
+\end{document}
