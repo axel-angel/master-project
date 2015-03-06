@@ -63,13 +63,18 @@ class Ui_MainWindow(object):
 
         self.addSliders()
 
+        tnse_button = QPushButton("Update t-SNE")
+        QtCore.QObject.connect(tnse_button, QtCore.SIGNAL('clicked()'),
+                self.update_tnse)
+
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
         self.horizontalLayout.addWidget(self.figureCanvas_0)
         self.horizontalLayout.addLayout(self.verticalLayout_3)
         self.horizontalLayout.addWidget(self.figureCanvas_4)
-        #self.verticalLayout_2.addWidget(self.figureCanvas_2) # FIXME
         self.verticalLayout_2.addWidget(self.figureCanvas_5)
+        self.verticalLayout_2.addWidget(tnse_button)
+        self.verticalLayout_2.addWidget(self.figureCanvas_2) # FIXME
 
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -79,6 +84,22 @@ class Ui_MainWindow(object):
         self.loadImg(fpath)
         self.computeDisplays(self.imgnp)
 
+
+    def update_tnse(self):
+        print "Updating t-SNE"
+
+        layer = 'ip1'
+        res = net.forward_all(data=np.array([[ self.imgnp ]]), blobs=[layer])
+        iblob = res[layer][0].reshape(-1)
+        print iblob.shape
+        print ip1.shape
+
+        X = np.concatenate((ip1, [ iblob ])).astype(np.float64)
+
+        print "Fit t-SNE"
+        Y = tsne.fit_transform(pca.transform(X))
+        labels2 = np.concatenate((labels, [ 11 ]))
+        plot_tnse(self.figure_2, self.figureCanvas_2, Y, labels2)
 
     def computeDisplays(self, imgnp):
         # input display
@@ -95,7 +116,7 @@ class Ui_MainWindow(object):
 
         # t-SNE display
         print "Plot t-SNE"
-        #plot_tnse(self.figure_2, self.figureCanvas_2, pts, labels) # FIXME: slow (once)
+        plot_tnse(self.figure_2, self.figureCanvas_2, pts, labels) # FIXME: slow (once)
 
         # features display
         print "Plot conv1 features"
@@ -193,12 +214,15 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--image', type=str, required=True)
+    parser.add_argument('--ip1-npz', type=str, required=True)
     parser.add_argument('--tsne-npz', type=str, required=True)
     parser.add_argument('--proto', type=str, required=True)
     parser.add_argument('--model', type=str, required=True)
     args = parser.parse_args()
 
     fpath = args.image
+
+    ip1 = np.load(args.ip1_npz)['blobs']
 
     X = np.load(args.tsne_npz)
     tsne = X['tsne'].flat.next()
