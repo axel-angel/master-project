@@ -32,6 +32,12 @@ class Ui_MainWindow(object):
         self.fpath = fpath
         self.imgnp = imgnp
 
+        # compute t-SNE of original image
+        #res = net.forward_all(data=np.array([[ imgnp ]]), blobs=['ip1'])
+        #fsip1 = res['ip1'][0]
+        #self.orig_tsne = tsne.transform(pca.transform(fsip1))
+        #print "orig_tsne:", self.orig_tsne
+
     def setupUi(self, MainWindow):
         MainWindow.resize(800, 600)
 
@@ -103,6 +109,7 @@ class Ui_MainWindow(object):
             'shift_y': lambda i,v: scipy.ndimage.interpolation.shift(i, (0,v*28)),
             'blur': lambda i,v: scipy.ndimage.filters.gaussian_filter(i, v*10),
             'rotation': lambda i,v: scipy.ndimage.interpolation.rotate(i, v*180., reshape=False),
+            'scale': lambda i,v: np.clip(i * (1+v), 0, 255),
         }
         self.svalues = { k:0 for k in self.sfn.keys() }
 
@@ -194,8 +201,8 @@ if __name__ == "__main__":
     fpath = args.image
 
     X = np.load(args.tsne_npz)
-    tsne = X['tsne']
-    pca = X['pca']
+    tsne = X['tsne'].flat.next()
+    pca = X['pca'].flat.next()
     pts = X['pts']
     labels = X['labels']
 
