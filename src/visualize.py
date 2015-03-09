@@ -63,9 +63,9 @@ class Ui_MainWindow(object):
 
         self.addSliders()
 
-        tnse_button = QPushButton("Update t-SNE")
-        QtCore.QObject.connect(tnse_button, QtCore.SIGNAL('clicked()'),
-                self.update_tnse)
+        tsne_button = QPushButton("Update t-SNE")
+        QtCore.QObject.connect(tsne_button, QtCore.SIGNAL('clicked()'),
+                self.update_tsne)
 
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
@@ -73,7 +73,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addLayout(self.verticalLayout_3)
         self.horizontalLayout.addWidget(self.figureCanvas_4)
         self.verticalLayout_2.addWidget(self.figureCanvas_5)
-        self.verticalLayout_2.addWidget(tnse_button)
+        self.verticalLayout_2.addWidget(tsne_button)
         self.verticalLayout_2.addWidget(self.figureCanvas_2) # FIXME
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -85,7 +85,7 @@ class Ui_MainWindow(object):
         self.computeDisplays(self.imgnp)
 
 
-    def update_tnse(self):
+    def update_tsne(self):
         print "Updating t-SNE"
 
         layer = 'ip1'
@@ -116,7 +116,7 @@ class Ui_MainWindow(object):
 
         # t-SNE display
         print "Plot t-SNE"
-        self.plot_tnse(pts, labels) # FIXME: slow (once)
+        self.plot_tsne(pts, labels) # FIXME: slow (once)
 
         # features display
         print "Plot conv1 features"
@@ -169,7 +169,7 @@ class Ui_MainWindow(object):
                 vmin=0, vmax=255)
         canvas.draw()
 
-    def plot_tnse(self, pts, labels):
+    def plot_tsne(self, pts, labels):
         fig = self.figure_2
         canvas = self.figureCanvas_2
 
