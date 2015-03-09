@@ -28,11 +28,14 @@ print "Loaded images, shape %s" % (str(datas.shape))
 print "Forward pass data"
 dim = 500
 layer = 'ip1'
+# TODO: rewrite this with a single forward (with layer=[…])
 blobs = np.array([ [0.] * dim for i in range(len(datas)) ])
 for i, image in enumerate(datas):
     net.forward_all(data=np.array([[ image ]]))
     b = net.blobs[layer].data[0].reshape((dim,))
     blobs[i] = b.astype(np.float64)
+
+# TODO: save output in a file for later reusability
 
 print "Computing PCA"
 pca = PCA(n_components=50)
