@@ -14,6 +14,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from sklearn.manifold.t_sne import _gradient_descent as tsne_gd, _joint_probabilities as tsne_joint_probabilities, _kl_divergence as tsne_kl_divergence
 from sklearn.metrics.pairwise import pairwise_distances
+import utils
 
 try:
     _encoding = QApplication.UnicodeUTF8
@@ -144,11 +145,11 @@ class Ui_MainWindow(object):
     def addSliders(self):
         self.sliders = []
         self.sfn = {
-            'shift_x': lambda i,v: scipy.ndimage.interpolation.shift(i, (v*28,0)),
-            'shift_y': lambda i,v: scipy.ndimage.interpolation.shift(i, (0,v*28)),
-            'blur': lambda i,v: scipy.ndimage.filters.gaussian_filter(i, v*10),
-            'rotation': lambda i,v: scipy.ndimage.interpolation.rotate(i, v*180., reshape=False),
-            'scale': lambda i,v: np.clip(i * (1+v), 0, 255),
+            'shift_x': lambda i,v: utils.img_shift_x(i, v*28),
+            'shift_y': lambda i,v: utils.img_shift_y(i, v*28),
+            'blur': lambda i,v: utils.img_blur(i, v*10),
+            'rotation': lambda i,v: utils.img_rotate(i, v*180.),
+            'scale': lambda i,v: utils.img_scale(i, 1+v),
         }
         self.svalues = { k:0 for k in self.sfn.keys() }
 
