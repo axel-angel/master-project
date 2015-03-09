@@ -35,12 +35,6 @@ class Ui_MainWindow(object):
         self.fpath = fpath
         self.imgnp = imgnp
 
-        # compute t-SNE of original image
-        #res = net.forward_all(data=np.array([[ imgnp ]]), blobs=['ip1'])
-        #fsip1 = res['ip1'][0]
-        #self.orig_tsne = tsne.transform(pca.transform(fsip1))
-        #print "orig_tsne:", self.orig_tsne
-
     def setupUi(self, MainWindow):
         MainWindow.resize(800, 600)
 
@@ -100,6 +94,7 @@ class Ui_MainWindow(object):
         print "Fit t-SNE"
         alpha = tsne.n_components - 1.0
         n_samples = X.shape[0]
+        # TODO: where is applied the PCA, fix it
         params = np.concatenate((tsne.embedding_,
             1e-4 * np.random.random((1, tsne.n_components))))
         print "[t-SNE light] Compute pairwise distances"
