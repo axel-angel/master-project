@@ -12,6 +12,8 @@ import scipy.ndimage
 import scipy.misc
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from sklearn.manifold.t_sne import _gradient_descent as tsne_gd, _joint_probabilities as tsne_joint_probabilities, _kl_divergence as tsne_kl_divergence
+from sklearn.metrics.pairwise import pairwise_distances
 
 try:
     _encoding = QApplication.UnicodeUTF8
@@ -91,15 +93,31 @@ class Ui_MainWindow(object):
         layer = 'ip1'
         res = net.forward_all(data=np.array([[ self.imgnp ]]), blobs=[layer])
         iblob = res[layer][0].reshape(-1)
-        print iblob.shape
-        print ip1.shape
 
         X = np.concatenate((ip1, [ iblob ])).astype(np.float64)
 
         print "Fit t-SNE"
-        Y = tsne.fit_transform(pca.transform(X))
-        labels2 = np.concatenate((labels, [ 11 ]))
-        self.plot_tnse(Y, labels2)
+        alpha = tsne.n_components - 1.0
+        n_samples = X.shape[0]
+        params = np.concatenate((tsne.embedding_,
+            1e-4 * np.random.random((1, tsne.n_components))))
+        print "[t-SNE light] Compute pairwise distances"
+        distances = pairwise_distances(X, metric=tsne.metric, squared=True)
+        tsne.training_data_ = X
+        print "[t-SNE light] Compute joint probabilities"
+        P = tsne_joint_probabilities(distances, tsne.perplexity, True)
+        print "[t-SNE light] Optimizing"
+        params, error, it = tsne_gd(
+            tsne_kl_divergence, params, it=tsne.n_iter, n_iter=tsne.n_iter+5,
+            momentum=0.8, learning_rate=tsne.learning_rate,
+            verbose=True, args=[P, alpha, n_samples,
+                                        tsne.n_components])
+        print("[t-SNE light] Error after %d iterations: %f" % (it + 1, error))
+        #tsne.embedding_ = params.reshape(n_samples, tsne.n_components)
+        embedding = params.reshape(n_samples, tsne.n_components)
+
+        labels2 = np.concatenate((labels*0, [ 11 ])) # FIXME
+        self.plot_tsne(embedding, labels2)
 
     def computeDisplays(self, imgnp):
         # input display
