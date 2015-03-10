@@ -27,9 +27,15 @@ if __name__ == "__main__":
     print "Filtering data"
     Y = np.array([pts, labels, infos]).T
     if args.transfo:
-        Y2 = np.array(filter(lambda x: x[1] == tr_map[args.transfo], Y))
+        Y2 = filter(lambda x: x[1] == tr_map[args.transfo], Y)
     else:
-        Y2 = np.array(filter(lambda x: x[2] != "dataset", Y))
+        Y2 = filter(lambda x: x[2] != "dataset", Y)
+
+    ds_annotates = set()
+    for [pt, label, info] in Y:
+        if info == "dataset" and label not in ds_annotates:
+            Y2.append([pt, label, "dataset %i" % (label)])
+            ds_annotates.add(label)
 
     print "Make plot"
     plt.figure(figsize=(30, 30))
