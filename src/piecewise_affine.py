@@ -21,7 +21,7 @@ if __name__ == '__main__':
         print "image: %i/%i" % (j, len(imgs))
         for axis in [0,1]:
             x = []
-            for v in xrange(-6, 7, 2):
+            for v in xrange(-6, 7, 1):
                 print "\ttransfo: axis=%i v=%i" % (axis, v)
                 x.append(transfo(i, v, axis=axis))
             X.append(x)
