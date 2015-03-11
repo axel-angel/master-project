@@ -10,10 +10,12 @@ import matplotlib.pyplot as plt
 
 layer = 'ip1'
 transformations = {
-    "shift_x": { "f": utils.img_shift_x, "steps": range(-15, 16, 3), },
-    "shift_y": { "f": utils.img_shift_y, "steps": range(-15, 16, 3), },
+    "shift_x": { "f": utils.img_shift_x, "steps": range(-15, 16, 2), },
+    "shift_y": { "f": utils.img_shift_y, "steps": range(-25, 26, 2), },
     "blur": { "f": utils.img_blur, "steps": range(0, 4, 1) },
-    "rotate": { "f": utils.img_rotate, "steps": range(-45, 46, 10) },
+    "rotate": { "f": utils.img_rotate, "steps": range(-60, 61, 2) },
+    "sindisp_x": { "f": utils.img_sindisp_x, "steps": range(-6, 7, 1) },
+    "sindisp_y": { "f": utils.img_sindisp_y, "steps": range(-6, 7, 1) },
 }
 
 if __name__ == "__main__":
@@ -28,7 +30,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print "Load data"
-    img_orig = scipy.ndimage.imread(args.image, flatten=True)
+    img_orig = scipy.ndimage.imread(args.image, flatten=True).astype(np.uint8)
     ip1_npz = np.load(args.ip1_npz)
     blobs = ip1_npz['blobs']
     labels = ip1_npz['labels']
