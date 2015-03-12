@@ -44,4 +44,8 @@ some papers can train using adversial examples. mnist dataset is not resistant t
 we need a way to formalize invariance, resitance to adversial noise, deformations. present results and compare models, attacks and present numbers.
 
 lenet on mnist can be easily fooled by translations, because dataset is heavily normalized, translation-invariance is weak. small rotations works well but can fool easily. seems invariant to contrast (invariant filters?).
+
+interactive tool findings? discontinuities in the output, we can fool it with certain angles. we see the receptive field by shifting, after some margin it goes non-sense
+
+transfo tracer findings? how to plot better? we find pattern in the t-SNE. Lines for positive angles, a curve for negative angles, does it mean anything since its t-SNE? invariant transformations? blur has small impact, why? shift is important after a certain threshold (margin? recetivity field size?), why? can we relate this to the CNN-code: easy, hard?
 \end{document}
