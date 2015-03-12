@@ -1,0 +1,1 @@
+libopenblas-dev libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libboost-all-dev libhdf5-serial-dev libgflags-dev libgoogle-glog-dev liblmdb-dev protobuf-compiler cython python-scikits-learn python-leveldb python-networkx python-protobuf python-pandas python-gflags python-yaml python-skimage
