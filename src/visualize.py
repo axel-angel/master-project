@@ -70,8 +70,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addLayout(self.verticalLayout_3)
         self.horizontalLayout.addWidget(self.figureCanvas_4)
         self.verticalLayout_2.addWidget(self.figureCanvas_5)
-        self.verticalLayout_2.addWidget(tsne_button)
-        self.verticalLayout_2.addWidget(self.figureCanvas_2) # FIXME
+        #self.verticalLayout_2.addWidget(tsne_button)
+        #self.verticalLayout_2.addWidget(self.figureCanvas_2) # FIXME
 
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -112,8 +112,8 @@ class Ui_MainWindow(object):
         #tsne.embedding_ = params.reshape(n_samples, tsne.n_components)
         embedding = params.reshape(n_samples, tsne.n_components)
 
-        labels2 = np.concatenate((labels*0, [ 11 ])) # FIXME
-        self.plot_tsne(embedding, labels2)
+        #labels2 = np.concatenate((labels*0, [ 11 ])) # FIXME
+        #self.plot_tsne(embedding, labels2)
 
     def computeDisplays(self, imgnp):
         # input display
@@ -130,7 +130,7 @@ class Ui_MainWindow(object):
 
         # t-SNE display
         print "Plot t-SNE"
-        self.plot_tsne(pts, labels) # FIXME: slow (once)
+        #self.plot_tsne(pts, labels) # FIXME: slow (once)
 
         # features display
         print "Plot conv1 features"
