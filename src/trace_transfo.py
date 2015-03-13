@@ -4,18 +4,19 @@
 import caffe
 import numpy as np
 import scipy.ndimage
-import utils
+from utils import *
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 
 layer = 'ip1'
 transformations = {
-    "shift_x": { "f": utils.img_shift_x, "steps": range(-15, 16, 2), },
-    "shift_y": { "f": utils.img_shift_y, "steps": range(-25, 26, 2), },
-    "blur": { "f": utils.img_blur, "steps": range(0, 4, 1) },
-    "rotate": { "f": utils.img_rotate, "steps": range(-60, 61, 2) },
-    "sindisp_x": { "f": utils.img_sindisp_x, "steps": range(-6, 7, 1) },
-    "sindisp_y": { "f": utils.img_sindisp_y, "steps": range(-6, 7, 1) },
+    "identity": { "f": lambda i,v: i, "steps": [0], },
+    "shift_x": { "f": img_shift_x, "steps": rangesym(1, 15, 2) },
+    "shift_y": { "f": img_shift_y, "steps": rangesym(1, 25, 2) },
+    "blur": { "f": img_blur, "steps": range(1, 5, 1) },
+    "rotate": { "f": img_rotate, "steps": rangesym(1, 93, 2) },
+    "sindisp_x": { "f": img_sindisp_x, "steps": rangesym(1, 6, 1) },
+    "sindisp_y": { "f": img_sindisp_y, "steps": rangesym(1, 6, 1) },
 }
 
 if __name__ == "__main__":
@@ -44,9 +45,6 @@ if __name__ == "__main__":
     caffe.set_mode_cpu()
 
     tr_map = { k:label_max+1+i for i, k in enumerate(transformations.keys()) }
-    imgs_tr = [ img_orig ]
-    labels = np.append(labels,  [ 0 ])
-    infos = np.append(infos, "input")
 
     print "Compute transformations"
     for k, t in transformations.iteritems():

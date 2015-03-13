@@ -7,6 +7,9 @@ from scipy.ndimage.filters import gaussian_filter
 import scipy.misc
 from skimage.transform import PiecewiseAffineTransform, warp
 
+def rangesym(x1, x2, dt):
+    return range(-x2, -(x1-1), dt) + range(x1, x2+1, dt)
+
 def img_shift_x(i, v):
     return shift(i, (v,0))
 def img_shift_y(i, v):
