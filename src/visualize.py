@@ -145,6 +145,8 @@ class Ui_MainWindow(object):
             'blur': lambda i,v: utils.img_blur(i, v*10),
             'rotation': lambda i,v: utils.img_rotate(i, v*180.),
             'scale': lambda i,v: utils.img_scale(i, 1+v),
+            'sindisp_x': lambda i,v: utils.img_sindisp_x(i, v*10),
+            'sindisp_y': lambda i,v: utils.img_sindisp_y(i, v*10),
         }
         self.svalues = { k:0 for k in self.sfn.keys() }
 
