@@ -1,8 +1,5 @@
 * choose what I'd like to do
 * find papers of "intriguing papers" that retrain on adversial
-* visualize output against input distortions (interactive programs?)
-
-
 * read papers
 * read papers from email
 * see video for intuition Are Deep Networks a Solution to Curse of Dimensionality
@@ -29,3 +26,11 @@
 papers said "further study needed" for:
 * intriguing props of NN: For MNIST, we do not have results for convolutional models yet, but […] may behave similarly as well.
 * towards deep NN arch robust to adversial examples: Evaluate the performance loss due to layer-wise penalties […]. In addition, exploring non-Euclidean adversarial examples […] could lead to insights into semantic attributes of features learned at high levels of representation.
+
+* merge t-SNE, all transformations of all my numbers together, then hide on plots the one I'm not interested
+* try to train dataset but adding translations (test if it learns of translation anviarance)
+* try for all classes to apply distortions to one test image that is close to the the cluster of pos/neg rotated input (see what happpens, join/straight line/apart)
+* take a look at samples close to our transformed points (esp extreme of rotation), try to plot images instead of points (only for them?), try to make it clear
+* use a point from the testset instead of a handmade one (mine is outliners, is that normal? part of t-SNE or because I made them, still on boundary)
+* make video of plots with visualisation of closest points (1 frame = 1 transfo, in this order of increasing)
+* later on: try to combine two/or more transformations at the same time, see if it's a grid (row=1st transf, cols=2nd transfo) in t-SNE space, separate plots, by pairs
