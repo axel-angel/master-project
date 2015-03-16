@@ -39,9 +39,11 @@ if __name__ == "__main__":
             ds_annotates.add(label)
 
     print "Make plot"
-    colors = [ i['l'] if i['l'] >= 0 else tr_map[i['tr']] for y in Y2 ]
+    colors = np.array([ i['l'] if i['l'] >= 0 else tr_map[i['tr']]
+                      for [pt, i] in Y ]).astype(np.uint8)
     plt.figure(figsize=(30, 30))
-    plt.scatter(pts[:,0], pts[:,1], s=5, cmap='bwr', c=colors, edgecolors='none')
+    plt.scatter(pts[:,0], pts[:,1], s=5, cmap='bwr', c=colors,
+            edgecolors='none')
     bbox = dict(boxstyle = 'round,pad=0.5', fc = 'yellow', alpha = 0.5)
     arrowprops = dict(arrowstyle = '-', connectionstyle = 'arc3,rad=0', linewidth=0.2)
     for i, [pt, info] in enumerate(Y2):
