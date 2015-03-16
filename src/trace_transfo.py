@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument('--model', type=str, required=True)
     parser.add_argument('--image', type=str, nargs='+')
     parser.add_argument('--ip1-npz', type=str, required=True)
-    parser.add_argument('--tsne-npz', type=str, required=True)
+    parser.add_argument('--pca-npz', type=str, required=True)
     parser.add_argument('--out-npz', type=str, required=True)
     args = parser.parse_args()
 
@@ -36,28 +36,25 @@ if __name__ == "__main__":
     ip1_npz = np.load(args.ip1_npz)
     blobs = ip1_npz['blobs']
     labels = ip1_npz['labels']
-    label_max = labels.max()
-    infos = np.array([ dict(input="dataset %i" % (l), tr="identity", v=0)
+    infos = np.array([ dict(src="dataset", l=l, tr="identity", v=0)
                      for l in labels ])
 
-    tsne_npz = np.load(args.tsne_npz)
-    pca = tsne_npz['pca'].flat.next()
+    pca_npz = np.load(args.pca_npz)
+    pca = pca_npz['pca'].flat.next()
 
     net = caffe.Net(args.proto, args.model, caffe.TEST)
     caffe.set_mode_cpu()
-
-    tr_map = { k:label_max+1+i for i, k in enumerate(transformations.keys()) }
 
     print "Compute transformations"
     imgs_tr = []
     for i, img in enumerate(imgs_orig):
         print "  input image:", args.image[i]
         for k, t in transformations.iteritems():
-            print "    transform:", k, tr_map[k]
+            print "    transform:", k
             for s in t['steps']:
                 imgs_tr.append(t['f'](img, s))
-                labels = np.append(labels, tr_map[k])
-                infos = np.append(infos, dict(input=args.image[i], tr=k, v=s))
+                fname = "".join(args.image[i].split('/')[-1].split('.')[:-1])
+                infos = np.append(infos, dict(src=fname, l=-1, tr=k, v=s))
 
     print "Transform forward output"
     imgs_tr_np = np.array(imgs_tr).reshape(-1, 1, 28, 28)
@@ -72,4 +69,4 @@ if __name__ == "__main__":
 
     print "Dump into npz"
     np.savez(args.out_npz, imgs_tr_np=imgs_tr_np, tsne=tsne, pts=pts2,
-            labels=labels, infos=infos, tr_map=tr_map)
+            infos=infos)
