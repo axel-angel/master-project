@@ -7,6 +7,8 @@ import lmdb
 import argparse
 import utils
 from random import randint
+from joblib import Parallel, delayed
+import multiprocessing
 
 def parse_transfo(s):
     try:
@@ -36,21 +38,31 @@ if __name__ == "__main__":
     trs_len = len(trs)
     print "Transformations: %s" % ("\n\t".join(map(repr, trs)))
 
+    print "Generate images"
+    def process(i, x, l):
+        trf = [ (t['f'], v) for t in trs for v in t['steps'] ]
+        xs2 = []
+        for j, (f, v) in enumerate(trf):
+            x2 = f(x, v).reshape((1,) + x.shape)
+            xs2.append((l, x2))
+
+        if i%100 == 0:
+            sys.stdout.write("Progress %4.1f%% (%i/%i)\r" \
+                    % (100.*i/count, i, count))
+            sys.stdout.flush()
+
+        return xs2
+
+    num_cores = multiprocessing.cpu_count()
+    res = Parallel(n_jobs=num_cores)(delayed(process)(i, x, l) for i, (x, l) in enumerate(np.array([ xs, ls ]).T) )
+    print ""
+
     print "Write LMDB"
     lmdb_env = lmdb.open(args.out_lmdb, map_size=1e12)
     with lmdb_env.begin(write=True) as lmdb_txn:
-        for i, (x, l) in enumerate(np.array([ xs, ls ]).T):
-            trf = [ (t['f'], v) for t in trs for v in t['steps'] ]
-            for j, (f, v) in enumerate(trf):
-                i2 = i * trs_len + j
-                x2 = f(x, v).reshape((1,) + x.shape)
-                datum = caffe.io.array_to_datum(x2, label=int(l))
-                lmdb_txn.put("%010d" % (i2), datum.SerializeToString())
-
-            if i%100 == 0:
-                sys.stdout.write("Progress %4.1f%% (%i/%i)\r" \
-                        % (100.*i/count, i, count))
-                sys.stdout.flush()
+        for i2, (l, x2) in enumerate((l, x2) for xs2 in res for l, x2 in xs2):
+            datum = caffe.io.array_to_datum(x2, label=int(l))
+            lmdb_txn.put("%010d" % (i2), datum.SerializeToString())
 
     print "\nClose database"
     lmdb_env.close()
