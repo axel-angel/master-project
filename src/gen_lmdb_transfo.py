@@ -31,15 +31,15 @@ if __name__ == "__main__":
     ls = X['arr_1']
     count = xs.shape[0]
 
-    trs = [ { 'f': getattr(utils, 'img_%s' % (tr)), 'steps': [randint(x,y)] }
+    trs = [ { 'f': getattr(utils, 'img_%s' % (tr)), 'steps': lambda: [randint(x,y)] }
             for (tr,x,y) in args.transfo ]
-    trs.append({ 'f': lambda i,v: i, 'steps': [0] })
+    trs.append({ 'f': lambda i,v: i, 'steps': lambda: [0] })
     trs_len = len(trs)
     print "Transformations: %s" % ("\n\t".join(map(repr, trs)))
 
     print "Generate images"
     def process((i, (x, l))):
-        trf = [ (t['f'], v) for t in trs for v in t['steps'] ]
+        trf = [ (t['f'], v) for t in trs for v in t['steps']() ]
         xs2 = []
         for j, (f, v) in enumerate(trf):
             x2 = f(x, v).reshape((1,) + x.shape)
