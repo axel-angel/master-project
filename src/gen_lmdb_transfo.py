@@ -6,11 +6,12 @@ import numpy as np
 import lmdb
 import argparse
 import utils
+from random import randint
 
 def parse_transfo(s):
     try:
-        xs = s.split(':', 3)
-        fmt = [str, int, int, int]
+        xs = s.split(':', 2)
+        fmt = [str, int, int]
         return map(lambda (f,x): f(x), zip(fmt, xs))
     except:
         raise argparse.ArgumentTypeError("Invalid")
@@ -29,8 +30,8 @@ if __name__ == "__main__":
     ls = X['arr_1']
     count = xs.shape[0]
 
-    trs = [ { 'f': getattr(utils, 'img_%s' % (tr)), 'steps': range(x,y,z) }
-            for (tr,x,y,z) in args.transfo ]
+    trs = [ { 'f': getattr(utils, 'img_%s' % (tr)), 'steps': [randint(x,y)] }
+            for (tr,x,y) in args.transfo ]
     trs.append({ 'f': lambda i,v: i, 'steps': [0] })
     trs_len = len(trs)
     print "Transformations: %s" % ("\n\t".join(map(repr, trs)))
