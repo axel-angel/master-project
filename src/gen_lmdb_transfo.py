@@ -7,7 +7,6 @@ import lmdb
 import argparse
 import utils
 from random import randint
-from joblib import Parallel, delayed
 import multiprocessing
 
 def parse_transfo(s):
@@ -39,14 +38,14 @@ if __name__ == "__main__":
     print "Transformations: %s" % ("\n\t".join(map(repr, trs)))
 
     print "Generate images"
-    def process(i, x, l):
+    def process((i, (x, l))):
         trf = [ (t['f'], v) for t in trs for v in t['steps'] ]
         xs2 = []
         for j, (f, v) in enumerate(trf):
             x2 = f(x, v).reshape((1,) + x.shape)
             xs2.append((l, x2))
 
-        if i%100 == 0:
+        if i%1000 == 0:
             sys.stdout.write("Progress %4.1f%% (%i/%i)\r" \
                     % (100.*i/count, i, count))
             sys.stdout.flush()
@@ -54,7 +53,8 @@ if __name__ == "__main__":
         return xs2
 
     num_cores = multiprocessing.cpu_count()
-    res = Parallel(n_jobs=num_cores)(delayed(process)(i, x, l) for i, (x, l) in enumerate(np.array([ xs, ls ]).T) )
+    pool = multiprocessing.Pool(num_cores)
+    res = pool.map(process, enumerate(np.array([ xs, ls ]).T))
     print ""
 
     print "Write LMDB"
@@ -64,5 +64,5 @@ if __name__ == "__main__":
             datum = caffe.io.array_to_datum(x2, label=int(l))
             lmdb_txn.put("%010d" % (i2), datum.SerializeToString())
 
-    print "\nClose database"
+    print "Close database"
     lmdb_env.close()
