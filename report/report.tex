@@ -48,4 +48,8 @@ lenet on mnist can be easily fooled by translations, because dataset is heavily 
 interactive tool findings? discontinuities in the output, we can fool it with certain angles. we see the receptive field by shifting, after some margin it goes non-sense
 
 transfo tracer findings? how to plot better? we find pattern in the t-SNE. Lines for positive angles, a curve for negative angles, does it mean anything since its t-SNE? invariant transformations? blur has small impact, why? shift is important after a certain threshold (margin? recetivity field size?), why? can we relate this to the CNN-code: easy, hard?
+
+train translation-invariance: tried to train lenet with multiple copies of each but shifted of the same amount (fixed ranges), but the accuracy on original test is very low (30\%) probably because it learned positional-dependent features instead of real translation invariance! The shifted test set has 92\% accuracy though.
+
+train translation-invariance: with random translation (among given range), one per axis at most (original + shift x + shift y).
 \end{document}
