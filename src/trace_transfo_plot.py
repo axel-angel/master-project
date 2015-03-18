@@ -6,11 +6,20 @@ import matplotlib.pyplot as plt
 from random import random
 from math import sin, cos
 
+def partition(pred, iterable):
+    'Use a predicate to partition entries into false entries and true entries'
+    # partition(is_odd, range(10)) --> 0 2 4 6 8   and  1 3 5 7 9
+    xs = []
+    ys = []
+    for x in iterable:
+        (ys if pred(x) else xs).append(x)
+    return xs, ys
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-npz', type=str, required=True)
-    parser.add_argument('--filter', type=str, required=True)
+    parser.add_argument('--filter', type=str, default="")
     parser.add_argument('--out', type=str, required=True)
     args = parser.parse_args()
 
@@ -28,21 +37,27 @@ if __name__ == "__main__":
     tr_map = { k:label_max+1+i for i, k in enumerate(trans_set) }
 
     print "Filtering data"
-    Y = np.array([pts, infos]).T
-    Y2 = filter(lambda y: args.filter in y[1]['src'], Y)
+    Xn, Xd = partition(lambda y: y[1]['src'] == "dataset",
+                        np.array([pts, infos]).T)
+    pts = None; infos = None # free memory
+    Y2 = filter(lambda y: args.filter in y[1]['src'], Xn)
+    pts2 = np.array([ y[0] for y in np.concatenate((Xd, Y2)) ])
+    colors = np.fromiter(( i['l'] if i['l'] >= 0 else tr_map[i['tr']]
+                      for [pt, i] in np.concatenate((Xd, Y2)) ), dtype=np.uint8)
 
+    # add one annotated point per class
     ds_annotates = set()
-    for [pt, info] in Y:
+    for [pt, info] in Xd:
         label = info['l']
-        if info['src'] == "dataset" and label not in ds_annotates:
+        if label not in ds_annotates:
             Y2.append([ pt, info ])
             ds_annotates.add(label)
+            if ds_annotates == label_set:
+                break
 
     print "Make plot"
-    colors = np.array([ i['l'] if i['l'] >= 0 else tr_map[i['tr']]
-                      for [pt, i] in Y ]).astype(np.uint8)
     plt.figure(figsize=(30, 30))
-    plt.scatter(pts[:,0], pts[:,1], s=5, cmap='bwr', c=colors,
+    plt.scatter(pts2[:,0], pts2[:,1], s=5, cmap='bwr', c=colors,
             edgecolors='none')
     bbox = dict(boxstyle = 'round,pad=0.5', fc = 'yellow', alpha = 0.5)
     arrowprops = dict(arrowstyle = '-', connectionstyle = 'arc3,rad=0', linewidth=0.2)
