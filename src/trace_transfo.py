@@ -8,7 +8,6 @@ from utils import *
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 
-layer = 'ip1'
 transformations = {
     "identity": { "f": lambda i,v: i, "steps": [0], },
     "shift_x": { "f": img_shift_x, "steps": rangesym(1, 15, 2) },
@@ -25,7 +24,8 @@ if __name__ == "__main__":
     parser.add_argument('--proto', type=str, required=True)
     parser.add_argument('--model', type=str, required=True)
     parser.add_argument('--image', type=str, nargs='+')
-    parser.add_argument('--ip1-npz', type=str, required=True)
+    parser.add_argument('--layer', type=str, required=True)
+    parser.add_argument('--fwd-npz', type=str, required=True)
     parser.add_argument('--pca-npz', type=str, required=True)
     parser.add_argument('--out-npz', type=str, required=True)
     args = parser.parse_args()
@@ -33,9 +33,9 @@ if __name__ == "__main__":
     print "Load data"
     imgs_orig = [ scipy.ndimage.imread(i, flatten=True).astype(np.uint8)
                 for i in args.image ]
-    ip1_npz = np.load(args.ip1_npz)
-    blobs = ip1_npz['blobs']
-    labels = ip1_npz['labels']
+    fwd_npz = np.load(args.fwd_npz)
+    blobs = fwd_npz[args.layer]
+    labels = fwd_npz['labels']
     infos = np.array([ dict(src="dataset", l=l, tr="identity", v=0)
                      for l in labels ])
 
@@ -58,8 +58,8 @@ if __name__ == "__main__":
 
     print "Transform forward output"
     imgs_tr_np = np.array(imgs_tr).reshape(-1, 1, 28, 28)
-    res = net.forward_all(data=imgs_tr_np, blobs=[layer])
-    iblobs = res[layer].reshape(len(imgs_tr), -1)
+    res = net.forward_all(data=imgs_tr_np, blobs=[args.layer])
+    iblobs = res[args.layer].reshape(len(imgs_tr), -1)
     blobs = np.concatenate((blobs, iblobs))
     blobs_pca = pca.transform(blobs)
 
