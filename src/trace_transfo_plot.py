@@ -5,15 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from random import random
 from math import sin, cos
-
-def partition(pred, iterable):
-    'Use a predicate to partition entries into false entries and true entries'
-    # partition(is_odd, range(10)) --> 0 2 4 6 8   and  1 3 5 7 9
-    xs = []
-    ys = []
-    for x in iterable:
-        (ys if pred(x) else xs).append(x)
-    return xs, ys
+from utils import partition
 
 if __name__ == "__main__":
     import argparse
