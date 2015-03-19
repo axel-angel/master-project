@@ -43,7 +43,8 @@ def img_sindisp_y(i, v):
     tform = PiecewiseAffineTransform()
     tform.estimate(src, dst)
 
-    return warp(i, tform, output_shape=(rows, cols))
+    # because warp expect image values [0,1], we remap before/afterward
+    return warp(i/255., tform, output_shape=(rows, cols))*255.
 
 
 def partition(pred, iterable):
