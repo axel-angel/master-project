@@ -72,4 +72,7 @@ if __name__ == "__main__":
             size = '5',
         )
 
-    plt.savefig(args.out, bbox_inches='tight', dpi=300)
+    if args.out == "-":
+        plt.show()
+    else:
+        plt.savefig(args.out, bbox_inches='tight', dpi=300)

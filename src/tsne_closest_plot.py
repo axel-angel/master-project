@@ -23,6 +23,7 @@ if __name__ == "__main__":
     parser.add_argument('--top', type=int, default=1)
     parser.add_argument('--transfo', type=str, nargs='*', default=[])
     parser.add_argument('--value', type=int, nargs='*', default=[])
+    parser.add_argument('--out', type=str, required=True)
     args = parser.parse_args()
 
     # X: [array([-0.36007209, -3.17370899]), {'src': '9', 'tr': 'identity', 'l': -1, 'v': 0}, 394]], dtype=object)
@@ -65,5 +66,7 @@ if __name__ == "__main__":
 
     Y = np.concatenate([ np.concatenate(i, axis=0) for i in imgs ], axis=1)
     plt.imshow(Y, cmap='gray', interpolation='nearest')
-    plt.subplots_adjust(top=1, bottom=0, left=0, right=1)
-    plt.show()
+    if args.out == "-":
+        plt.show()
+    else:
+        plt.savefig(args.out, bbox_inches='tight', dpi=300)
