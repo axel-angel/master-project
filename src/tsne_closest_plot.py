@@ -52,8 +52,10 @@ if __name__ == "__main__":
         d = {}
         d['orig'] = [pt, i, j]
 
-        print "Closest to %s (%i): %s" % (pt, j, i)
+        print "Closest to %s (%i/%i): %s" % (pt, j, j - dataset_len, i)
         xs = sorted(Xd, key=lambda y: np.sum((y[0] - pt) ** 2))[:args.top]
+        for pt, i, j in xs:
+            print "  %s (%i): %s" % (pt, j, i)
         d['ns'] = xs
 
         entries.append(d)
