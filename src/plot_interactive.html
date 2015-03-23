@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script type="text/javascript" src="web/jquery-2.1.3.min.js"></script>
+<script type="text/javascript" src="web/canvasjs.min.js"></script>
+<script type="text/javascript" src="../lenet_mnist/save_t-sne_transfo-v2-test1_10k_ip1_i0-9a-e_1426785198.js"></script>
+<script type="text/javascript">
+window.onload = function () {
+  var chart = new CanvasJS.Chart("chartContainer", {
+    axisX: { minimum: -6, maximum: 6 },
+    axisY: { minimum: -6, maximum: 6 },
+    data: [{
+      type: "scatter",
+      color: "rgba(255, 0, 0, 0.2)",
+      markerSize: 2,
+      legendText: "Points",
+      showInLegend: "true",
+      markerType: "circle",
+      dataPoints: pts.map(function (pt) {
+        return { x: pt[0], y: pt[1] };
+      }),
+    }]
+  });
+
+  chart.render();
+
+  var lastwheel = new Date();
+  $('#chartContainer').bind('mousewheel DOMMouseScroll', function (e) {
+    e.preventDefault();
+    var now = new Date();
+    if (now - lastwheel < 1000) return; // don't call it too often
+
+    var dir = e.originalEvent.detail < 0 ? +1 : -1;
+    var scale = dir > 0 ? 1/2 : 2;
+    var subscale = dir > 0 ? +1/4 : -1/2;
+    console.log(['mousewheel', e.originalEvent.detail, e, dir]);
+
+    chart.options.data[0].markerSize /= scale;
+    var dx = chart.options.axisX.maximum - chart.options.axisX.minimum;
+    var dy = chart.options.axisY.maximum - chart.options.axisY.minimum;
+    chart.options.axisX.minimum += dx * subscale;
+    chart.options.axisY.minimum += dy * subscale;
+    chart.options.axisX.maximum -= dx * subscale;
+    chart.options.axisY.maximum -= dy * subscale;
+    chart.render()
+    lastwheel = now;
+  });
+  $('body').keypress(function (e) {
+    var dirx = 0;
+    var diry = 0;
+    if (e.keyCode == 39) dirx = +1;
+    if (e.keyCode == 37) dirx = -1;
+    if (e.keyCode == 38) diry = +1;
+    if (e.keyCode == 40) diry = -1;
+
+    if (dirx == 0 && diry == 0) return;
+    var dx = chart.options.axisX.maximum - chart.options.axisX.minimum;
+    var dy = chart.options.axisY.maximum - chart.options.axisY.minimum;
+    chart.options.axisX.minimum += dx * dirx / 4;
+    chart.options.axisY.minimum += dy * diry / 4;
+    chart.options.axisX.maximum += dx * dirx / 4;
+    chart.options.axisY.maximum += dy * diry / 4;
+    chart.render();
+
+    e.preventDefault();
+  });
+}
+</script>
+</head>
+<body>
+  <div id="chartContainer" style="height: 600px; width: 100%;">
+  </div>
+</body>
+</html>
