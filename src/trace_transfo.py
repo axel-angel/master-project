@@ -36,7 +36,7 @@ if __name__ == "__main__":
     fwd_npz = np.load(args.fwd_npz)
     blobs = fwd_npz[args.layer]
     labels = fwd_npz['labels']
-    infos = np.array([ dict(src="dataset", l=l, tr="identity", v=0)
+    infos = np.array([ dict(src="dataset", l=int(l), tr="identity", v=0)
                      for l in labels ])
 
     pca_npz = np.load(args.pca_npz)
