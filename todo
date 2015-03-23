@@ -34,3 +34,9 @@ papers said "further study needed" for:
 * use a point from the testset instead of a handmade one (mine is outliners, is that normal? part of t-SNE or because I made them, still on boundary)
 * make video of plots with visualisation of closest points (1 frame = 1 transfo, in this order of increasing)
 * later on: try to combine two/or more transformations at the same time, see if it's a grid (row=1st transf, cols=2nd transfo) in t-SNE space, separate plots, by pairs
+
+* interactive plot in Js, try quickly
+* add adversial transformation into the framework
+* with shift-invariance: retrain correctly with test images and correct range x-y
+* with shift-invariance: for each digit localize distorted digits, see if they form a cluster inside the digit cluster, can we understand the shape, is there one at all?
+* later on: given a simple shape which a few neurons detect in a model A, how can we relate to neurons in a second model B trained with translation-invariance (wrt to neuron activation: activated at the same time in A and B but with transalation in B). Can we find a relation between neurons. (ref to visualizing cnns, forget for now because it's hard)
