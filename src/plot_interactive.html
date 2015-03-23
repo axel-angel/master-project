@@ -6,18 +6,35 @@
 <script type="text/javascript" src="../lenet_mnist/save_t-sne_transfo-v2-test1_10k_ip1_i0-9a-e_1426785198.js"></script>
 <script type="text/javascript">
 window.onload = function () {
+  var colors = {
+  };
+
+  var data = {};
+  var legends = {};
+  for (var i = -1; i < 10; ++i) {
+    data[i] = [];
+  };
+  X.forEach(function (x) {
+    var l = x.l;
+    x.label = "Point "+ l +" ["+ x.src +" | "+ x.tr +"("+ x.v +") ]";
+    data[l].push(x);
+    legends[l] = "Points "+ x.l;
+  });
+
   var chart = new CanvasJS.Chart("chartContainer", {
     axisX: { minimum: -6, maximum: 6 },
     axisY: { minimum: -6, maximum: 6 },
-    data: [{
-      type: "scatter",
-      color: "rgba(255, 0, 0, 0.2)",
-      markerSize: 2,
-      legendText: "Points",
-      showInLegend: "true",
-      markerType: "circle",
-      dataPoints: X,
-    }]
+    data: Object.keys(data).map(function (l) {
+      return {
+        type: "scatter",
+        //color: "rgba(255, 0, 0, 0.2)",
+        markerSize: 2,
+        legendText: legends[l],
+        showInLegend: "true",
+        markerType: "circle",
+        dataPoints: data[l],
+      };
+    }),
   });
 
   chart.render();
@@ -33,7 +50,9 @@ window.onload = function () {
     var subscale = dir > 0 ? +1/4 : -1/2;
     console.log(['mousewheel', e.originalEvent.detail, e, dir]);
 
-    chart.options.data[0].markerSize /= scale;
+    chart.options.data.forEach(function (d) {
+      d.markerSize /= scale;
+    });
     var dx = chart.options.axisX.maximum - chart.options.axisX.minimum;
     var dy = chart.options.axisY.maximum - chart.options.axisY.minimum;
     chart.options.axisX.minimum += dx * subscale;
