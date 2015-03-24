@@ -15,9 +15,9 @@ def rangesym(x1, x2, dt):
     return range(-x2, -(x1-1), dt) + range(x1, x2+1, dt)
 
 def img_shift_x(i, v):
-    return shift(i, (v,0))
-def img_shift_y(i, v):
     return shift(i, (0,v))
+def img_shift_y(i, v):
+    return shift(i, (v,0))
 def img_blur(i, v):
     return gaussian_filter(i, v)
 def img_rotate(i, v):
