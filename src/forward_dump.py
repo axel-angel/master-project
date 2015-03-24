@@ -3,6 +3,7 @@
 
 import caffe
 import numpy as np
+from utils import *
 
 if __name__ == "__main__":
     import argparse
@@ -28,6 +29,6 @@ if __name__ == "__main__":
     res = net.forward_all(data=xs.reshape(-1, 1, *dims), blobs=args.layer)
     out = {}
     for k in res:
-        out[k] = res[k].reshape(filter(lambda i: i != 1, res[k].shape))
+        out[k] = flat_shape(res[k])
 
     np.savez(args.out_npz, labels=ls, **out)

@@ -7,6 +7,10 @@ from scipy.ndimage.filters import gaussian_filter
 import scipy.misc
 from skimage.transform import PiecewiseAffineTransform, warp
 
+def flat_shape(x):
+    "Returns x without singleton dimension, eg: (1,28,28) -> (28,28)"
+    return x.reshape(filter(lambda s: s > 1, x.shape))
+
 def rangesym(x1, x2, dt):
     return range(-x2, -(x1-1), dt) + range(x1, x2+1, dt)
 
