@@ -15,21 +15,38 @@
 <script type="text/javascript" src="../lenet_mnist/save_t-sne_transfo-v2-test1_10k_ip1_i0-9a-e_1426785198.js"></script>
 <script type="text/javascript">
 window.onload = function () {
+  // init our objects
   var data = {};
   var legends = {};
-  for (var i = -1; i < 10; ++i) {
-    data[i] = [];
-  };
+  Object.keys(label_set).forEach(function (l) {
+    Object.keys(src_set).forEach(function (src) {
+      var k = l +"_"+ src;
+      data[k] = [];
+    });
+  });
+
+  // for each point, assign it to one group (based on key)
   X.forEach(function (x) {
     var l = x.l;
+    var src = x.src
+    var k = l +"_"+ src;
     x.label = "<b>"+ l +"</b> "
       + "(#"+ x.i +") "
       + "["+ x.src +" | "+ x.tr +"("+ x.v +")]<br/>"
       + "<img class='digit' src='data:image/jpeg;base64,"+ imgs[x.i] +"'/>";
-    data[l].push(x);
-    legends[l] = ""+ x.l;
+    data[k].push(x);
+    legends[k] = x.l +" "+ src;
   });
 
+  // remove empty keys
+  Object.keys(data).forEach(function (k) {
+    if (data[k].length == 0)
+      delete data[k];
+  });
+
+  // config the plot and render it
+  var data_keys = Object.keys(data);
+  data_keys.sort();
   var chart = new CanvasJS.Chart("chartContainer", {
     axisX: { minimum: -6, maximum: 6 },
     axisY: { minimum: -6, maximum: 6 },
@@ -41,14 +58,14 @@ window.onload = function () {
         e.chart.render();
       }
     },
-    data: Object.keys(data).map(function (l) {
+    data: data_keys.map(function (k) {
       return {
         type: "scatter",
         markerSize: 2,
-        legendText: legends[l],
+        legendText: legends[k],
         showInLegend: "true",
         markerType: "circle",
-        dataPoints: data[l],
+        dataPoints: data[k],
       };
     }),
   });
