@@ -36,15 +36,15 @@ window.onload = function () {
 
   // handle zoom with mouse wheel
   var lastwheel = new Date();
-  $('#chartContainer').bind('mousewheel DOMMouseScroll', function (e) {
+  $('#chartContainer').bind('wheel', function (e) {
     e.preventDefault();
     var now = new Date();
     if (now - lastwheel < 1000) return; // don't call it too often
+    if (e.originalEvent.deltaY == 0) return; // ignore horizontal
 
-    var dir = e.originalEvent.detail < 0 ? +1 : -1;
+    var dir = e.originalEvent.deltaY < 0 ? +1 : -1;
     var scale = dir > 0 ? 1/2 : 2;
     var subscale = dir > 0 ? +1/4 : -1/2;
-    console.log(['mousewheel', e.originalEvent.detail, e, dir]);
 
     chart.options.data.forEach(function (d) {
       d.markerSize /= Math.sqrt(scale); // heuristic to avoid overlap, works!
