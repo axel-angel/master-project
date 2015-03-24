@@ -33,6 +33,14 @@ window.onload = function () {
   var chart = new CanvasJS.Chart("chartContainer", {
     axisX: { minimum: -6, maximum: 6 },
     axisY: { minimum: -6, maximum: 6 },
+    legend: {
+      cursor: "pointer",
+      itemclick: function (e) { // toggle cluster when click on legend
+        e.dataSeries.visible = !(typeof(e.dataSeries.visible) === "undefined"
+                             || e.dataSeries.visible)
+        e.chart.render();
+      }
+    },
     data: Object.keys(data).map(function (l) {
       return {
         type: "scatter",
