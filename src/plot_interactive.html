@@ -6,9 +6,6 @@
 <script type="text/javascript" src="../lenet_mnist/save_t-sne_transfo-v2-test1_10k_ip1_i0-9a-e_1426785198.js"></script>
 <script type="text/javascript">
 window.onload = function () {
-  var colors = {
-  };
-
   var data = {};
   var legends = {};
   for (var i = -1; i < 10; ++i) {
@@ -27,7 +24,6 @@ window.onload = function () {
     data: Object.keys(data).map(function (l) {
       return {
         type: "scatter",
-        //color: "rgba(255, 0, 0, 0.2)",
         markerSize: 2,
         legendText: legends[l],
         showInLegend: "true",
@@ -36,9 +32,9 @@ window.onload = function () {
       };
     }),
   });
-
   chart.render();
 
+  // handle zoom with mouse wheel
   var lastwheel = new Date();
   $('#chartContainer').bind('mousewheel DOMMouseScroll', function (e) {
     e.preventDefault();
@@ -51,7 +47,7 @@ window.onload = function () {
     console.log(['mousewheel', e.originalEvent.detail, e, dir]);
 
     chart.options.data.forEach(function (d) {
-      d.markerSize /= scale;
+      d.markerSize /= Math.sqrt(scale); // heuristic to avoid overlap, works!
     });
     var dx = chart.options.axisX.maximum - chart.options.axisX.minimum;
     var dy = chart.options.axisY.maximum - chart.options.axisY.minimum;
@@ -62,6 +58,8 @@ window.onload = function () {
     chart.render()
     lastwheel = now;
   });
+
+  // handle move with keyboard arrows
   $('body').keypress(function (e) {
     var dirx = 0;
     var diry = 0;
