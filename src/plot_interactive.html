@@ -13,9 +13,9 @@ window.onload = function () {
   };
   X.forEach(function (x) {
     var l = x.l;
-    x.label = "Point "+ l +" ["+ x.src +" | "+ x.tr +"("+ x.v +") ]";
+    x.label = ""+ l +" (#"+ x.i +") ["+ x.src +" | "+ x.tr +"("+ x.v +")]";
     data[l].push(x);
-    legends[l] = "Points "+ x.l;
+    legends[l] = ""+ x.l;
   });
 
   var chart = new CanvasJS.Chart("chartContainer", {
