@@ -13,7 +13,7 @@ window.onload = function () {
   };
   X.forEach(function (x) {
     var l = x.l;
-    x.label = ""+ l +" (#"+ x.i +") ["+ x.src +" | "+ x.tr +"("+ x.v +")]";
+    x.label = "<b>"+ l +"</b> (#"+ x.i +") ["+ x.src +" | "+ x.tr +"("+ x.v +")]<br/><img style='width:64px;height:64px;' src='data:image/jpeg;base64,"+ imgs[x.i] +"'/>";
     data[l].push(x);
     legends[l] = ""+ x.l;
   });
