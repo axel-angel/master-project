@@ -3,11 +3,11 @@
 import sys
 import caffe
 import numpy as np
-import lmdb
 import argparse
 import utils
 from random import randint
 import multiprocessing
+from utils import *
 
 def parse_transfo(s):
     try:
@@ -20,7 +20,7 @@ def parse_transfo(s):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-npz', type=str, required=True)
-    parser.add_argument('--out-lmdb', type=str, required=True)
+    parser.add_argument('--out-npz', type=str, required=True)
     parser.add_argument('--transfo', type=parse_transfo, action='append',
             default=[])
     args = parser.parse_args()
@@ -37,12 +37,11 @@ if __name__ == "__main__":
     trs_len = len(trs)
     print "Transformations: %s" % ("\n\t".join(map(repr, trs)))
 
-    print "Generate images"
     def process((i, (x, l))):
         trf = [ (t['f'], v) for t in trs for v in t['steps']() ]
         xs2 = []
         for j, (f, v) in enumerate(trf):
-            x2 = f(x, v).reshape((1,) + x.shape)
+            x2 = f(x, v)
             xs2.append((l, x2))
 
         if i%1000 == 0:
@@ -52,17 +51,13 @@ if __name__ == "__main__":
 
         return xs2
 
+    print "Generate images"
     num_cores = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(num_cores)
     res = pool.map(process, enumerate(np.array([ xs, ls ]).T))
     print ""
 
-    print "Write LMDB"
-    lmdb_env = lmdb.open(args.out_lmdb, map_size=1e12)
-    with lmdb_env.begin(write=True) as lmdb_txn:
-        for i2, (l, x2) in enumerate((l, x2) for xs2 in res for l, x2 in xs2):
-            datum = caffe.io.array_to_datum(x2, label=int(l))
-            lmdb_txn.put("%010d" % (i2), datum.SerializeToString())
-
-    print "Close database"
-    lmdb_env.close()
+    print "Write NPZ"
+    xs2_img = np.array([ x for xs2 in res for l, x in xs2 ])
+    xs2_l = np.array([ l for xs2 in res for l, x in xs2 ])
+    np.savez(args.out_npz, xs2_img, xs2_l)
