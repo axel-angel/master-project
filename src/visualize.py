@@ -52,7 +52,6 @@ class Ui_MainWindow(object):
         self.figure_4 = Figure((2, 4))
         self.figure_5 = Figure((6, 4))
         self.figureCanvas_0 = FigureCanvas(self.figure_0)
-        self.figureCanvas_2 = FigureCanvas(self.figure_2)
         self.figureCanvas_4 = FigureCanvas(self.figure_4)
         self.figureCanvas_5 = FigureCanvas(self.figure_5)
 
@@ -60,18 +59,12 @@ class Ui_MainWindow(object):
 
         self.addSliders()
 
-        tsne_button = QPushButton("Update t-SNE")
-        QtCore.QObject.connect(tsne_button, QtCore.SIGNAL('clicked()'),
-                self.update_tsne)
-
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
         self.horizontalLayout.addWidget(self.figureCanvas_0)
         self.horizontalLayout.addLayout(self.verticalLayout_3)
         self.horizontalLayout.addWidget(self.figureCanvas_4)
         self.verticalLayout_2.addWidget(self.figureCanvas_5)
-        #self.verticalLayout_2.addWidget(tsne_button)
-        #self.verticalLayout_2.addWidget(self.figureCanvas_2) # FIXME
 
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -81,39 +74,6 @@ class Ui_MainWindow(object):
         self.loadImg(fpath)
         self.computeDisplays(self.imgnp)
 
-
-    def update_tsne(self):
-        print "Updating t-SNE"
-
-        layer = 'ip1'
-        res = net.forward_all(data=np.array([[ self.imgnp ]]), blobs=[layer])
-        iblob = res[layer][0].reshape(-1)
-
-        X = np.concatenate((ip1, [ iblob ])).astype(np.float64)
-
-        print "Fit t-SNE"
-        alpha = tsne.n_components - 1.0
-        n_samples = X.shape[0]
-        # TODO: where is applied the PCA, fix it
-        params = np.concatenate((tsne.embedding_,
-            1e-4 * np.random.random((1, tsne.n_components))))
-        print "[t-SNE light] Compute pairwise distances"
-        distances = pairwise_distances(X, metric=tsne.metric, squared=True)
-        tsne.training_data_ = X
-        print "[t-SNE light] Compute joint probabilities"
-        P = tsne_joint_probabilities(distances, tsne.perplexity, True)
-        print "[t-SNE light] Optimizing"
-        params, error, it = tsne_gd(
-            tsne_kl_divergence, params, it=tsne.n_iter, n_iter=tsne.n_iter+5,
-            momentum=0.8, learning_rate=tsne.learning_rate,
-            verbose=True, args=[P, alpha, n_samples,
-                                        tsne.n_components])
-        print("[t-SNE light] Error after %d iterations: %f" % (it + 1, error))
-        #tsne.embedding_ = params.reshape(n_samples, tsne.n_components)
-        embedding = params.reshape(n_samples, tsne.n_components)
-
-        #labels2 = np.concatenate((labels*0, [ 11 ])) # FIXME
-        #self.plot_tsne(embedding, labels2)
 
     def computeDisplays(self, imgnp):
         # input display
@@ -127,10 +87,6 @@ class Ui_MainWindow(object):
         print "probas:", probas
         print "Plot probas"
         self.plot_probas(probas)
-
-        # t-SNE display
-        print "Plot t-SNE"
-        #self.plot_tsne(pts, labels) # FIXME: slow (once)
 
         # features display
         print "Plot conv1 features"
@@ -169,6 +125,7 @@ class Ui_MainWindow(object):
         for k, sfn in self.sfn.iteritems():
             imgnp = sfn(imgnp, self.svalues[k])
 
+        print "Sliders:", self.svalues
         self.computeDisplays(imgnp)
 
     def retranslateUi(self, MainWindow):
@@ -183,17 +140,6 @@ class Ui_MainWindow(object):
         plot.axis('off')
         plot.imshow(data, cmap='gray', interpolation='nearest',
                 vmin=0, vmax=255)
-        canvas.draw()
-
-    def plot_tsne(self, pts, labels):
-        fig = self.figure_2
-        canvas = self.figureCanvas_2
-
-        colors = labels
-        fig.clf()
-        plot = fig.add_subplot(1, 1, 1)
-        plot.scatter(pts[:,0], pts[:,1], s=25, c=colors, cmap='bwr')
-        plot.axis('off')
         canvas.draw()
 
     def plot_probas(self, probas):
@@ -245,21 +191,11 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--image', type=str, required=True)
-    parser.add_argument('--ip1-npz', type=str, required=True)
-    parser.add_argument('--tsne-npz', type=str, required=True)
     parser.add_argument('--proto', type=str, required=True)
     parser.add_argument('--model', type=str, required=True)
     args = parser.parse_args()
 
     fpath = args.image
-
-    ip1 = np.load(args.ip1_npz)['blobs']
-
-    X = np.load(args.tsne_npz)
-    tsne = X['tsne'].flat.next()
-    pca = X['pca'].flat.next()
-    pts = X['pts']
-    labels = X['labels']
 
     net = caffe.Net(args.proto, args.model, caffe.TEST)
     caffe.set_mode_cpu()
