@@ -48,12 +48,18 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QHBoxLayout()
 
         self.figure_0 = Figure((2, 2))
-        self.figure_2 = Figure((6, 4))
-        self.figure_4 = Figure((2, 4))
-        self.figure_5 = Figure((6, 4))
         self.figureCanvas_0 = FigureCanvas(self.figure_0)
-        self.figureCanvas_4 = FigureCanvas(self.figure_4)
-        self.figureCanvas_5 = FigureCanvas(self.figure_5)
+
+        self.figure_4 = []
+        self.figure_5 = []
+        self.figureCanvas_4 = []
+        self.figureCanvas_5 = []
+
+        for n in nets:
+            self.figure_4.append(Figure((2, 4)))
+            self.figure_5.append(Figure((6, 4)))
+            self.figureCanvas_4.append(FigureCanvas(self.figure_4[-1]))
+            self.figureCanvas_5.append(FigureCanvas(self.figure_5[-1]))
 
         self.verticalLayout_3 = QVBoxLayout()
 
@@ -63,8 +69,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.figureCanvas_0)
         self.horizontalLayout.addLayout(self.verticalLayout_3)
-        self.horizontalLayout.addWidget(self.figureCanvas_4)
-        self.verticalLayout_2.addWidget(self.figureCanvas_5)
+        for c in self.figureCanvas_4:
+            self.horizontalLayout.addWidget(c)
+        for c in self.figureCanvas_5:
+            self.verticalLayout_2.addWidget(c)
 
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -80,18 +88,24 @@ class Ui_MainWindow(object):
         print "Plot input"
         self.plot_input(imgnp)
 
-        # probas display
-        print "Forward network"
-        res = net.forward_all(data=np.array([[ imgnp ]]), blobs=['conv1'])
-        probas = res['prob'][0].flatten().tolist()
-        print "probas:", probas
-        print "Plot probas"
-        self.plot_probas(probas)
+        for i, net in enumerate(nets):
+            print "Forward network"
+            res = net.forward_all(data=np.array([[ imgnp ]]), blobs=['conv1'])
+            probas = res['prob'][0].flatten().tolist()
+            print "probas:", probas
 
-        # features display
-        print "Plot conv1 features"
-        fsconv1 = res['conv1'][0]
-        self.plot_features(fsconv1)
+            # probas display
+            print "Plot probas"
+            fig = self.figure_4[i]
+            canvas = self.figureCanvas_4[i]
+            self.plot_probas(fig, canvas, probas)
+
+            # features display
+            print "Plot conv1 features"
+            fsconv1 = res['conv1'][0]
+            fig = self.figure_5[i]
+            canvas = self.figureCanvas_5[i]
+            self.plot_features(fig, canvas, fsconv1)
 
     def addSliders(self):
         self.sliders = []
@@ -142,10 +156,7 @@ class Ui_MainWindow(object):
                 vmin=0, vmax=255)
         canvas.draw()
 
-    def plot_probas(self, probas):
-        fig = self.figure_4
-        canvas = self.figureCanvas_4
-
+    def plot_probas(self, fig, canvas, probas):
         fig.clf()
         plot = fig.add_subplot(1, 1, 1)
         plot.barh(range(10), probas, height=0.5, align='center')
@@ -155,10 +166,7 @@ class Ui_MainWindow(object):
         canvas.draw()
 
     # inspired by http://nbviewer.ipython.org/github/BVLC/caffe/blob/master/examples/filter_visualization.ipynb
-    def plot_features(self, data, padsize=1, padval=0):
-        fig = self.figure_5
-        canvas = self.figureCanvas_5
-
+    def plot_features(self, fig, canvas, data, padsize=1, padval=0):
         data -= data.min()
         data /= data.max() - data.min()
 
@@ -192,12 +200,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--image', type=str, required=True)
     parser.add_argument('--proto', type=str, required=True)
-    parser.add_argument('--model', type=str, required=True)
+    parser.add_argument('--model', type=str, nargs='+')
     args = parser.parse_args()
 
     fpath = args.image
 
-    net = caffe.Net(args.proto, args.model, caffe.TEST)
+    # FIXME: we suppose it's the same proto for overy model
+    nets = [ caffe.Net(args.proto, n, caffe.TEST) for n in args.model ]
     caffe.set_mode_cpu()
 
     app = QApplication(sys.argv)
