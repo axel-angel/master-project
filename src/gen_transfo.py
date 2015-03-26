@@ -60,4 +60,4 @@ if __name__ == "__main__":
     print "Write NPZ"
     xs2_img = np.array([ x for xs2 in res for l, x in xs2 ])
     xs2_l = np.array([ l for xs2 in res for l, x in xs2 ])
-    np.savez(args.out_npz, xs2_img, xs2_l)
+    np.savez_compressed(args.out_npz, xs2_img, xs2_l)

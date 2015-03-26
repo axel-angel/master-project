@@ -31,4 +31,4 @@ if __name__ == "__main__":
     for k in res:
         out[k] = flat_shape(res[k])
 
-    np.savez(args.out_npz, labels=ls, **out)
+    np.savez_compressed(args.out_npz, labels=ls, **out)

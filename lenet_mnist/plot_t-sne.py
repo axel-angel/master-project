@@ -51,7 +51,7 @@ fout = 't-sne_%ik_%s_%i' % (pts.shape[0]/1000, layer, now)
 fout_npz = 'save_%s.npz' % (fout)
 fout_png = 'plots/t-sne/%s.png' % (fout)
 
-np.savez(fout_npz, pca=pca, tsne=tsne, pts=pts, labels=labels)
+np.savez_compressed(fout_npz, pca=pca, tsne=tsne, pts=pts, labels=labels)
 print "Saved t-SNE in %s" % (fout_npz)
 
 colors = labels

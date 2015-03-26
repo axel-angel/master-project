@@ -68,5 +68,5 @@ if __name__ == "__main__":
     pts2 = tsne.fit_transform(blobs_pca)
 
     print "Dump into npz"
-    np.savez(args.out_npz, imgs_tr_np=imgs_tr_np, tsne=tsne, pts=pts2,
+    np.savez_compressed(args.out_npz, imgs_tr_np=imgs_tr_np, tsne=tsne, pts=pts2,
             infos=infos)
