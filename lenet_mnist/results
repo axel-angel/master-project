@@ -18,3 +18,9 @@ Accuracy: 87.6%, 157608/180000 corrects
 
 $ python ../src/convnet_test_lmdb.py --proto lenet.prototxt --model snapshots/lenet_mnist_v4-shift_iter_10000.caffemodel --lmdb ../caffe/examples/mnist/mnist_test_lmdb/
 Accuracy: 91.8%, 9183/10000 corrects
+
+$ python ../src/convnet_test_lmdb.py --proto lenet.prototxt --model snapshots/lenet_mnist_v4-shift3b_iter_10000.caffemodel --lmdb ../caffe/examples/mnist/mnist_test_lmdb/
+Accuracy: 97.5%, 9754/10000 corrects
+
+$ python ../src/convnet_test_lmdb.py --proto lenet.prototxt --model snapshots/lenet_mnist_v4-shift3b_iter_10000.caffemodel --lmdb data/test_shift3b
+Accuracy: 91.5%, 27450/30000 corrects
