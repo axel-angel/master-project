@@ -7,8 +7,6 @@ from math import sin, cos
 from utils import partition
 import json
 from collections import defaultdict
-import lmdb
-import caffe
 from base64 import b64encode
 from scipy.misc import imsave
 from io import BytesIO
@@ -26,12 +24,12 @@ def img_encode(i):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--in-npz', type=str, required=True)
+    parser.add_argument('--tsne-npz', type=str, required=True)
     parser.add_argument('--out-js', type=str, required=True)
-    parser.add_argument('--lmdb', type=str, required=True)
+    parser.add_argument('--dataset-npz', type=str, required=True)
     args = parser.parse_args()
 
-    X = np.load(args.in_npz)
+    X = np.load(args.tsne_npz)
     Y = np.array([ X['pts'], X['infos'], range(X['pts'].shape[0]) ]).T
 
     # stats per src, label, transformations
@@ -44,14 +42,9 @@ if __name__ == "__main__":
         tr_set[info['tr']] += 1
 
     # load dataset images (encode in base64 for easy HTML inclusion)
-    lmdb_env = lmdb.open(args.lmdb)
-    lmdb_txn = lmdb_env.begin()
-    lmdb_cursor = lmdb_txn.cursor()
+    dataset_npz = np.load(args.dataset_npz)
     imgs = []
-    for key, value in lmdb_cursor:
-        datum = caffe.proto.caffe_pb2.Datum()
-        datum.ParseFromString(value)
-        img = caffe.io.datum_to_array(datum)
+    for img in dataset_npz['arr_0']:
         imgs.append(img_encode(img)) # include dataset set
     for img in X['imgs_tr_np']:
         imgs.append(img_encode(img)) # include distorted set too
