@@ -1,0 +1,15 @@
+.digit {
+  width: 64px;
+  height: 64px;
+  ms-interpolation-mode: nearest-neighbor;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+#chartContainer {
+  clear: both;
+}
+
+#filters fieldset {
+  float: left;
+}
