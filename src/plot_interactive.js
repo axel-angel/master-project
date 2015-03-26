@@ -86,6 +86,7 @@ window.onload = function () {
   function onkeypress(e) {
     var dirx = 0;
     var diry = 0;
+    if (e.charCode != 0) return; // avoid bug with ( in chrome
     if (e.keyCode == 39) dirx = +1;
     if (e.keyCode == 37) dirx = -1;
     if (e.keyCode == 38) diry = +1;
