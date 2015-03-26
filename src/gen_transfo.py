@@ -10,19 +10,18 @@ import multiprocessing
 from utils import *
 
 def parse_transfo(s):
-    try:
-        xs = s.split(':', 2)
-        fmt = [str, int, int]
-        return map(lambda (f,x): f(x), zip(fmt, xs))
-    except:
+    xs = s.split(':', 2)
+    fmt = [str, int, int]
+    if len(xs) != len(fmt):
         raise argparse.ArgumentTypeError("Invalid")
+    return map(lambda (f,x): f(x), zip(fmt, xs))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-npz', type=str, required=True)
     parser.add_argument('--out-npz', type=str, required=True)
-    parser.add_argument('--transfo', type=parse_transfo, action='append',
-            default=[])
+    parser.add_argument('--transfo', type=parse_transfo, nargs='+',
+            action='append', default=[])
     args = parser.parse_args()
 
     print "Load dataset"
@@ -31,18 +30,18 @@ if __name__ == "__main__":
     ls = X['arr_1']
     count = xs.shape[0]
 
-    trs = [ { 'f': getattr(utils, 'img_%s' % (tr)), 'steps': lambda: [randint(x,y)] }
-            for (tr,x,y) in args.transfo ]
-    trs.append({ 'f': lambda i,v: i, 'steps': lambda: [0] })
-    trs_len = len(trs)
-    print "Transformations: %s" % ("\n\t".join(map(repr, trs)))
+    trs = []
+    def fold_transfo(f, (tr, x, y)):
+        trf = getattr(utils, 'img_%s' % (tr))
+        return lambda i: trf(f(i), randint(x, y))
+    for transfos in args.transfo:
+        foldedf = reduce(fold_transfo, transfos, lambda i: i)
+        trs.append(foldedf)
+
+    print "Transformations:\n\t%s" % ("\n\t".join(map(repr, args.transfo)))
 
     def process((i, (x, l))):
-        trf = [ (t['f'], v) for t in trs for v in t['steps']() ]
-        xs2 = []
-        for j, (f, v) in enumerate(trf):
-            x2 = f(x, v)
-            xs2.append((l, x2))
+        xs2 = [ (l, f(x)) for f in trs ]
 
         if i%1000 == 0:
             sys.stdout.write("Progress %4.1f%% (%i/%i)\r" \
