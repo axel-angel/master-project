@@ -80,13 +80,20 @@ window.onload = function () {
     lastwheel = now;
   });
 
+  var chart_focus = false;
+  $('#chartContainer')
+    .mouseenter(function () { chart_focus = true; })
+    .mouseleave(function () { chart_focus = false; });
+
   // handle move with keyboard arrows
   $('body').keydown(onkeypress);
   $('body').keypress(onkeypress);
   function onkeypress(e) {
+    if (!chart_focus) return; // only when focusing
+    if (e.charCode != 0) return; // avoid bug with ( in chrome
+
     var dirx = 0;
     var diry = 0;
-    if (e.charCode != 0) return; // avoid bug with ( in chrome
     if (e.keyCode == 39) dirx = +1;
     if (e.keyCode == 37) dirx = -1;
     if (e.keyCode == 38) diry = +1;
