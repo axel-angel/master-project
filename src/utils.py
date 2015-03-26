@@ -14,6 +14,8 @@ def flat_shape(x):
 def rangesym(x1, x2, dt):
     return range(-x2, -(x1-1), dt) + range(x1, x2+1, dt)
 
+def img_identity(i, v):
+    return i
 def img_shift_x(i, v):
     return shift(i, (0,v))
 def img_shift_y(i, v):
