@@ -52,4 +52,6 @@ transfo tracer findings? how to plot better? we find pattern in the t-SNE. Lines
 train translation-invariance: tried to train lenet with multiple copies of each but shifted of the same amount (fixed ranges), but the accuracy on original test is very low (30\%) probably because it learned positional-dependent features instead of real translation invariance! The shifted test set has 92\% accuracy though.
 
 train translation-invariance: with random translation (among given range), one per axis at most (original + shift x + shift y).
+
+after ensuring my translated training set is correct (high accuracy and so), the t-sne seems ``overcrowded'' or much less separated than before. It's like for eevery digit half is clustered and the rest is spread. Probably one region for centered digit, one spread region for displaced. There are a lot of overlap but there seems to have cluster with the similar translation offset (but different digit!). Lots of clusters grouping similar translation offsets: left-shifted, right-shifted, upper-shifted, lower-shifted. I suspect the network learned there are two/three kind of samples not-shifted and shifted ones (left-right up-down kinds). I should try to have a sample appearing once with x-y-combined translation at random.
 \end{document}
