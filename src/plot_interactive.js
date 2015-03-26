@@ -103,3 +103,18 @@ window.onload = function () {
     e.preventDefault();
   };
 }
+
+function applyFilters() {
+  var $form = $('#filters');
+  var label = $form.find('input[name="label"]').val();
+  var src = $form.find('input[name="src"]').val();
+  var label_rx = new RegExp(label, 'i');
+  var src_rx = new RegExp(src, 'i');
+
+  chart.options.data.forEach(function (d) {
+    var first = d.dataPoints[0];
+    d.visible = (label_rx.test(first.l))
+             && (src_rx.test(first.src));
+  });
+  chart.render();
+}

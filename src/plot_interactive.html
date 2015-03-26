@@ -8,6 +8,17 @@
 <script type="text/javascript" src="plot_interactive.js"></script>
 </head>
 <body>
+  <form id="filters">
+    <fieldset class="label">
+      <legend>Label:</legend>
+      <input type="text" name="label" placeholder="regex">
+    </fieldset>
+    <fieldset class="src">
+      <legend>Source:</legend>
+      <input type="text" name="src" placeholder="regex">
+    </fieldset>
+    <button type="button" onClick="applyFilters();" />Apply</button>
+  </form>
   <div id="chartContainer" style="height: 1200px; width: 100%;">
   </div>
 </body>
