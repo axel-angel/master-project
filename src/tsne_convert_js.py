@@ -20,7 +20,7 @@ def conv(d): # legacy conversion of label to int
 
 def img_encode(i):
     bio = BytesIO()
-    imsave(bio, flat_shape(img.astype(np.uint8)), format='jpeg')
+    imsave(bio, flat_shape(i.astype(np.uint8)), format='jpeg')
     return b64encode(bio.getvalue())
 
 if __name__ == "__main__":
