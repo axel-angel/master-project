@@ -54,4 +54,6 @@ train translation-invariance: tried to train lenet with multiple copies of each 
 train translation-invariance: with random translation (among given range), one per axis at most (original + shift x + shift y).
 
 after ensuring my translated training set is correct (high accuracy and so), the t-sne seems ``overcrowded'' or much less separated than before. It's like for eevery digit half is clustered and the rest is spread. Probably one region for centered digit, one spread region for displaced. There are a lot of overlap but there seems to have cluster with the similar translation offset (but different digit!). Lots of clusters grouping similar translation offsets: left-shifted, right-shifted, upper-shifted, lower-shifted. I suspect the network learned there are two/three kind of samples not-shifted and shifted ones (left-right up-down kinds). I should try to have a sample appearing once with x-y-combined translation at random.
+
+with translation-invariance: models keep quite good accuracy on original testset, but lost 2\% compared to original model. Accuracy on shifted testset is much lower (down to 91\%) probably because lots of sample are out of the receptive fields or too much information was lost to disambiguate.
 \end{document}
