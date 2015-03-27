@@ -13,10 +13,10 @@
 * can use t-SNE again (or show as image for conv layers)
 * try on other lower layers
 
-* try to train dataset but adding translations (test if it learns of translation anviarance)
+* try to train dataset but adding translations (test if it learns of translation invariance)
 * with shift-invariance: retrain correctly with test images and correct range x-y
 * with shift-invariance: for each digit localize distorted digits, see if they form a cluster inside the digit cluster, can we understand the shape, is there one at all?
-* try for all classes to apply distortions to one test image that is close to the the cluster of pos/neg rotated input (see what happpens, join/straight line/apart)
+* try for all classes to apply distortions to one test image that is close to the cluster of pos/neg rotated input (see what happens, join/straight line/apart)
 * later on: try to combine two/or more transformations at the same time, see if it's a grid (row=1st transf, cols=2nd transfo) in t-SNE space, separate plots, by pairs
 
 * add adversial transformation into the framework
