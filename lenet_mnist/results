@@ -7,6 +7,18 @@ Accuracy: 97.5%, 9754/10000 corrects
 $ python ../src/convnet_test_lmdb.py --proto lenet.prototxt --model snapshots/lenet_mnist_v4-shift3b_iter_10000.caffemodel --lmdb data/test_shift3b
 Accuracy: 91.5%, 27450/30000 corrects
 
+$ python ../src/convnet_test_lmdb.py --proto lenet.prototxt --model snapshots/lenet_mnist_v6-shift4_iter_10000.caffemodel --lmdb ../caffe/examples/mnist/mnist_test_lmdb
+Accuracy: 80.2%, 8021/10000 corrects
+
+$ python ../src/convnet_test_lmdb.py --proto lenet.prototxt --model snapshots/lenet_mnist_v6-shift4_iter_10000.caffemodel --lmdb ../caffe/examples/mnist/mnist_train_lmdb/
+Accuracy: 79.8%, 47855/60000 corrects
+
+$ python ../src/convnet_test.py --proto lenet.prototxt --model snapshots/lenet_mnist_v6-shift4_iter_10000.caffemodel --npz data/test_shift4.npz
+Accuracy: 76.1%, 7611/10000 corrects
+
+$ python ../src/convnet_test.py --proto lenet.prototxt --model snapshots/lenet_mnist_v6-shift4_iter_10000.caffemodel --npz data/train_shift4.npz
+Accuracy: 77.5%, 46480/60000 corrects
+
 > gen dataset
 $ python ../src/gen_transfo.py --in-npz mnist_test.npz --out-npz data/test_shift3b.npz --transfo shift_x:-5:5 --transfo shift_y:-10:10
 $ python ../src/gen_transfo.py --in-npz mnist_test.npz --transfo shift_x:-8:8 shift_y:-6:6 --out-npz data/test_shift4.npz
