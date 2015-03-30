@@ -1,83 +1,75 @@
-#!/usr/bin/python
-# -*- encoding: utf8 -*-
-
+import sys
 import caffe
 import numpy as np
-import sys
-from collections import defaultdict
+import lmdb
 import argparse
+from collections import defaultdict
 
-np.set_printoptions(suppress=True) # no sci notation
+def lmdb_reader(fpath):
+    lmdb_env = lmdb.open(args.lmdb)
+    lmdb_txn = lmdb_env.begin()
+    lmdb_cursor = lmdb_txn.cursor()
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--proto', type=str, help='deploy .prototxt', required=True)
-parser.add_argument('--model', type=str, help='.caffemodel', required=True)
-#parser.add_argument('--mean', type=str, help='mean .npy', default=None)
-#parser.add_argument('--threshold', type=float, help='maxarg', default=0.5)
-parser.add_argument('--npz', type=str,
-        help='numpy arrays data + labels', required=True)
-#parser.add_argument('--dimensions', type=int, nargs='+',
-#        help='image dimension', required=True)
+    for key, value in lmdb_cursor:
+        datum = caffe.proto.caffe_pb2.Datum()
+        datum.ParseFromString(value)
+        label = int(datum.label)
+        image = caffe.io.datum_to_array(datum).astype(np.uint8)
+        yield (key, image, label)
 
-args = parser.parse_args()
+def npz_reader(fpath):
+    npz = np.load(fpath)
 
-caffe.set_mode_cpu()
-#caffe.set_phase_test()
+    xs = npz['arr_0']
+    ls = npz['arr_1']
 
-X = np.load(args.npz)
-data = X['arr_0']
-labels = X['arr_1']
+    for i, (x, l) in enumerate(np.array([ xs, ls ]).T):
+        yield (i, x.reshape(1, *x.shape), l)
 
-labels_set = set()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--proto', type=str, required=True)
+    parser.add_argument('--model', type=str, required=True)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--lmdb', type=str, default=None)
+    group.add_argument('--npz', type=str, default=None)
+    args = parser.parse_args()
 
-assert data.shape[0] == labels.shape[0]
-count = data.shape[0]
+    count = 0
+    correct = 0
+    matrix = defaultdict(int) # (real,pred) -> int
+    labels_set = set()
 
-dims = (data.shape[1], data.shape[2])
-m = caffe.Net(args.proto, args.model, caffe.TEST)
+    net = caffe.Net(args.proto, args.model, caffe.TEST)
+    caffe.set_mode_cpu()
+    print "args", vars(args)
+    if args.lmdb != None:
+        reader = lmdb_reader(args.lmdb)
+    if args.npz != None:
+        reader = npz_reader(args.npz)
 
-matrix = defaultdict(int) # (real,pred) -> int
+    for i, image, label in reader:
+        out = net.forward_all(data=np.asarray([image]))
+        plabel = int(out['prob'][0].argmax(axis=0))
 
-for i in range(count):
-    label = labels[i]
-    out = m.forward_all(data=np.asarray([ np.array([ data[i] ]) ]))
+        count += 1
+        iscorrect = label == plabel
+        correct += (1 if iscorrect else 0)
+        matrix[(label, plabel)] += 1
+        labels_set.update([label, plabel])
 
-    # our pred is the one above threshold else 0 (bias default)
-    #maxpred = np.max(pred)
-    #plabel = np.argmax(pred)
-    plabel = int(np.argmax(out['prob'][0], axis=0))
+        if not iscorrect:
+            print("\rError: i=%s, expected %i but predicted %i" \
+                    % (i, label, plabel))
 
-    iscorrect = plabel == labels[i]
-    matrix[(label, plabel)] += 1
-    labels_set.update([label, plabel])
+        sys.stdout.write("\rAccuracy: %.1f%%" % (100.*correct/count))
+        sys.stdout.flush()
 
-    if not iscorrect:
-        print "\rError: expected %i, got %i, for %i (pred: %s)" \
-                % (label, plabel, i, out['prob'][0].tolist())
+    print(", %i/%i corrects" % (correct, count))
 
-    def cc_gen():
-        for l in labels_set:
-            crt = matrix[(l,l)]
-            cnt = sum(x for (l2,pl), x in matrix.iteritems() if l2 == l)
-            pre = sum(x for (l2,pl), x in matrix.iteritems() if pl == l)
-
-            precis = 100. * crt / pre if pre != 0 else 0
-            recall = 100. * crt / cnt if cnt != 0 else 0
-
-            yield (l, cnt, precis, recall)
-
-    cc_str = " | ".join("%s:%i %.1f%%/%.1f%%" % xs for xs in cc_gen())
-
-    correct = sum(x for (l,pl), x in matrix.iteritems() if l == pl)
-    count = sum(x for (l,pl), x in matrix.iteritems())
-
-    sys.stdout.write("\rAccuracy: %.3f%% (%i | %s)" \
-            % (100.*correct/count, count, cc_str))
-    sys.stdout.flush()
-
-print ""
-print "Confusion matrix:"
-print "(r , p) | count"
-for l in labels_set:
-    for pl in labels_set:
-        print "(%i , %i) | %i" % (l, pl, matrix[(l,pl)])
+    print ""
+    print "Confusion matrix:"
+    print "(r , p) | count"
+    for l in labels_set:
+        for pl in labels_set:
+            print "(%i , %i) | %i" % (l, pl, matrix[(l,pl)])
