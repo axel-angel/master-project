@@ -22,6 +22,10 @@
 * add adversial transformation into the framework
 * later on: given a simple shape which a few neurons detect in a model A, how can we relate to neurons in a second model B trained with translation-invariance (wrt to neuron activation: activated at the same time in A and B but with transalation in B). Can we find a relation between neurons. (ref to visualizing cnns, forget for now because it's hard)
 
+* rerun different seed closest t-sne
+* get the closest point to the original digit (apply t-sne)
+* add key for plot (to zoom-in/out)
+
 
 ================================================================================
 == DONE ========================================================================
