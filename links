@@ -4,6 +4,12 @@ article: http://cs.stanford.edu/people/karpathy/cnnembed/
 visualize filters: http://nbviewer.ipython.org/github/BVLC/caffe/blob/master/examples/filter_visualization.ipynb
 courses on NN and CNN: https://www.youtube.com/playlist?list=PL6Xpj9I5qXYEcOhn7TqghAJ6NAPrNmUBH
 
+caffe:
+ pycaffe backward() updates the weights
+ https://groups.google.com/forum/#!searchin/caffe-users/python$20backward/caffe-users/NKsSbZ3boGg/z1KAf3A4dT4J
+ How to update layer parameters from python
+ https://github.com/BVLC/caffe/issues/1855
+
 servers:
 http://wiki.epfl.ch/cvlab-it/resources/computing
 http://wiki.epfl.ch/cvlab-servers
