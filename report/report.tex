@@ -57,5 +57,7 @@ after ensuring my translated training set is correct (high accuracy and so), the
 
 with translation-invariance: models keep quite good accuracy on original testset, but lost 2\% compared to original model. Accuracy on shifted testset is much lower (down to 91\%) probably because lots of sample are out of the receptive fields or too much information was lost to disambiguate.
 
+with translation-invariance: t-sne has kind of 5 kind clusters per digit: right'es (top-left), left'es (bottom-left), high'es (bottom-center), low'es (bottom-right), centered digits. Sometimes they intersect (probably due to optimisation, local optimum = couldn't separate). From the centered-digit cluster, they are 4 outgoing directions that's proportional to the distortion (shift) value. These translation clusters converge to kind of the same for all digits.
+
 using the original model, taking a companion point close in t-sne for one distorted point per class (for large rotation, extreme case) we see that t-sne change a lot: sometimes these points are far apart (more samples = more weight in t-SNE to put them far?), moreover we see the original images rotation-distorted form a loop (extreme negative close to extreme positive), often the original image rotation is split (the line disappears and continues far away), continuity is broken for certain small change?
 \end{document}
