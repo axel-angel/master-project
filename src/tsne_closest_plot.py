@@ -3,22 +3,14 @@
 
 import caffe
 import numpy as np
-import lmdb
 import matplotlib.pyplot as plt
 from utils import partition
-
-def lmdb_get(cursor, i):
-    value = cursor.get("%08d" % (i))
-    datum = caffe.proto.caffe_pb2.Datum()
-    datum.ParseFromString(value)
-    image = caffe.io.datum_to_array(datum).astype(np.uint8)
-    return image
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--tsne-npz', type=str, required=True)
-    parser.add_argument('--data-lmdb', type=str, required=True)
+    parser.add_argument('--data-npz', type=str, required=True)
     parser.add_argument('--filter', type=str, default='')
     parser.add_argument('--top', type=int, default=1)
     parser.add_argument('--dump-top', type=str, default=None)
@@ -35,9 +27,8 @@ if __name__ == "__main__":
     imgs_tr = tsne['imgs_tr_np']
     n_dim = imgs_tr.shape[-2:]
 
-    lmdb_env = lmdb.open(args.data_lmdb)
-    lmdb_txn = lmdb_env.begin()
-    lmdb_cursor = lmdb_txn.cursor()
+    data_npz = np.load(args.data_npz)
+    data_imgs = data_npz['arr_0']
 
     Xn, Xd = partition(lambda y: y[1]['src'] == "dataset", X)
     Y2 = filter(lambda y: args.filter in y[1]['src'], Xn)
@@ -65,7 +56,7 @@ if __name__ == "__main__":
     for i0, e in enumerate(entries):
         imgs[i0, 0] = imgs_tr[e['orig'][2] - dataset_len]
         for i1, (_, _, j) in enumerate(e['ns']):
-            imgs[i0, 1+i1] = lmdb_get(lmdb_cursor, j)
+            imgs[i0, 1+i1] = data_imgs[j]
 
     if args.dump_top:
         print "Dump closest to %s" % (args.dump_top)
