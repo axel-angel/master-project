@@ -30,8 +30,8 @@ class Ui_MainWindow(object):
         self.imgnp = None
 
     def loadImg(self, fpath):
-        imgnp = scipy.ndimage.imread(fpath, flatten=True)
-        imgnp = scipy.misc.imresize(imgnp, size=(28,28))
+        imgnp = scipy.ndimage.imread(fpath, flatten=(not img_incolors))
+        imgnp = scipy.misc.imresize(imgnp, size=img_dims[0:2])
         self.fpath = fpath
         self.imgnp = imgnp
 
@@ -90,7 +90,12 @@ class Ui_MainWindow(object):
 
         for i, net in enumerate(nets):
             print "Forward network"
-            res = net.forward_all(data=np.array([[ imgnp ]]), blobs=['conv1'])
+            # convert from RGBA (X, Y, 4) -> RGB (3, X, Y)
+            if img_incolors:
+                imgcaffe = np.transpose(imgnp[:,:,0:3], axes=[2,0,1])
+            else:
+                imgcaffe = np.array([ imgnp ])
+            res = net.forward_all(data=np.array([ imgcaffe ]), blobs=['conv1'])
             probas = res['prob'][0].flatten().tolist()
             print "probas:", probas
 
@@ -159,9 +164,9 @@ class Ui_MainWindow(object):
     def plot_probas(self, fig, canvas, probas):
         fig.clf()
         plot = fig.add_subplot(1, 1, 1)
-        plot.barh(range(10), probas, height=0.5, align='center')
+        plot.barh(range(len(probas)), probas, height=0.5, align='center')
         plot.set_xlim(0, 1)
-        plot.set_ylim(0, 10)
+        plot.set_ylim(0, len(probas))
         plot.grid(True)
         canvas.draw()
 
@@ -208,6 +213,13 @@ if __name__ == "__main__":
     # FIXME: we suppose it's the same proto for overy model
     nets = [ caffe.Net(args.proto, n, caffe.TEST) for n in args.model ]
     caffe.set_mode_cpu()
+
+    data_dims = np.array([ [blob.width, blob.height, blob.channels]
+                        for net in nets for blob in (net.blobs['data'],) ])
+    img_dims = data_dims[0]
+    img_incolors = img_dims[2] == 3
+    for dims in data_dims[1:]:
+        assert(np.all(img_dims == dims))
 
     app = QApplication(sys.argv)
     myapp = StartQT4()

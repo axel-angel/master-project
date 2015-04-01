@@ -17,9 +17,11 @@ def rangesym(x1, x2, dt):
 def img_identity(i, v):
     return i
 def img_shift_x(i, v):
-    return shift(i, (0,v))
+    extra_dim = [0] * (len(i.shape) - 2)
+    return shift(i, [0,v] + extra_dim)
 def img_shift_y(i, v):
-    return shift(i, (v,0))
+    extra_dim = [0] * (len(i.shape) - 2)
+    return shift(i, [v,0] + extra_dim)
 def img_blur(i, v):
     return gaussian_filter(i, v)
 def img_rotate(i, v):
