@@ -21,6 +21,7 @@ if __name__ == "__main__":
     parser.add_argument('--data-lmdb', type=str, required=True)
     parser.add_argument('--filter', type=str, default='')
     parser.add_argument('--top', type=int, default=1)
+    parser.add_argument('--dump-top', type=str, default=None)
     parser.add_argument('--transfo', type=str, nargs='*', default=[])
     parser.add_argument('--value', type=int, nargs='*', default=[])
     parser.add_argument('--out', type=str, required=True)
@@ -65,6 +66,10 @@ if __name__ == "__main__":
         imgs[i0, 0] = imgs_tr[e['orig'][2] - dataset_len]
         for i1, (_, _, j) in enumerate(e['ns']):
             imgs[i0, 1+i1] = lmdb_get(lmdb_cursor, j)
+
+    if args.dump_top:
+        print "Dump closest to %s" % (args.dump_top)
+        np.savez_compressed(args.dump_top, entries=entries, imgs=imgs)
 
     Y = np.concatenate([ np.concatenate(i, axis=0) for i in imgs ], axis=1)
     plt.imshow(Y, cmap='gray', interpolation='nearest')
