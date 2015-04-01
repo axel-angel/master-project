@@ -28,6 +28,7 @@ if __name__ == "__main__":
     parser.add_argument('--fwd-npz', type=str, required=True)
     parser.add_argument('--pca-npz', type=str, required=True)
     parser.add_argument('--out-npz', type=str, required=True)
+    parser.add_argument('--seed', type=int, default=0)
     args = parser.parse_args()
 
     print "Load data"
@@ -64,9 +65,9 @@ if __name__ == "__main__":
     blobs_pca = pca.transform(blobs)
 
     print "Computing t-SNE"
-    tsne = TSNE(n_components=2, random_state=0, verbose=True)
+    tsne = TSNE(n_components=2, random_state=args.seed, verbose=True)
     pts2 = tsne.fit_transform(blobs_pca)
 
     print "Dump into npz"
-    np.savez_compressed(args.out_npz, imgs_tr_np=imgs_tr_np, tsne=tsne, pts=pts2,
-            infos=infos)
+    np.savez_compressed(args.out_npz, imgs_tr_np=imgs_tr_np, tsne=tsne,
+            pts=pts2, infos=infos)
