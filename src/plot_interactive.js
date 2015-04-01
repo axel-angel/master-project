@@ -58,12 +58,16 @@ window.onload = function () {
   // handle zoom with mouse wheel
   var lastwheel = new Date();
   $('#chartContainer').bind('wheel', function (e) {
+    var dir = e.originalEvent.deltaY < 0 ? +1 : -1;
+    if (e.originalEvent.deltaY == 0) return; // ignore horizontal
     e.preventDefault();
+    zoom(dir);
+  });
+
+  function zoom(dir) {
     var now = new Date();
     if (now - lastwheel < 1000) return; // don't call it too often
-    if (e.originalEvent.deltaY == 0) return; // ignore horizontal
 
-    var dir = e.originalEvent.deltaY < 0 ? +1 : -1;
     var scale = dir > 0 ? 1/2 : 2;
     var subscale = dir > 0 ? +1/4 : -1/2;
 
@@ -78,14 +82,14 @@ window.onload = function () {
     chart.options.axisY.maximum -= dy * subscale;
     chart.render()
     lastwheel = now;
-  });
+  }
 
   var chart_focus = false;
   $('#chartContainer')
     .mouseenter(function () { chart_focus = true; })
     .mouseleave(function () { chart_focus = false; });
 
-  // handle move with keyboard arrows
+  // handle move and zoom with keyboard arrows
   $('body').keydown(onkeypress);
   $('body').keypress(onkeypress);
   function onkeypress(e) {
@@ -98,8 +102,17 @@ window.onload = function () {
     if (e.keyCode == 37) dirx = -1;
     if (e.keyCode == 38) diry = +1;
     if (e.keyCode == 40) diry = -1;
+    if (e.shiftKey && diry != 0) {
+        zoom(diry);
+        e.preventDefault();
+    }
+    else if (dirx != 0 || diry != 0) {
+        move(dirx, diry);
+        e.preventDefault();
+    }
+  }
 
-    if (dirx == 0 && diry == 0) return;
+  function move(dirx, diry) {
     var dx = chart.options.axisX.maximum - chart.options.axisX.minimum;
     var dy = chart.options.axisY.maximum - chart.options.axisY.minimum;
     chart.options.axisX.minimum += dx * dirx / 4;
@@ -107,9 +120,7 @@ window.onload = function () {
     chart.options.axisX.maximum += dx * dirx / 4;
     chart.options.axisY.maximum += dy * diry / 4;
     chart.render();
-
-    e.preventDefault();
-  };
+  }
 }
 
 function applyFilters() {
