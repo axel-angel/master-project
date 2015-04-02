@@ -61,13 +61,14 @@ window.onload = function () {
     var dir = e.originalEvent.deltaY < 0 ? +1 : -1;
     if (e.originalEvent.deltaY == 0) return; // ignore horizontal
     e.preventDefault();
+
+    var now = new Date();
+    if (now - lastwheel < 1000) return; // don't call it too often
     zoom(dir);
+    lastwheel = now;
   });
 
   function zoom(dir) {
-    var now = new Date();
-    if (now - lastwheel < 1000) return; // don't call it too often
-
     var scale = dir > 0 ? 1/2 : 2;
     var subscale = dir > 0 ? +1/4 : -1/2;
 
@@ -81,7 +82,6 @@ window.onload = function () {
     chart.options.axisX.maximum -= dx * subscale;
     chart.options.axisY.maximum -= dy * subscale;
     chart.render()
-    lastwheel = now;
   }
 
   var chart_focus = false;
