@@ -60,4 +60,8 @@ with translation-invariance: models keep quite good accuracy on original testset
 with translation-invariance: t-sne has kind of 5 kind clusters per digit: right'es (top-left), left'es (bottom-left), high'es (bottom-center), low'es (bottom-right), centered digits. Sometimes they intersect (probably due to optimisation, local optimum = couldn't separate). From the centered-digit cluster, they are 4 outgoing directions that's proportional to the distortion (shift) value. These translation clusters converge to kind of the same for all digits.
 
 using the original model, taking a companion point close in t-sne for one distorted point per class (for large rotation, extreme case) we see that t-sne change a lot: sometimes these points are far apart (more samples = more weight in t-SNE to put them far?), moreover we see the original images rotation-distorted form a loop (extreme negative close to extreme positive), often the original image rotation is split (the line disappears and continues far away), continuity is broken for certain small change?
+
+even after rerun different seed closest1b (to extreme rotation) test1 t-sne, we seed occasionally one gap of the curve for rotation. Pairs test1 and closest are still well separated (except for: 0, 7, 9, 3, 6).
+
+get the closest point to the original digit (apply t-sne), we seed the pairs are closer to each other but the original may not be close this time. An other part of the curve may be close/match (rotation at different stage). Conclusion: taking close pair of point, we cannot infer that all distorted versions will be close to the corresponding pair, because more points = more weights, t-SNE will try to separate them more if necessary.
 \end{document}
