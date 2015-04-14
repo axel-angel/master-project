@@ -37,7 +37,7 @@ if __name__ == "__main__":
     count = 0
     count_all = 0
     correct = 0
-    correct_vmax = defaultdict(int) # extreme disto value correctly classified
+    correct_vmaxs = defaultdict(list) # extreme disto value correctly classified
     labels_set = set()
 
     print "Test network against transformations"
@@ -55,9 +55,7 @@ if __name__ == "__main__":
             else:
                 break
 
-        key = (label, j, name)
-        vmax = maxf((v, correct_vmax[key]))
-        correct_vmax[key] = vmax
+        correct_vmaxs[(label, j, name)].append(v)
 
         count += 1
 
@@ -67,5 +65,5 @@ if __name__ == "__main__":
     print ""
     print "Extremum correct classification:"
     print "(l, j, tr) | count"
-    for ((l, j, name), v) in correct_vmax.iteritems():
-        print "(%i, %i, %s) | %i" % (l, j, name, v)
+    for ((l, j, name), vs) in correct_vmaxs.iteritems():
+        print "(%i, %i, %s) | %i" % (l, j, name, np.average(vs))
