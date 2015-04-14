@@ -63,3 +63,32 @@ def partition(pred, iterable):
     for x in iterable:
         (ys if pred(x) else xs).append(x)
     return xs, ys
+
+def parse_transfo(s):
+    try:
+        xs = s.split(':', 2)
+        fmt = [str, int, int]
+        return map(lambda (f,x): f(x), zip(fmt, xs))
+    except:
+        raise argparse.ArgumentTypeError("Invalid")
+
+def lmdb_reader(fpath):
+    lmdb_env = lmdb.open(args.lmdb)
+    lmdb_txn = lmdb_env.begin()
+    lmdb_cursor = lmdb_txn.cursor()
+
+    for key, value in lmdb_cursor:
+        datum = caffe.proto.caffe_pb2.Datum()
+        datum.ParseFromString(value)
+        label = int(datum.label)
+        image = caffe.io.datum_to_array(datum).astype(np.uint8)
+        yield (key, image, label)
+
+def npz_reader(fpath):
+    npz = np.load(fpath)
+
+    xs = npz['arr_0']
+    ls = npz['arr_1']
+
+    for i, (x, l) in enumerate(np.array([ xs, ls ]).T):
+        yield (i, x.reshape(1, *x.shape), l)

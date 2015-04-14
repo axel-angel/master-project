@@ -9,13 +9,6 @@ from random import randint
 import multiprocessing
 from utils import *
 
-def parse_transfo(s):
-    xs = s.split(':', 2)
-    fmt = [str, int, int]
-    if len(xs) != len(fmt):
-        raise argparse.ArgumentTypeError("Invalid")
-    return map(lambda (f,x): f(x), zip(fmt, xs))
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-npz', type=str, required=True)

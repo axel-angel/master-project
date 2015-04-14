@@ -4,27 +4,7 @@ import numpy as np
 import lmdb
 import argparse
 from collections import defaultdict
-
-def lmdb_reader(fpath):
-    lmdb_env = lmdb.open(args.lmdb)
-    lmdb_txn = lmdb_env.begin()
-    lmdb_cursor = lmdb_txn.cursor()
-
-    for key, value in lmdb_cursor:
-        datum = caffe.proto.caffe_pb2.Datum()
-        datum.ParseFromString(value)
-        label = int(datum.label)
-        image = caffe.io.datum_to_array(datum).astype(np.uint8)
-        yield (key, image, label)
-
-def npz_reader(fpath):
-    npz = np.load(fpath)
-
-    xs = npz['arr_0']
-    ls = npz['arr_1']
-
-    for i, (x, l) in enumerate(np.array([ xs, ls ]).T):
-        yield (i, x.reshape(1, *x.shape), l)
+from utils import lmdb_reader, npz_reader
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
