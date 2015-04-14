@@ -63,5 +63,5 @@ using the original model, taking a companion point close in t-sne for one distor
 
 even after rerun different seed closest1b (to extreme rotation) test1 t-sne, we seed occasionally one gap of the curve for rotation. Pairs test1 and closest are still well separated (except for: 0, 7, 9, 3, 6).
 
-get the closest point to the original digit (apply t-sne), we seed the pairs are closer to each other but the original may not be close this time. An other part of the curve may be close/match (rotation at different stage). Conclusion: taking close pair of point, we cannot infer that all distorted versions will be close to the corresponding pair, because more points = more weights, t-SNE will try to separate them more if necessary.
+get the closest point to the original digit (apply t-sne), we seed the pairs are closer to each other but the original may not be close this time. An other part of the curve may be close/match (rotation at different stage). Conclusion: taking close pair of point, we cannot infer that all distorted versions will be close to the corresponding pair, because more points = more weights, t-SNE will try to separate them more if necessary. (close: 1,7,8,2; ok: 0,3,4,6,9)
 \end{document}
