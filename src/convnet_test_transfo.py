@@ -45,7 +45,7 @@ if __name__ == "__main__":
         trf = [ (t['f'], v, t['name'], t['maxf'])
                 for t in trs for v in t['steps']() ]
         for j, (f, v, name, maxf) in enumerate(trf):
-            out = net.forward_all(data=np.asarray([image]))
+            out = net.forward_all(data=np.asarray([ f(image, v) ]))
             plabel = int(out['prob'][0].argmax(axis=0))
 
             count_all += 1
