@@ -53,9 +53,11 @@ if __name__ == "__main__":
             if iscorrect:
                 correct += 1
             else:
-                vmax = maxf(v, correct_vmax[(j, name)])
-                correct_vmax[(label, j, name)] = vmax
                 break
+
+        key = (label, j, name)
+        vmax = maxf((v, correct_vmax[key]))
+        correct_vmax[key] = vmax
 
         count += 1
 
@@ -64,6 +66,6 @@ if __name__ == "__main__":
 
     print ""
     print "Extremum correct classification:"
-    print "(l, j , tr) | count"
+    print "(l, j, tr) | count"
     for ((l, j, name), v) in correct_vmax.iteritems():
-        print "(%i, %i , %s) | %i" % (l, j, name, v)
+        print "(%i, %i, %s) | %i" % (l, j, name, v)
