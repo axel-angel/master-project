@@ -27,10 +27,11 @@ if __name__ == "__main__":
     if args.npz != None:
         reader = npz_reader(args.npz)
 
-    trs = [ { 'f': getattr(utils, 'img_%s' % (tr)), 'name': tr,
+    trs = [ { 'f': getattr(utils, 'img_%s' % (tr)),
+              'name': '%s:%i:%i' % (tr, x, y),
               'steps': lambda: range(x, y, np.sign(y-x)),
               'maxf': np.max if (np.sign(y-x) > 0) else np.min }
-            for (tr,x,y) in args.transfo ]
+            for k, (tr,x,y) in enumerate(args.transfo) ]
     trs_len = len(trs)
     print "Transformations: %s" % ("\n\t".join(map(repr, trs)))
 
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     for i, image, label in reader:
         trf = [ (t['f'], v, t['name'], t['maxf'])
                 for t in trs for v in t['steps']() ]
-        for j, (f, v, name, maxf) in enumerate(trf):
+        for (f, v, name, maxf) in trf:
             out = net.forward_all(data=np.asarray([ f(image, v) ]))
             plabel = int(out['prob'][0].argmax(axis=0))
 
@@ -55,7 +56,7 @@ if __name__ == "__main__":
             else:
                 break
 
-        correct_vmaxs[(label, j, name)].append(v)
+        correct_vmaxs[(label, name)].append(v)
 
         count += 1
 
@@ -64,6 +65,6 @@ if __name__ == "__main__":
 
     print ""
     print "Extremum correct classification:"
-    print "(l, j, tr) | avg"
-    for ((l, j, name), vs) in sorted(correct_vmaxs.iteritems()):
-        print "(%i, %i, %s) | %f" % (l, j, name, np.average(vs))
+    print "(l, tr) | avg"
+    for ((l, name), vs) in sorted(correct_vmaxs.iteritems()):
+        print "(%i, %s) | %f" % (l, name, np.average(vs))
