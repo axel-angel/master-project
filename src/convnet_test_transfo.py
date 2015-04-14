@@ -29,8 +29,7 @@ if __name__ == "__main__":
 
     trs = [ { 'f': getattr(utils, 'img_%s' % (tr)),
               'name': '%s:%i:%i' % (tr, x, y),
-              'steps': lambda: range(x, y, np.sign(y-x)),
-              'maxf': np.max if (np.sign(y-x) > 0) else np.min }
+              'steps': lambda x=x,y=y: range(x, y, np.sign(y-x)) }
             for k, (tr,x,y) in enumerate(args.transfo) ]
     trs_len = len(trs)
     print "Transformations: %s" % ("\n\t".join(map(repr, trs)))
@@ -43,20 +42,20 @@ if __name__ == "__main__":
 
     print "Test network against transformations"
     for i, image, label in reader:
-        trf = [ (t['f'], v, t['name'], t['maxf'])
-                for t in trs for v in t['steps']() ]
-        for (f, v, name, maxf) in trf:
-            out = net.forward_all(data=np.asarray([ f(image, v) ]))
-            plabel = int(out['prob'][0].argmax(axis=0))
+        for tr in trs:
+            f, name = tr['f'], tr['name']
+            for v in tr['steps']():
+                out = net.forward_all(data=np.asarray([ f(image, v) ]))
+                plabel = int(out['prob'][0].argmax(axis=0))
 
-            count_all += 1
-            iscorrect = label == plabel
-            if iscorrect:
-                correct += 1
-            else:
-                break
+                count_all += 1
+                iscorrect = label == plabel
+                if iscorrect:
+                    correct += 1
+                else:
+                    break
 
-        correct_vmaxs[(label, name)].append(v)
+            correct_vmaxs[(label, name)].append(v)
 
         count += 1
 
