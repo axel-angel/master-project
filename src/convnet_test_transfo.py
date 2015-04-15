@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import division
 import sys
 import caffe
 import numpy as np
@@ -38,9 +39,7 @@ if __name__ == "__main__":
     print "Transformations: %s" % ("\n\t".join(map(repr, trs)))
 
     count = 0
-    count_all = 0
-    correct = 0
-    correct_vmaxs = defaultdict(list) # extreme disto value correctly classified
+    accuracies = defaultdict(list) # extreme disto value correctly classified
     labels_set = set()
 
     print "Test network against transformations"
@@ -48,18 +47,17 @@ if __name__ == "__main__":
         for i, image, label in reader:
             for tr in trs:
                 f, name = tr['f'], tr['name']
+                i_correct = 0
+                i_count = 0
                 for v in tr['steps']():
                     out = net.forward_all(data=np.asarray([ f(image, v) ]))
                     plabel = int(out['prob'][0].argmax(axis=0))
 
-                    count_all += 1
+                    i_count += 1
                     iscorrect = label == plabel
-                    if iscorrect:
-                        correct += 1
-                    else:
-                        break
+                    i_correct += 1 if iscorrect else 0
 
-                correct_vmaxs[(label, name)].append(v)
+                accuracies[(label, name)].append(i_correct / i_count)
 
             count += 1
 
@@ -70,7 +68,7 @@ if __name__ == "__main__":
 
     print ""
     print "Extremum correct classification:"
-    print "(l, tr) | avg ± stddev [count]"
-    for ((l, name), vs) in sorted(correct_vmaxs.iteritems()):
+    print "(l, tr) | accu ± stddev [count]"
+    for ((l, name), vs) in sorted(accuracies.iteritems()):
         print "(%i, %s) | %f ± %f [%i]" \
                 % (l, name, np.average(vs), np.std(vs), len(vs))
