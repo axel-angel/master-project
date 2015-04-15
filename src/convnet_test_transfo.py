@@ -64,6 +64,7 @@ if __name__ == "__main__":
 
     print ""
     print "Extremum correct classification:"
-    print "(l, tr) | avg"
+    print "(l, tr) | avg ± stddev [count]"
     for ((l, name), vs) in sorted(correct_vmaxs.iteritems()):
-        print "(%i, %s) | %f" % (l, name, np.average(vs))
+        print "(%i, %s) | %f ± %f [%i]" \
+                % (l, name, np.average(vs), np.std(vs), len(vs))
