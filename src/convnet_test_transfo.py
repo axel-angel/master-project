@@ -44,26 +44,29 @@ if __name__ == "__main__":
     labels_set = set()
 
     print "Test network against transformations"
-    for i, image, label in reader:
-        for tr in trs:
-            f, name = tr['f'], tr['name']
-            for v in tr['steps']():
-                out = net.forward_all(data=np.asarray([ f(image, v) ]))
-                plabel = int(out['prob'][0].argmax(axis=0))
+    try:
+        for i, image, label in reader:
+            for tr in trs:
+                f, name = tr['f'], tr['name']
+                for v in tr['steps']():
+                    out = net.forward_all(data=np.asarray([ f(image, v) ]))
+                    plabel = int(out['prob'][0].argmax(axis=0))
 
-                count_all += 1
-                iscorrect = label == plabel
-                if iscorrect:
-                    correct += 1
-                else:
-                    break
+                    count_all += 1
+                    iscorrect = label == plabel
+                    if iscorrect:
+                        correct += 1
+                    else:
+                        break
 
-            correct_vmaxs[(label, name)].append(v)
+                correct_vmaxs[(label, name)].append(v)
 
-        count += 1
+            count += 1
 
-        sys.stdout.write("\rRunning: %i" % (count))
-        sys.stdout.flush()
+            sys.stdout.write("\rRunning: %i" % (count))
+            sys.stdout.flush()
+    except KeyboardInterrupt:
+        print "\nStopping as requested"
 
     print ""
     print "Extremum correct classification:"
