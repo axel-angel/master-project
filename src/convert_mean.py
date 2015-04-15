@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import sys
 sys.path.append('../../caffe/python/')
 import numpy as np
