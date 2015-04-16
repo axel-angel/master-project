@@ -28,13 +28,15 @@ fw, bw = n.forward_backward_all(blobs=['conv1'], diffs=['conv1'],
 # FIXME: Need to optimize this computations! (use vector/matrix)
 print "Compute adversial noise (fast gradient sign method)"
 diff = np.zeros(img.shape)
-for x in range(4, 24):
- for y in range(4, 24):
-  for i in range(20):
+conv1_params = n.params['conv1'][0].data
+conv1_bw = bw['conv1'][0]
+for i in range(20):
+ for x in range(4, 24):
+  for y in range(4, 24):
+   bw_ixy = conv1_bw[i,x-2,y-2]
    for u in range(5):
     for v in range(5):
-     diff[x,y] -= n.params['conv1'][0].data[i,0,4-u,4-v] \
-                * bw['conv1'][0,i,x-2,y-2]
+     diff[x,y] -= conv1_params[i,0,4-u,4-v] * bw_ixy
 
 print "Apply and classify"
 scale = 0.05
