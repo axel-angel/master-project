@@ -37,20 +37,18 @@ for x in range(4, 24):
                 * bw['conv1'][0,i,x-2,y-2]
 
 print "Apply and classify"
-worked = False
 scale = 0.05
-while not worked:
+for _ in range(10):
     img2 = np.clip(img + np.sign(diff) * scale * 255, 0, 255)
     ret = n.forward_all(data=np.array([[ img2 ]]), label=np.array([[[[ 0 ]]]]))
     pl = np.argmax(ret['prob'][0])
-    print "Scale", scale
-    print "Label:", pl
-    print "Loss:", ret['loss']
-    worked = pl != real_label
-    scale *= 2
-    if scale >= 10:
-        print "Failing, abort!"
-        exit()
+    print "Label", pl, "for scale", scale
 
-plt.imshow(img2, interpolation='nearest', cmap='gray');
+    worked = pl != real_label
+    if worked:
+        break
+    else:
+        scale *= 1.5
+
+plt.imshow(img2, interpolation='nearest', cmap='gray')
 plt.show()
