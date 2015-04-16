@@ -66,8 +66,9 @@ def partition(pred, iterable):
 
 def parse_transfo(s):
     try:
-        xs = s.split(':', 2)
-        fmt = [str, int, int]
+        # format: tr:x:y or tr:x:y:z
+        xs = s.split(':', 3)
+        fmt = [str, int, int, int]
         return map(lambda (f,x): f(x), zip(fmt, xs))
     except:
         raise argparse.ArgumentTypeError("Invalid")

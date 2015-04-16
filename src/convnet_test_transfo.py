@@ -33,8 +33,8 @@ if __name__ == "__main__":
 
     trs = [ { 'f': getattr(utils, 'img_%s' % (tr)),
               'name': '%s:%i:%i' % (tr, x, y),
-              'steps': lambda x=x,y=y: range(x, y, np.sign(y-x)) }
-            for k, (tr,x,y) in enumerate(args.transfo) ]
+              'steps': lambda x=x,y=y,dt=dt: range(x, y, dt*np.sign(y-x)) }
+            for k, (tr,x,y,dt) in enumerate(args.transfo) ]
     trs_len = len(trs)
     print "Transformations: %s" % ("\n\t".join(map(repr, trs)))
 
