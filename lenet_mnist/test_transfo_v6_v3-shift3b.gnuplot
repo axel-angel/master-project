@@ -13,4 +13,4 @@ plot for [COL=2:6:2] 'test_transfo_v6_v3-shift3b_translate.data' using (abs(colu
 
 set title "Accuracy % of testset for rotation"
 set output 'test_transfo_v6_v3-shift3b_rotate.png'
-plot for [COL=2:4:2] 'test_transfo_v6_v3-shift3b_rotate.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)
+plot for [COL=2:6:2] 'test_transfo_v6_v3-shift3b_rotate.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)

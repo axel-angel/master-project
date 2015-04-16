@@ -20,8 +20,9 @@ $ python ../src/convnet_test.py --proto lenet.prototxt --model snapshots/lenet_m
 Accuracy: 77.5%, 46480/60000 corrects
 
 > gen dataset
-$ python ../src/gen_transfo.py --in-npz mnist_test.npz --out-npz data/test_shift3b.npz --transfo shift_x:-5:5 --transfo shift_y:-10:10
+$ python ../src/gen_transfo.py --in-npz mnist_test.npz --out-npz data/test_shift3b.npz --transfo identity:0:0 --transfo shift_x:-5:5 --transfo shift_y:-10:10
 $ python ../src/gen_transfo.py --in-npz mnist_test.npz --transfo shift_x:-8:8 shift_y:-6:6 --out-npz data/test_shift4.npz
+$ python ../src/gen_transfo.py --in-npz mnist_test.npz --transfo shift_x:-8:8 shift_y:-6:6 --transfo shift_x:-8:8 shift_y:-6:6 --transfo shift_x:-8:8 shift_y:-6:6 --out-npz data/test_shift5.npz
 
 > distortion measures
 
@@ -200,6 +201,72 @@ snapshots/lenet_mnist_v6-shift4_iter_10000.caffemodel
 (8, rotate:0:90:5) | 0.055441 ± 0.002515 [974]
 (9, rotate:0:-90:5) | 0.053684 ± 0.010025 [1009]
 (9, rotate:0:90:5) | 0.053684 ± 0.010025 [1009]
+
+> python -i ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/lenet_mnist_v7-shift5_iter_10000.caffemodel --npz mnist_test.npz --transfo shift_x:0:+10:1 --transfo shift_x:0:-10:1 --transfo shift_y:0:+10:1 --transfo shift_y:0:-10:1
+(l, tr) | accu ± stddev [count]
+(0, shift_x:0:-10:1) | 0.929184 ± 0.135320 [980]
+(0, shift_x:0:10:1) | 0.941939 ± 0.122084 [980]
+(0, shift_y:0:-10:1) | 0.097755 ± 0.014814 [980]
+(0, shift_y:0:10:1) | 0.097755 ± 0.014814 [980]
+(1, shift_x:0:-10:1) | 0.145110 ± 0.184057 [1135]
+(1, shift_x:0:10:1) | 0.018943 ± 0.080103 [1135]
+(1, shift_y:0:-10:1) | 0.900352 ± 0.005926 [1135]
+(1, shift_y:0:10:1) | 0.900352 ± 0.005926 [1135]
+(2, shift_x:0:-10:1) | 0.763081 ± 0.184431 [1032]
+(2, shift_x:0:10:1) | 0.892926 ± 0.145669 [1032]
+(2, shift_y:0:-10:1) | 0.096318 ± 0.018832 [1032]
+(2, shift_y:0:10:1) | 0.096318 ± 0.018832 [1032]
+(3, shift_x:0:-10:1) | 0.774752 ± 0.280181 [1010]
+(3, shift_x:0:10:1) | 0.652475 ± 0.288112 [1010]
+(3, shift_y:0:-10:1) | 0.085941 ± 0.034760 [1010]
+(3, shift_y:0:10:1) | 0.085941 ± 0.034760 [1010]
+(4, shift_x:0:-10:1) | 0.770672 ± 0.223505 [982]
+(4, shift_x:0:10:1) | 0.836151 ± 0.177005 [982]
+(4, shift_y:0:-10:1) | 0.096436 ± 0.018539 [982]
+(4, shift_y:0:10:1) | 0.096436 ± 0.018539 [982]
+(5, shift_x:0:-10:1) | 0.629933 ± 0.270174 [892]
+(5, shift_x:0:10:1) | 0.636547 ± 0.308091 [892]
+(5, shift_y:0:-10:1) | 0.083969 ± 0.036690 [892]
+(5, shift_y:0:10:1) | 0.083969 ± 0.036690 [892]
+(6, shift_x:0:-10:1) | 0.712630 ± 0.157807 [958]
+(6, shift_x:0:10:1) | 0.963570 ± 0.108600 [958]
+(6, shift_y:0:-10:1) | 0.098121 ± 0.013578 [958]
+(6, shift_y:0:10:1) | 0.098121 ± 0.013578 [958]
+(7, shift_x:0:-10:1) | 0.877724 ± 0.217565 [1028]
+(7, shift_x:0:10:1) | 0.778113 ± 0.290675 [1028]
+(7, shift_y:0:-10:1) | 0.081615 ± 0.038736 [1028]
+(7, shift_y:0:10:1) | 0.081615 ± 0.038736 [1028]
+(8, shift_x:0:-10:1) | 0.963244 ± 0.091442 [974]
+(8, shift_x:0:10:1) | 0.854107 ± 0.115345 [974]
+(8, shift_y:0:-10:1) | 0.099589 ± 0.006395 [974]
+(8, shift_y:0:10:1) | 0.099589 ± 0.006395 [974]
+(9, shift_x:0:-10:1) | 0.775520 ± 0.278189 [1009]
+(9, shift_x:0:10:1) | 0.667889 ± 0.199850 [1009]
+(9, shift_y:0:-10:1) | 0.088900 ± 0.031413 [1009]
+(9, shift_y:0:10:1) | 0.088900 ± 0.031413 [1009]
+
+> python -i ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/lenet_mnist_v7-shift5_iter_10000.caffemodel --npz mnist_test.npz --transfo rotate:0:+90:5 --transfo rotate:0:-90:5
+(0, rotate:0:-90:5) | 0.054308 ± 0.008230 [980]
+(0, rotate:0:90:5) | 0.054308 ± 0.008230 [980]
+(1, rotate:0:-90:5) | 0.944640 ± 0.003292 [1135]
+(1, rotate:0:90:5) | 0.944640 ± 0.003292 [1135]
+(2, rotate:0:-90:5) | 0.053510 ± 0.010462 [1032]
+(2, rotate:0:90:5) | 0.053510 ± 0.010462 [1032]
+(3, rotate:0:-90:5) | 0.047745 ± 0.019311 [1010]
+(3, rotate:0:90:5) | 0.047745 ± 0.019311 [1010]
+(4, rotate:0:-90:5) | 0.053575 ± 0.010300 [982]
+(4, rotate:0:90:5) | 0.053575 ± 0.010300 [982]
+(5, rotate:0:-90:5) | 0.046649 ± 0.020383 [892]
+(5, rotate:0:90:5) | 0.046649 ± 0.020383 [892]
+(6, rotate:0:-90:5) | 0.054512 ± 0.007543 [958]
+(6, rotate:0:90:5) | 0.054512 ± 0.007543 [958]
+(7, rotate:0:-90:5) | 0.045342 ± 0.021520 [1028]
+(7, rotate:0:90:5) | 0.045342 ± 0.021520 [1028]
+(8, rotate:0:-90:5) | 0.055327 ± 0.003553 [974]
+(8, rotate:0:90:5) | 0.055327 ± 0.003553 [974]
+(9, rotate:0:-90:5) | 0.049389 ± 0.017452 [1009]
+(9, rotate:0:90:5) | 0.049389 ± 0.017452 [1009]
+
 
 > old
 $ python ../src/convnet_test_lmdb.py --proto lenet.prototxt --model snapshots/lenet_mnist_v3-shift_iter_10000.caffemodel --lmdb data/test_shift
