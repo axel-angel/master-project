@@ -1,11 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import sys
 import caffe
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.misc import imread, imsave
 import argparse
+import itertools
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--proto', type=str, required=True)
@@ -15,6 +17,35 @@ parser.add_argument('--real-label', type=int, required=True)
 parser.add_argument('--target-label', type=int, required=True)
 parser.add_argument('--out', type=str, default=None)
 args = parser.parse_args()
+
+def crackRandom(img, scale, tries=-1):
+ founds = []
+
+ try:
+  for iter in (xrange(tries) if tries > 0 else itertools.count()):
+      diffs = [ np.random.random(img.shape) * scale for _ in range(64) ]
+      imgs = [ np.clip(img + d * scale * 255, 0, 255) for d in diffs ]
+
+      imgs_caffe = np.array(imgs).reshape(64, 1, 28, 28)
+      labels_caffe = np.array([ [[[0]]] ]*64) # unused
+
+      ret = n.forward_all(data=imgs_caffe, label=labels_caffe)
+      probs = ret['prob'].reshape(-1, 10)
+      plabels = np.argmax(probs, axis=1)
+
+      if np.any(plabels != args.real_label):
+          idx = [ i for i,x in enumerate(plabels) if x != args.real_label ]
+          founds.extend( (iter, diffs[i], plabels[i]) for i in idx )
+      else:
+          sys.stderr.write("\rTry: %i/%i (%i found)" \
+                  % (iter, tries, len(founds)))
+
+ except KeyboardInterrupt:
+     pass
+
+ sys.stderr.write("\nFound: %i over %i tries\n" % (len(founds), iter))
+ return founds # found None
+
 
 n = caffe.Net(args.proto, args.model, caffe.TEST)
 
