@@ -4,7 +4,7 @@
 import caffe
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.misc import imread
+from scipy.misc import imread, imsave
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -13,6 +13,7 @@ parser.add_argument('--model', type=str, required=True)
 parser.add_argument('--image', type=str, required=True)
 parser.add_argument('--real-label', type=int, required=True)
 parser.add_argument('--target-label', type=int, required=True)
+parser.add_argument('--out', type=str, default=None)
 args = parser.parse_args()
 
 n = caffe.Net(args.proto, args.model, caffe.TEST)
@@ -52,5 +53,10 @@ for _ in range(10):
     else:
         scale *= 1.5
 
-plt.imshow(img2, interpolation='nearest', cmap='gray')
-plt.show()
+if args.out:
+    if args.out == "-":
+        plt.imshow(img2, interpolation='nearest', cmap='gray')
+        plt.show()
+    else:
+        print "Save adversial figure in %s" % (args.out)
+        imsave(args.out, img2)
