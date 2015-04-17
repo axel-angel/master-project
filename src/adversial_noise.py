@@ -16,6 +16,8 @@ parser.add_argument('--image', type=str, required=True)
 parser.add_argument('--real-label', type=int, required=True)
 parser.add_argument('--target-label', type=int, required=True)
 parser.add_argument('--out', type=str, default=None)
+parser.add_argument('--crack', type=int, default=0)
+parser.add_argument('--crack-out', type=str, default=None)
 args = parser.parse_args()
 
 def crackRandom(img, scale, tries=-1):
@@ -35,7 +37,7 @@ def crackRandom(img, scale, tries=-1):
 
       if np.any(plabels != args.real_label):
           idx = [ i for i,x in enumerate(plabels) if x != args.real_label ]
-          founds.extend( (iter, diffs[i], plabels[i]) for i in idx )
+          founds.extend( imgs[i] for i in idx )
       else:
           sys.stderr.write("\rTry: %i/%i (%i found)" \
                   % (iter, tries, len(founds)))
@@ -44,7 +46,7 @@ def crackRandom(img, scale, tries=-1):
      pass
 
  sys.stderr.write("\nFound: %i over %i tries\n" % (len(founds), iter))
- return founds # found None
+ return founds
 
 
 n = caffe.Net(args.proto, args.model, caffe.TEST)
@@ -76,7 +78,7 @@ for _ in range(10):
     img2 = np.clip(img + np.sign(diff) * scale * 255, 0, 255)
     ret = n.forward_all(data=np.array([[ img2 ]]), label=np.array([[[[ 0 ]]]]))
     pl = np.argmax(ret['prob'][0])
-    print "Label", pl, "for scale", scale
+    print "Label", pl, "instead of", real_label, "at scale", scale
 
     worked = pl != real_label
     if worked:
@@ -91,3 +93,13 @@ if args.out:
     else:
         print "Save adversial figure in %s" % (args.out)
         imsave(args.out, img2)
+
+if args.crack and args.crack_out:
+    print "Crack at scale %f on %s" % (scale, args.image)
+    res = crackRandom(img, scale, args.crack)
+
+    if len(res) > 0:
+        print "Save crack in %s" % (args.crack_out)
+        imsave(args.crack_out, np.concatenate(res, axis=1))
+    else:
+        print "No crack to save, exiting"
