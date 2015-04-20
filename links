@@ -6,6 +6,9 @@ courses on NN and CNN: https://www.youtube.com/playlist?list=PL6Xpj9I5qXYEcOhn7T
 train from python: http://nbviewer.ipython.org/github/BVLC/caffe/blob/tutorial/examples/01-learning-lenet.ipynb
 fine-tune from python: http://nbviewer.ipython.org/github/BVLC/caffe/blob/tutorial/examples/03-fine-tuning.ipynb
 
+BSDS dataset http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/resources.html
+paper CNN codes for boundary detection: http://sites.skoltech.ru/compvision/projects/n4/
+
 caffe:
  pycaffe backward() updates the weights
  https://groups.google.com/forum/#!searchin/caffe-users/python$20backward/caffe-users/NKsSbZ3boGg/z1KAf3A4dT4J
