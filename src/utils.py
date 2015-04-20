@@ -17,11 +17,9 @@ def rangesym(x1, x2, dt):
 def img_identity(i, v):
     return i
 def img_shift_x(i, v):
-    extra_dim = [0] * (len(i.shape) - 2)
-    return shift(i, [0,v] + extra_dim)
+    return shift(i, [0,v])
 def img_shift_y(i, v):
-    extra_dim = [0] * (len(i.shape) - 2)
-    return shift(i, [v,0] + extra_dim)
+    return shift(i, [v,0])
 def img_blur(i, v):
     return gaussian_filter(i, v)
 def img_rotate(i, v):
@@ -83,7 +81,7 @@ def lmdb_reader(fpath):
         datum.ParseFromString(value)
         label = int(datum.label)
         image = caffe.io.datum_to_array(datum).astype(np.uint8)
-        yield (key, image, label)
+        yield (key, flat_shape(image), label)
 
 def npz_reader(fpath):
     npz = np.load(fpath)
@@ -92,4 +90,4 @@ def npz_reader(fpath):
     ls = npz['arr_1']
 
     for i, (x, l) in enumerate(np.array([ xs, ls ]).T):
-        yield (i, x.reshape(1, *x.shape), l)
+        yield (i, x, l)

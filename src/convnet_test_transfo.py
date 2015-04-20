@@ -50,7 +50,9 @@ if __name__ == "__main__":
                 i_correct = 0
                 i_count = 0
                 for v in tr['steps']():
-                    out = net.forward_all(data=np.asarray([ f(image, v) ]))
+                    image2 = f(image, v)
+                    image2_caffe = image2.reshape(1, *image.shape)
+                    out = net.forward_all(data=np.asarray([ image2_caffe ]))
                     plabel = int(out['prob'][0].argmax(axis=0))
 
                     i_count += 1

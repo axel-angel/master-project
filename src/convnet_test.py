@@ -32,7 +32,8 @@ if __name__ == "__main__":
         reader = npz_reader(args.npz)
 
     for i, image, label in reader:
-        out = net.forward_all(data=np.asarray([image]))
+        image_caffe = image.reshape(1, *image.shape)
+        out = net.forward_all(data=np.asarray([ image_caffe ]))
         plabel = int(out['prob'][0].argmax(axis=0))
 
         count += 1
