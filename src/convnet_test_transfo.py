@@ -32,7 +32,7 @@ if __name__ == "__main__":
         reader = npz_reader(args.npz)
 
     trs = [ { 'f': getattr(utils, 'img_%s' % (tr)),
-              'name': '%s:%i:%i:%i' % (tr, x, y, dt),
+              'name': '%s:%+i:%+i:%i' % (tr, x, y, dt),
               'steps': lambda x=x,y=y,dt=dt: range(x, y, dt*np.sign(y-x)) }
             for k, (tr,x,y,dt) in enumerate(args.transfo) ]
     trs_len = len(trs)
