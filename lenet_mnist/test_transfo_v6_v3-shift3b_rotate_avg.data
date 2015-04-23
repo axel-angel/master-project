@@ -1,0 +1,2 @@
+digit:transfo:x:y  i         std         i+x+y     std       3*xy      std       i+xyr     std
+avg                 0.580595  0.163034   0.494017  0.209371  0.399987  0.238652  0.507704  0.251412 
