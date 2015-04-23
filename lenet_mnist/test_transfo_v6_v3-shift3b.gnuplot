@@ -7,7 +7,7 @@ set style fill solid 1.0 border lt -1
 set bars front
 
 set terminal pngcairo font 'Droid Sans,9' size 3200,600
-set title "Accuracy % of testset for translation"
+set title "Accuracy % of testset for translation (x+y)"
 set output 'test_transfo_v6_v3-shift3b_translate.png'
 plot for [COL=2:16:2] 'test_transfo_v6_v3-shift3b_translate.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)
 
@@ -23,3 +23,8 @@ plot for [COL=2:8:2] 'test_transfo_v6_v3-shift3b_rotate.data' using (abs(column(
 set terminal pngcairo font 'Droid Sans,9' size 600,600
 set output 'test_transfo_v6_v3-shift3b_rotate_avg.png'
 plot for [COL=2:8:2] 'test_transfo_v6_v3-shift3b_rotate_avg.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)
+
+set terminal pngcairo font 'Droid Sans,9' size 1200,600
+set title "Accuracy % of testset for translation (xy)"
+set output 'test_transfo_translate-v2.png'
+plot for [COL=2:16:2] 'test_transfo_translate-v2.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)
