@@ -33,14 +33,16 @@ if __name__ == "__main__":
         num_cores = multiprocessing.cpu_count()
         pool = multiprocessing.Pool(num_cores)
         res = defaultdict(list)
+        count = 0
         for i, xs in enumerate(pool.imap_unordered(process, reader)):
             if xs == None:
                 continue
+            count += 1
 
             for k, v in xs.iteritems():
                 res[k].append(v)
 
-            sys.stdout.write("Progress %i, found %i\r" % (i, len(res)))
+            sys.stdout.write("Progress %i, found %i\r" % (i, count))
             sys.stdout.flush()
 
     except KeyboardInterrupt:
