@@ -27,10 +27,10 @@ n = caffe.Net(args.proto, args.model, caffe.TEST)
 print "Load and forward"
 img = imread(args.image, flatten=True)
 res = gen_adversial(n, img, args.real_label, args.target_label, tries=10)
-img2 = res['img']
-scale = res['scale']
+img2 = res.get('img', None)
+scale = res.get('scale', 0.25)
 
-if args.out:
+if args.out and res != None:
     if args.out == "-":
         plt.imshow(img2, interpolation='nearest', cmap='gray')
         plt.show()
@@ -39,8 +39,20 @@ if args.out:
         imsave(args.out, img2)
 
 if args.crack and args.crack_out:
-    print "Found adversial (scale %f) saved in %s" % (scale, args.image)
-    res = gen_adversial_random(n, img, args.real_label, scale, args.crack)
+    print "Found adversial (scale %f) for %s" % (scale, args.image)
+    tries = args.crack
+    res = []
+    try:
+        for round in (xrange(tries) if tries > 0 else itertools.count()):
+            iter = gen_adversial_random(n, img, args.real_label, scale)
+            for x in iter:
+                res.append(x)
+
+            sys.stderr.write("\rTry: %i/%i (%i found)" \
+                    % (round, tries, len(res)))
+
+    except KeyboardInterrupt:
+        pass
 
     if len(res) > 0:
         print "Save crack in %s" % (args.crack_out)
