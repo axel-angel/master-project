@@ -112,13 +112,15 @@ def gen_adversial_random(net, img, real_label, scale):
 
 
 def gen_adversial(net, img, real_label, target_label,
-        tries=10, scale=0.05, scale_factor = 1.5, layer = 'conv1'):
+        tries=10, scale=0.05, scale_factor = 1.5, layer = 'conv1',
+        verbose=False):
 
     fw, bw = net.forward_backward_all(blobs=[layer], diffs=[layer],
             data=np.array([[ img ]]),
             label=np.array([[[[ target_label ]]]]))
 
-    print "Compute adversial noise (fast gradient sign method)"
+    if verbose:
+        print "Compute adversial noise (fast gradient sign method)"
     diff = np.zeros(img.shape)
     conv1_params = net.params[layer][0].data
     conv1_bw = bw[layer][0]
@@ -130,13 +132,16 @@ def gen_adversial(net, img, real_label, target_label,
         for v in range(5):
          diff[x,y] -= conv1_params[i,0,4-u,4-v] * bw_ixy
 
-    print "Apply and classify"
+    if verbose:
+        print "Apply and classify"
     for _ in range(tries):
         img2 = np.clip(img + np.sign(diff) * scale * 255, 0, 255)
         ret = net.forward_all(data=np.array([[ img2 ]]),
                               label=np.array([[[[ 0 ]]]]))
         predict_label = np.argmax(ret['prob'][0])
-        print "Label %s not %s (scale=%f)" % (predict_label, real_label, scale)
+        if verbose:
+            print "Label %s not %s (scale=%f)" \
+                    % (predict_label, real_label, scale)
 
         if predict_label != real_label:
             return { 'diff': diff, 'img': img2, 'label': predict_label,

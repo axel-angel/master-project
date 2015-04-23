@@ -26,7 +26,8 @@ n = caffe.Net(args.proto, args.model, caffe.TEST)
 
 print "Load and forward"
 img = imread(args.image, flatten=True)
-res = gen_adversial(n, img, args.real_label, args.target_label, tries=10)
+res = gen_adversial(n, img, args.real_label, args.target_label,
+        tries=10, verbose=True)
 img2 = res.get('img', None)
 scale = res.get('scale', 0.25)
 
