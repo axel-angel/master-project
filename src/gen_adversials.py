@@ -5,10 +5,9 @@ import sys
 import caffe
 import numpy as np
 import argparse
-import utils
 from collections import defaultdict
 import multiprocessing
-from utils import *
+from utils import npz_reader, gen_adversial
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -24,23 +23,24 @@ if __name__ == "__main__":
     net = caffe.Net(args.proto, args.model, caffe.TEST)
     caffe.set_mode_cpu()
 
-    labels = set(range(0, 10))
-    def process( (i, x, l) ):
-        for tl in labels - set([ l ]):
-            return gen_adversial(net, x, l, tl)
+    labels = set(range(0, 10)) # FIXME: suppose MNIST
+    def process( (i, img, l) ):
+        mylabels = labels - set([ l ])
+        return [ gen_adversial(net, img, l, tl) for tl in mylabels ]
 
     try:
         num_cores = multiprocessing.cpu_count()
         pool = multiprocessing.Pool(num_cores)
         res = defaultdict(list)
         count = 0
-        for i, xs in enumerate(pool.imap_unordered(process, reader)):
-            if xs == None:
-                continue
-            count += 1
+        for i, xss in enumerate(pool.imap_unordered(process, reader)):
+            for xs in xss:
+                if xs is None:
+                    continue
 
-            for k, v in xs.iteritems():
-                res[k].append(v)
+                for k, v in xs.iteritems():
+                    res[k].append(v)
+                count += 1
 
             sys.stdout.write("Progress %i, found %i\r" % (i, count))
             sys.stdout.flush()
