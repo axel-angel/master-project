@@ -10,6 +10,7 @@ import argparse
 from collections import defaultdict
 from utils import lmdb_reader, npz_reader, parse_transfo
 import utils
+import multiprocessing
 
 def mkCombinaisons(ranges):
     vals = map(lambda x: [x], ranges[0])
@@ -62,22 +63,30 @@ if __name__ == "__main__":
     labels_set = set()
 
     print "Test network against transformations"
+    def process( (i, image, label) ):
+        res = []
+        for tr in trs:
+            f, name = tr['f'], tr['name']
+
+            image2 = f(image)
+            image2_caffe = image2.reshape(1, *image.shape)
+            out = net.forward_all(data=np.asarray([ image2_caffe ]))
+            plabel = int(out['prob'][0].argmax(axis=0))
+
+            iscorrect = label == plabel
+            res.append((label, name, int(iscorrect)))
+
+        return res
+
+    print "Start parallel testing"
     try:
-        for i, image, label in reader:
-            for tr in trs:
-                f, name = tr['f'], tr['name']
-
-                image2 = f(image)
-                image2_caffe = image2.reshape(1, *image.shape)
-                out = net.forward_all(data=np.asarray([ image2_caffe ]))
-                plabel = int(out['prob'][0].argmax(axis=0))
-
-                iscorrect = label == plabel
-                accuracies[(label, name)].append(int(iscorrect))
-
-            count += 1
-
-            sys.stdout.write("\rRunning: %i" % (count))
+        num_cores = multiprocessing.cpu_count()
+        pool = multiprocessing.Pool(num_cores)
+        res = []
+        for i, xs in enumerate(pool.imap_unordered(process, reader)):
+            for (label, name, iscorrect) in xs:
+                accuracies[(label, name)].append(iscorrect)
+            sys.stdout.write("\rRunning: %i" % (i))
             sys.stdout.flush()
     except KeyboardInterrupt:
         print "\nStopping as requested"
