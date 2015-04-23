@@ -73,7 +73,7 @@ def parse_transfo(s):
         raise argparse.ArgumentTypeError("Invalid")
 
 def lmdb_reader(fpath):
-    lmdb_env = lmdb.open(args.lmdb)
+    lmdb_env = lmdb.open(fpath)
     lmdb_txn = lmdb_env.begin()
     lmdb_cursor = lmdb_txn.cursor()
 
