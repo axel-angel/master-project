@@ -6,6 +6,7 @@ from scipy.ndimage.interpolation import rotate, shift
 from scipy.ndimage.filters import gaussian_filter
 import scipy.misc
 from skimage.transform import PiecewiseAffineTransform, warp
+import sys
 
 def flat_shape(x):
     "Returns x without singleton dimension, eg: (1,28,28) -> (28,28)"
@@ -91,3 +92,66 @@ def npz_reader(fpath):
 
     for i, (x, l) in enumerate(np.array([ xs, ls ]).T):
         yield (i, x, l)
+
+
+def gen_adversial_random(net, img, real_label, scale, tries=-1):
+ founds = []
+
+ try:
+  for iter in (xrange(tries) if tries > 0 else itertools.count()):
+      diffs = [ np.random.random(img.shape) * scale for _ in range(64) ]
+      imgs = [ np.clip(img + d * scale * 255, 0, 255) for d in diffs ]
+
+      imgs_caffe = np.array(imgs).reshape(64, 1, 28, 28)
+      labels_caffe = np.array([ [[[0]]] ]*64) # unused
+
+      ret = net.forward_all(data=imgs_caffe, label=labels_caffe)
+      probs = ret['prob'].reshape(-1, 10)
+      plabels = np.argmax(probs, axis=1)
+
+      if np.any(plabels != real_label):
+          idx = [ i for i,x in enumerate(plabels) if x != real_label ]
+          founds.extend( imgs[i] for i in idx )
+      else:
+          sys.stderr.write("\rTry: %i/%i (%i found)" \
+                  % (iter, tries, len(founds)))
+
+ except KeyboardInterrupt:
+     pass
+
+ sys.stderr.write("\nFound: %i over %i tries\n" % (len(founds), iter))
+ return founds
+
+
+def gen_adversial(net, img, real_label, target_label,
+        tries=10, scale=0.05, scale_factor = 1.5, layer = 'conv1'):
+
+    fw, bw = net.forward_backward_all(blobs=[layer], diffs=[layer],
+            data=np.array([[ img ]]),
+            label=np.array([[[[ target_label ]]]]))
+
+    print "Compute adversial noise (fast gradient sign method)"
+    diff = np.zeros(img.shape)
+    conv1_params = net.params[layer][0].data
+    conv1_bw = bw[layer][0]
+    for i in range(20):
+     for x in range(4, 24):
+      for y in range(4, 24):
+       bw_ixy = conv1_bw[i,x-2,y-2]
+       for u in range(5):
+        for v in range(5):
+         diff[x,y] -= conv1_params[i,0,4-u,4-v] * bw_ixy
+
+    print "Apply and classify"
+    for _ in range(tries):
+        img2 = np.clip(img + np.sign(diff) * scale * 255, 0, 255)
+        ret = net.forward_all(data=np.array([[ img2 ]]),
+                              label=np.array([[[[ 0 ]]]]))
+        predict_label = np.argmax(ret['prob'][0])
+        print "Label %s not %s (scale=%f)" % (predict_label, real_label, scale)
+
+        if predict_label != real_label:
+            return { 'diff': diff, 'img': img2, 'label': predict_label,
+                     'scale': scale }
+        else:
+            scale *= scale_factor
