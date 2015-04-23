@@ -94,10 +94,12 @@ if __name__ == "__main__":
     print ""
     print "Extremum correct classification:"
     print "(l, tr) | accu ± stddev [count]"
+    count = 0
     total_avg = []
     for ((l, name), vs) in sorted(accuracies.iteritems()):
         avg = np.average(vs)
         total_avg.append(avg)
+        count += len(vs)
         print "(%i, %s) | %f ± %f [%i]" % (l, name, avg, np.std(vs), len(vs))
     # average
     print "(%s, %s) | %f ± %f [%i]" \
