@@ -11,12 +11,21 @@ from collections import defaultdict
 from utils import lmdb_reader, npz_reader, parse_transfo
 import utils
 
+def mkCombinaisons(ranges):
+    vals = map(lambda x: [x], ranges[0])
+    for r in ranges[1:]:
+        print "r", r
+        ys = []
+        vals2 = [ xs + [y] for xs in vals for y in r ]
+        vals = vals2
+    return vals
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--proto', type=str, required=True)
     parser.add_argument('--model', type=str, required=True)
-    parser.add_argument('--transfo', type=parse_transfo, action='append',
-            default=[])
+    parser.add_argument('--transfo', type=parse_transfo, nargs='+',
+            action='append', default=[], required=True)
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--lmdb', type=str, default=None)
     group.add_argument('--npz', type=str, default=None)
@@ -31,10 +40,20 @@ if __name__ == "__main__":
     if args.npz != None:
         reader = npz_reader(args.npz)
 
-    trs = [ { 'f': getattr(utils, 'img_%s' % (tr)),
-              'name': '%s:%+i:%+i:%i' % (tr, x, y, dt),
-              'steps': lambda x=x,y=y,dt=dt: range(x, y, dt*np.sign(y-x)) }
-            for k, (tr,x,y,dt) in enumerate(args.transfo) ]
+    trs = []
+    for k, transfos in enumerate(args.transfo):
+        name = "+".join("("+ ('%s:%+i:%+i:%i' % (tr, x, y, dt)) + ")"
+                        for (tr, x, y, dt) in transfos)
+        ranges = [ range(x, y, dt*np.sign(y-x)) for (tr,x,y,dt) in transfos ]
+        values = mkCombinaisons(ranges)
+        for vs in values:
+            myf = lambda i: i
+            def reducer( f, (tf, v) ):
+                return lambda i: tf(f(i), v)
+            fs = [ getattr(utils, 'img_%s' % (tr)) for (tr,x,y,dt) in transfos ]
+            f = reduce(reducer, zip(fs, vs), myf)
+            trs.append({ 'f': f, 'name': name })
+
     trs_len = len(trs)
     print "Transformations: %s" % ("\n\t".join(map(repr, trs)))
 
@@ -47,19 +66,14 @@ if __name__ == "__main__":
         for i, image, label in reader:
             for tr in trs:
                 f, name = tr['f'], tr['name']
-                i_correct = 0
-                i_count = 0
-                for v in tr['steps']():
-                    image2 = f(image, v)
-                    image2_caffe = image2.reshape(1, *image.shape)
-                    out = net.forward_all(data=np.asarray([ image2_caffe ]))
-                    plabel = int(out['prob'][0].argmax(axis=0))
 
-                    i_count += 1
-                    iscorrect = label == plabel
-                    i_correct += 1 if iscorrect else 0
+                image2 = f(image)
+                image2_caffe = image2.reshape(1, *image.shape)
+                out = net.forward_all(data=np.asarray([ image2_caffe ]))
+                plabel = int(out['prob'][0].argmax(axis=0))
 
-                accuracies[(label, name)].append(i_correct / i_count)
+                iscorrect = label == plabel
+                accuracies[(label, name)].append(int(iscorrect))
 
             count += 1
 
