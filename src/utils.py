@@ -144,7 +144,7 @@ def gen_adversial(net, img, real_label, target_label,
                     % (predict_label, real_label, scale)
 
         if predict_label != real_label:
-            return { 'diff': diff, 'img': img2, 'label': predict_label,
-                     'scale': scale }
+            return { 'diff': diff, 'img': img2, 'label': real_label,
+                     'plabel': predict_label, 'scale': scale }
         else:
             scale *= scale_factor
