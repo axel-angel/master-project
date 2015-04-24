@@ -22,6 +22,12 @@
 * boundary detection (dataset BSDS): train boundary detector (there is a curve passing through center pixel = 1, or 0) on patches of an image. plot t-sne (of all patches of a single image), interpret what clusters means, (never done before?), what about cluster intersections?
 * boundary detection different models: 0/1 curve on central pixel, multi-class based on angles (8 classes), angle regression (directly: loss - angle) <- never done in CNN (?)
 
+shift invariance: test transfo only with a single sample x+y (no grid) to be fair
+shift-invariance: with an other (easy) dataset, boundary detection
+shift invariance: be fair with train range versus test range
+try to relate data augmentation (cost of freedom-degrees invariance) wrt accuracy, and can we measure the capacity (afterward)?
+try to plot capacity during training, compare different data augmentation (original versus shift), maybe gradient contribution is higher for a certain sort of degrees
+
 
 
 ================================================================================
