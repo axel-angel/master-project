@@ -33,3 +33,8 @@ set terminal pngcairo font 'Droid Sans,9' size 1200,600
 set title "Accuracy % of testset for rotation"
 set output 'test_transfo_rotate-v2.png'
 plot for [COL=2:16:2] 'test_transfo_rotate-v2.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)
+
+set terminal pngcairo font 'Droid Sans,9' size 1200,600
+set title "Incorrectly classified % of adversial"
+set output 'test_transfo_adversial.png'
+plot for [COL=2:16:2] 'test_transfo_adversial.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)
