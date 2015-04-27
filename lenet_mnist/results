@@ -59,10 +59,14 @@ $ python ../src/gen_transfo.py --in-npz mnist_${t}.npz --transfo shift_x:-8:8 sh
 $ python ../src/gen_transfo.py --in-npz mnist_${t}.npz --transfo shift_x:-8:8 shift_y:-6:6 --transfo shift_x:-8:8 shift_y:-6:6 --transfo shift_x:-8:8 shift_y:-6:6 --transfo shift_x:-8:8 shift_y:-6:6 --transfo shift_x:-8:8 shift_y:-6:6 --out-npz data/${t}_shift5d.npz
 $ python ../src/gen_transfo.py --in-npz mnist_${t}.npz --transfo identity:0:0 --transfo rotate:-30:30 shift_x:-8:8 shift_y:-6:6 --out-npz data/${t}_shift6.npz
 
+$ python ../src/gen_transfo.py --in-npz mnist_${t}.npz --transfo rotate:-45:45 --out-npz data/${t}_rotate1.npz
+$ python ../src/gen_transfo.py --in-npz mnist_${t}.npz --transfo rotate:-45:45 --transfo rotate:-45:45 --out-npz data/${t}_rotate1b.npz
+$ python ../src/gen_transfo.py --in-npz mnist_${t}.npz --transfo rotate:-45:45 --transfo rotate:-45:45 --transfo rotate:-45:45 --out-npz data/${t}_rotate1c.npz
+
 > distortion measures
 
-> (shift x+y not fair)
-> python -i ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/lenet_mnist_v7-shift5 --npz mnist_test.npz --transfo shift_x:0:+10:1 --transfo shift_x:0:-10:1 --transfo shift_y:0:+10:1 --transfo shift_y:0:-10:1
+> shift x+y unfair (x or y is unrealistic)!
+> python -i ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/lenet_mnist_v7-shift5 --npz mnist_test.npz --transfo-grid shift_x:0:+10:1 --transfo-grid shift_x:0:-10:1 --transfo-grid shift_y:0:+10:1 --transfo-grid shift_y:0:-10:1
 
 lenet_mnist_v5-orig_iter_10000.caffemodel
 (l, tr) | accu ± stddev [count]
@@ -416,8 +420,8 @@ lenet_mnist_v7-shift6_iter_10000.caffemodel
 (9, shift_y:0:10:1) | 0.292468 ± 0.213895 [1009]
 (-, avg) | 0.649546 ± 0.280623 [10000]
 
-> (rotation extreme)
-> python -i ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/lenet_mnist_v5-orig_iter_10000.caffemodel --npz mnist_test.npz --transfo rotate:0:+90:5 --transfo rotate:0:-90:5
+> extreme rotations -90 to +90
+> python -i ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/lenet_mnist_v5-orig_iter_10000.caffemodel --npz mnist_test.npz --transfo-grid rotate:0:+90:5 --transfo-grid rotate:0:-90:5
 
 lenet_mnist_v5-orig_iter_10000.caffemodel
 (l, tr) | accu ± stddev [count]
@@ -515,8 +519,8 @@ lenet_mnist_v7-shift6_iter_10000.caffemodel
 (9, rotate:0:+90:5) | 0.652792 ± 0.254972 [1009]
 (-, avg) | 0.507704 ± 0.251412 [10000]
 
-> (shift xy grid, fair)
-> OPENBLAS_NUM_THREADS=1 time python ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/lenet_mnist_v5-orig_iter_10000.caffemodel --npz mnist_test.npz --transfo shift_x:-15:+15:3 shift_y:-15:+15:3
+> shift xy grid, fair but not realistic
+> OPENBLAS_NUM_THREADS=1 time python ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/lenet_mnist_v5-orig_iter_10000.caffemodel --npz mnist_test.npz --transfo-grid shift_x:-15:+15:3 shift_y:-15:+15:3
 
 lenet_mnist_v5-orig_iter_10000.caffemodel
 (l, tr) | accu ± stddev [count]
@@ -630,8 +634,263 @@ lenet_mnist_v7-shift6_iter_10000.caffemodel
 (9, (shift_x:-15:+15:3)+(shift_y:-15:+15:3)) | 0.128563 ± 0.334716 [100900]
 (-, avg) | 0.278545 ± 0.168253 [1000000]
 
+> shift x+y rnd, fair and realistic, decreased extreme values
+> OPENBLAS_NUM_THREADS=1 time python ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/lenet_mnist_v5-orig_iter_10000.caffemodel --npz mnist_test.npz --transfo-random shift_x:-10:+10 shift_y:-10:+10
+
+lenet_mnist_v5-orig_iter_10000.caffemodel
+0:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.083673  0.276897  980
+1:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.142731  0.349799  1135
+2:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.341085  0.474074  1032
+3:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.270297  0.444113  1010
+4:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.234216  0.423508  982
+5:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.275785  0.446909  892
+6:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.155532  0.362411  958
+7:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.221790  0.415451  1028
+8:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.211499  0.408371  974
+9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.091179  0.287864  1009
+avg:ALL  0.202779  0.079323  10000
+29.30user 1.14system 0:03.05elapsed 997%CPU (0avgtext+0avgdata 323952maxresident)k
+16inputs+24outputs (0major+97179minor)pagefaults 0swaps
+
+lenet_mnist_v3-shift3_iter_10000.caffemodel
+0:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.511224  0.499874  980
+1:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.188546  0.391148  1135
+2:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.643411  0.478992  1032
+3:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.498020  0.499996  1010
+4:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.624236  0.484319  982
+5:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.295964  0.456475  892
+6:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.513570  0.499816  958
+7:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.475681  0.499408  1028
+8:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.824435  0.380449  974
+9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.384539  0.486486  1009
+avg:ALL  0.495963  0.171455  10000
+
+lenet_mnist_v6-shift4_iter_10000.caffemodel
+0:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.803061  0.397686  980
+1:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.037885  0.190919  1135
+2:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.816860  0.386781  1032
+3:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.576238  0.494154  1010
+4:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.640530  0.479845  982
+5:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.385650  0.486749  892
+6:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.700418  0.458075  958
+7:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.599222  0.490056  1028
+8:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.819302  0.384768  974
+9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.516353  0.499733  1009
+avg:ALL  0.589552  0.227260  10000
+
+lenet_mnist_v7-shift5_iter_10000.caffemodel
+0:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.790816  0.406726  980
+1:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.088106  0.283449  1135
+2:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.717054  0.450430  1032
+3:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.606931  0.488432  1010
+4:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.681263  0.465987  982
+5:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.478700  0.499546  892
+6:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.787056  0.409388  958
+7:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.715953  0.450959  1028
+8:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.840862  0.365804  974
+9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.631318  0.482447  1009
+avg:ALL  0.633806  0.207248  10000
+
+lenet_mnist_v7-shift5b_iter_10000.caffemodel
+0:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.768367  0.421876  980
+1:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.011454  0.106408  1135
+2:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.750969  0.432452  1032
+3:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.317822  0.465630  1010
+4:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.620163  0.485346  982
+5:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.090807  0.287335  892
+6:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.615866  0.486390  958
+7:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.610895  0.487547  1028
+8:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.943532  0.230824  974
+9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.452924  0.497779  1009
+avg:ALL  0.518280  0.284617  10000
+
+lenet_mnist_v7-shift5c_iter_10000.caffemodel
+0:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.648980  0.477289  980
+1:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.044934  0.207159  1135
+2:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.757752  0.428444  1032
+3:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.577228  0.494000  1010
+4:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.673116  0.469074  982
+5:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.503363  0.499989  892
+6:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.693111  0.461203  958
+7:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.592412  0.491386  1028
+8:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.821355  0.383055  974
+9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.674926  0.468403  1009
+avg:ALL  0.598718  0.203448  10000
+
+lenet_mnist_v7-shift5d_iter_10000.caffemodel
+0:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.724490  0.446771  980
+1:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.099559  0.299412  1135
+2:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.753876  0.430752  1032
+3:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.639604  0.480115  1010
+4:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.613035  0.487056  982
+5:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.575112  0.494326  892
+6:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.752610  0.431496  958
+7:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.657588  0.474517  1028
+8:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.865503  0.341185  974
+9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.545094  0.497962  1009
+avg:ALL  0.622647  0.196712  10000
+
+lenet_mnist_v7-shift6_iter_10000.caffemodel
+0:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.578571  0.493788  980
+1:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.014097  0.117891  1135
+2:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.716085  0.450896  1032
+3:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.603960  0.489073  1010
+4:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.316701  0.465190  982
+5:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.413677  0.492492  892
+6:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.458246  0.498254  958
+7:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.299611  0.458088  1028
+8:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.887064  0.316515  974
+9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.244797  0.429967  1009
+avg:ALL  0.453281  0.239968  10000
+
+> rotate r rnd, fair and realistic, decreased extreme values
+> OPENBLAS_NUM_THREADS=1 time python ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/lenet_mnist_v5-orig_iter_10000.caffemodel --npz mnist_test.npz --transfo-random rotate:-45:45
+
+lenet_mnist_v5-orig_iter_10000.caffemodel
+0:(RND:rotate:-45:+45)  0.981633  0.134276  980
+1:(RND:rotate:-45:+45)  0.759471  0.427405  1135
+2:(RND:rotate:-45:+45)  0.854651  0.352452  1032
+3:(RND:rotate:-45:+45)  0.934653  0.247136  1010
+4:(RND:rotate:-45:+45)  0.677189  0.467551  982
+5:(RND:rotate:-45:+45)  0.887892  0.315499  892
+6:(RND:rotate:-45:+45)  0.831942  0.373918  958
+7:(RND:rotate:-45:+45)  0.607977  0.488202  1028
+8:(RND:rotate:-45:+45)  0.916838  0.276127  974
+9:(RND:rotate:-45:+45)  0.847374  0.359627  1009
+avg:ALL  0.829962  0.111072  10000
+
+lenet_mnist_v3-shift3_iter_10000.caffemodel
+0:(RND:rotate:-45:+45)  0.977551  0.148139  980
+1:(RND:rotate:-45:+45)  0.444053  0.496860  1135
+2:(RND:rotate:-45:+45)  0.786822  0.409553  1032
+3:(RND:rotate:-45:+45)  0.783168  0.412087  1010
+4:(RND:rotate:-45:+45)  0.566191  0.495599  982
+5:(RND:rotate:-45:+45)  0.598655  0.490171  892
+6:(RND:rotate:-45:+45)  0.825678  0.379386  958
+7:(RND:rotate:-45:+45)  0.589494  0.491926  1028
+8:(RND:rotate:-45:+45)  0.962012  0.191166  974
+9:(RND:rotate:-45:+45)  0.777998  0.415592  1009
+avg:ALL  0.731162  0.166794  10000
+
+lenet_mnist_v6-shift4_iter_10000.caffemodel
+0:(RND:rotate:-45:+45)  0.917347  0.275357  980
+1:(RND:rotate:-45:+45)  0.081938  0.274271  1135
+2:(RND:rotate:-45:+45)  0.811047  0.391472  1032
+3:(RND:rotate:-45:+45)  0.592079  0.491448  1010
+4:(RND:rotate:-45:+45)  0.414460  0.492629  982
+5:(RND:rotate:-45:+45)  0.349776  0.476899  892
+6:(RND:rotate:-45:+45)  0.772443  0.419255  958
+7:(RND:rotate:-45:+45)  0.503891  0.499985  1028
+8:(RND:rotate:-45:+45)  0.904517  0.293880  974
+9:(RND:rotate:-45:+45)  0.421209  0.493753  1009
+avg:ALL  0.576871  0.258662  10000
+
+lenet_mnist_v7-shift5_iter_10000.caffemodel
+0:(RND:rotate:-45:+45)  0.953061  0.211508  980
+1:(RND:rotate:-45:+45)  0.008811  0.093450  1135
+2:(RND:rotate:-45:+45)  0.656008  0.475039  1032
+3:(RND:rotate:-45:+45)  0.540594  0.498349  1010
+4:(RND:rotate:-45:+45)  0.588595  0.492088  982
+5:(RND:rotate:-45:+45)  0.421525  0.493803  892
+6:(RND:rotate:-45:+45)  0.858038  0.349012  958
+7:(RND:rotate:-45:+45)  0.419261  0.493438  1028
+8:(RND:rotate:-45:+45)  0.937372  0.242293  974
+9:(RND:rotate:-45:+45)  0.591675  0.491524  1009
+avg:ALL  0.597494  0.269422  10000
+
+lenet_mnist_v7-shift5b_iter_10000.caffemodel
+0:(RND:rotate:-45:+45)  0.967347  0.177727  980
+1:(RND:rotate:-45:+45)  0.006167  0.078290  1135
+2:(RND:rotate:-45:+45)  0.661822  0.473090  1032
+3:(RND:rotate:-45:+45)  0.267327  0.442564  1010
+4:(RND:rotate:-45:+45)  0.572301  0.494745  982
+5:(RND:rotate:-45:+45)  0.070628  0.256202  892
+6:(RND:rotate:-45:+45)  0.587683  0.492252  958
+7:(RND:rotate:-45:+45)  0.450389  0.497533  1028
+8:(RND:rotate:-45:+45)  0.948665  0.220680  974
+9:(RND:rotate:-45:+45)  0.531219  0.499024  1009
+avg:ALL  0.506355  0.307281  10000
+
+lenet_mnist_v7-shift5c_iter_10000.caffemodel
+0:(RND:rotate:-45:+45)  0.953061  0.211508  980
+1:(RND:rotate:-45:+45)  0.063436  0.243746  1135
+2:(RND:rotate:-45:+45)  0.699612  0.458427  1032
+3:(RND:rotate:-45:+45)  0.620792  0.485190  1010
+4:(RND:rotate:-45:+45)  0.548880  0.497605  982
+5:(RND:rotate:-45:+45)  0.524664  0.499391  892
+6:(RND:rotate:-45:+45)  0.810021  0.392284  958
+7:(RND:rotate:-45:+45)  0.466926  0.498905  1028
+8:(RND:rotate:-45:+45)  0.909651  0.286681  974
+9:(RND:rotate:-45:+45)  0.705649  0.455750  1009
+avg:ALL  0.630269  0.243084  10000
+
+lenet_mnist_v7-shift5d_iter_10000.caffemodel
+0:(RND:rotate:-45:+45)  0.921429  0.269069  980
+1:(RND:rotate:-45:+45)  0.134802  0.341512  1135
+2:(RND:rotate:-45:+45)  0.568798  0.495244  1032
+3:(RND:rotate:-45:+45)  0.414851  0.492696  1010
+4:(RND:rotate:-45:+45)  0.458248  0.498254  982
+5:(RND:rotate:-45:+45)  0.541480  0.498276  892
+6:(RND:rotate:-45:+45)  0.854906  0.352196  958
+7:(RND:rotate:-45:+45)  0.279183  0.448598  1028
+8:(RND:rotate:-45:+45)  0.938398  0.240431  974
+9:(RND:rotate:-45:+45)  0.532210  0.498961  1009
+avg:ALL  0.564431  0.255510  10000
+
+lenet_mnist_v7-shift6_iter_10000.caffemodel
+0:(RND:rotate:-45:+45)  0.973469  0.160707  980
+1:(RND:rotate:-45:+45)  0.061674  0.240563  1135
+2:(RND:rotate:-45:+45)  0.897287  0.303584  1032
+3:(RND:rotate:-45:+45)  0.882178  0.322397  1010
+4:(RND:rotate:-45:+45)  0.592668  0.491338  982
+5:(RND:rotate:-45:+45)  0.869955  0.336353  892
+6:(RND:rotate:-45:+45)  0.724426  0.446803  958
+7:(RND:rotate:-45:+45)  0.422179  0.493907  1028
+8:(RND:rotate:-45:+45)  0.985626  0.119026  974
+9:(RND:rotate:-45:+45)  0.707631  0.454851  1009
+avg:ALL  0.711709  0.274374  10000
+
+lenet_mnist_v7-rotate1_iter_10000.caffemodel
+0:(RND:rotate:-45:+45)  0.985714  0.118666  980
+1:(RND:rotate:-45:+45)  0.983260  0.128296  1135
+2:(RND:rotate:-45:+45)  0.990310  0.097959  1032
+3:(RND:rotate:-45:+45)  0.990099  0.099010  1010
+4:(RND:rotate:-45:+45)  0.979633  0.141251  982
+5:(RND:rotate:-45:+45)  0.978700  0.144384  892
+6:(RND:rotate:-45:+45)  0.967641  0.176952  958
+7:(RND:rotate:-45:+45)  0.962062  0.191046  1028
+8:(RND:rotate:-45:+45)  0.981520  0.134681  974
+9:(RND:rotate:-45:+45)  0.973241  0.161379  1009
+avg:ALL  0.979218  0.008774  10000
+
+lenet_mnist_v7-rotate1b_iter_10000.caffemodel
+0:(RND:rotate:-45:+45)  0.989796  0.100499  980
+1:(RND:rotate:-45:+45)  0.833480  0.372547  1135
+2:(RND:rotate:-45:+45)  0.986434  0.115680  1032
+3:(RND:rotate:-45:+45)  0.980198  0.139319  1010
+4:(RND:rotate:-45:+45)  0.982688  0.130430  982
+5:(RND:rotate:-45:+45)  0.975336  0.155098  892
+6:(RND:rotate:-45:+45)  0.905010  0.293201  958
+7:(RND:rotate:-45:+45)  0.954280  0.208877  1028
+8:(RND:rotate:-45:+45)  0.992813  0.084470  974
+9:(RND:rotate:-45:+45)  0.962339  0.190375  1009
+avg:ALL  0.956238  0.047696  10000
+
+lenet_mnist_v7-rotate1c_iter_10000.caffemodel
+0:(RND:rotate:-45:+45)  0.988776  0.105349  980
+1:(RND:rotate:-45:+45)  0.982379  0.131570  1135
+2:(RND:rotate:-45:+45)  0.990310  0.097959  1032
+3:(RND:rotate:-45:+45)  0.973267  0.161301  1010
+4:(RND:rotate:-45:+45)  0.982688  0.130430  982
+5:(RND:rotate:-45:+45)  0.980942  0.136730  892
+6:(RND:rotate:-45:+45)  0.977035  0.149790  958
+7:(RND:rotate:-45:+45)  0.970817  0.168319  1028
+8:(RND:rotate:-45:+45)  0.984600  0.123139  974
+9:(RND:rotate:-45:+45)  0.976214  0.152382  1009
+avg:ALL  0.980703  0.006050  10000
+
 > vulnerability to adversial (of v5, original model)
-> OPENBLAS_NUM_THREADS=1 time nice python ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/${m} --npz data/adv_test1.npz.bak.testset.npz --transfo identity:0:1:1
+> OPENBLAS_NUM_THREADS=1 time nice python ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/${m} --npz data/adv_test1.npz.bak.testset.npz --transfo-grid identity:0:1:1
 
 lenet_mnist_v5-orig_iter_10000.caffemodel
 (l, tr) | accu ± stddev [count]
@@ -746,7 +1005,7 @@ lenet_mnist_v7-shift6_iter_10000.caffemodel
 (-, avg) | 0.172248 ± 0.250429 [86548]
 
 > adversial correct accuracy
-> OPENBLAS_NUM_THREADS=1 time nice python ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/${m} --npz data/adv_test1_testset.npz --transfo identity:0:1:1
+> OPENBLAS_NUM_THREADS=1 time nice python ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/${m} --npz data/adv_test1_testset.npz --transfo-grid identity:0:1:1
 
 lenet_mnist_v5-orig_iter_10000.caffemodel
 (l, tr) | accu ± stddev [count]
