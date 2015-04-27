@@ -124,7 +124,7 @@ if __name__ == "__main__":
         avg = np.average(vs)
         total_avg.append(avg)
         count += len(vs)
-        print "(%i, %s) | %f ± %f [%i]" % (l, name, avg, np.std(vs), len(vs))
+        print "%i:%s  %f  %f  %i" % (l, name, avg, np.std(vs), len(vs))
     # average
-    print "(%s, %s) | %f ± %f [%i]" \
-            % ('-', 'avg', np.average(total_avg), np.std(total_avg), count)
+    print "%s:%s  %f  %f  %i" \
+            % ('avg', 'ALL', np.average(total_avg), np.std(total_avg), count)
