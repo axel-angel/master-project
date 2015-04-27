@@ -9,6 +9,7 @@ import lmdb
 import argparse
 from collections import defaultdict
 from utils import lmdb_reader, npz_reader, parse_transfo
+from random import randint
 import utils
 import multiprocessing
 
@@ -21,15 +22,47 @@ def mkCombinaisons(ranges):
         vals = vals2
     return vals
 
+def parse_transfo_grid(transfo_grid):
+    trs = []
+    for k, transfos in enumerate(transfo_grid):
+        name = "*".join("("+ ('ALL:%s:%+i:%+i:%i' % (tr, x, y, dt)) + ")"
+                        for (tr, x, y, dt) in transfos)
+        ranges = [ range(x, y, dt*np.sign(y-x)) for (tr,x,y,dt) in transfos ]
+        values = mkCombinaisons(ranges)
+        for vs in values:
+            myf = lambda i: i
+            def reducer( f, (tf, v) ):
+                return lambda i: tf(f(i), v)
+            trfs = [ getattr(utils, 'img_%s' % (tr))
+                    for (tr,x,y,dt) in transfos ]
+            f = reduce(reducer, zip(trfs, vs), myf)
+            trs.append({ 'f': f, 'name': name })
+    return trs
+
+def parse_transfo_random(transfo_random):
+    trs = []
+    def fold_transfo(f, (tr, x, y)):
+        trf = getattr(utils, 'img_%s' % (tr))
+        return lambda i: trf(f(i), randint(x, y))
+    for transfos in args.transfo_random:
+        name = "+".join("("+ ('RND:%s:%+i:%+i' % (tr, x, y)) + ")"
+                        for (tr, x, y) in transfos)
+        foldedf = reduce(fold_transfo, transfos, lambda i: i)
+        trs.append({ 'f': foldedf, 'name': name })
+    return trs
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--proto', type=str, required=True)
     parser.add_argument('--model', type=str, required=True)
-    parser.add_argument('--transfo', type=parse_transfo, nargs='+',
-            action='append', default=[], required=True)
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--lmdb', type=str, default=None)
-    group.add_argument('--npz', type=str, default=None)
+    group1 = parser.add_mutually_exclusive_group(required=True)
+    group1.add_argument('--transfo-grid', type=parse_transfo, nargs='+',
+            action='append', default=None)
+    group1.add_argument('--transfo-random', type=parse_transfo, nargs='+',
+            action='append', default=None)
+    group2 = parser.add_mutually_exclusive_group(required=True)
+    group2.add_argument('--lmdb', type=str, default=None)
+    group2.add_argument('--npz', type=str, default=None)
     args = parser.parse_args()
 
     print "Load model"
@@ -41,19 +74,10 @@ if __name__ == "__main__":
     if args.npz != None:
         reader = npz_reader(args.npz)
 
-    trs = []
-    for k, transfos in enumerate(args.transfo):
-        name = "+".join("("+ ('%s:%+i:%+i:%i' % (tr, x, y, dt)) + ")"
-                        for (tr, x, y, dt) in transfos)
-        ranges = [ range(x, y, dt*np.sign(y-x)) for (tr,x,y,dt) in transfos ]
-        values = mkCombinaisons(ranges)
-        for vs in values:
-            myf = lambda i: i
-            def reducer( f, (tf, v) ):
-                return lambda i: tf(f(i), v)
-            fs = [ getattr(utils, 'img_%s' % (tr)) for (tr,x,y,dt) in transfos ]
-            f = reduce(reducer, zip(fs, vs), myf)
-            trs.append({ 'f': f, 'name': name })
+    if args.transfo_grid:
+        trs = parse_transfo_grid(args.transfo_grid)
+    if args.transfo_random:
+        trs = parse_transfo_random(args.transfo_random)
 
     trs_len = len(trs)
     print "Transformations: %s" % ("\n\t".join(map(repr, trs)))
