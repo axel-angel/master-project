@@ -743,6 +743,45 @@ lenet_mnist_v7-shift6_iter_10000.caffemodel
 9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.244797  0.429967  1009
 avg:ALL  0.453281  0.239968  10000
 
+lenet_mnist_v7-rotate1_iter_10000.caffemodel
+0:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.044898  0.207080  980
+1:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.173568  0.378738  1135
+2:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.331395  0.470715  1032
+3:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.292079  0.454719  1010
+4:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.217923  0.412835  982
+5:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.193946  0.395387  892
+6:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.097077  0.296063  958
+7:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.209144  0.406697  1028
+8:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.161191  0.367707  974
+9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.090188  0.286451  1009
+avg:ALL  0.181141  0.084582  10000
+
+lenet_mnist_v7-rotate1b_iter_10000.caffemodel
+0:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.073469  0.260905  980
+1:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.055507  0.228966  1135
+2:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.397287  0.489336  1032
+3:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.274257  0.446139  1010
+4:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.209776  0.407149  982
+5:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.205157  0.403816  892
+6:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.077244  0.266979  958
+7:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.182879  0.386568  1028
+8:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.169405  0.375109  974
+9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.095144  0.293413  1009
+avg:ALL  0.174013  0.100988  10000
+
+lenet_mnist_v7-rotate1c_iter_10000.caffemodel
+0:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.074490  0.262566  980
+1:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.119824  0.324755  1135
+2:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.305233  0.460506  1032
+3:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.264356  0.440990  1010
+4:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.211813  0.408593  982
+5:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.180493  0.384598  892
+6:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.134656  0.341355  958
+7:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.199416  0.399562  1028
+8:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.140657  0.347667  974
+9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.093162  0.290659  1009
+avg:ALL  0.172410  0.070364  10000
+
 > rotate r rnd, fair and realistic, decreased extreme values
 > OPENBLAS_NUM_THREADS=1 time python ../src/convnet_test_transfo.py --proto lenet.prototxt --model snapshots/lenet_mnist_v5-orig_iter_10000.caffemodel --npz mnist_test.npz --transfo-random rotate:-45:45
 
