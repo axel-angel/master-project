@@ -15,18 +15,17 @@
 
 * later on: try to combine two/or more transformations at the same time, see if it's a grid (row=1st transf, cols=2nd transfo) in t-SNE space, separate plots, by pairs
 
-* add adversial transformation into the framework
 * later on: given a simple shape which a few neurons detect in a model A, how can we relate to neurons in a second model B trained with translation-invariance (wrt to neuron activation: activated at the same time in A and B but with transalation in B). Can we find a relation between neurons. (ref to visualizing cnns, forget for now because it's hard)
+
+* compute measure of closeness ("energy") in ip1 layer (instead of t-sne heavy) to compare different models, how they can "cluster" or separate samples (compared to label, shape, etc), want to compare different data-augmentation datasets by transformation (shift close for shift-augmentation, rotated close for rotation-augmentation)
 
 * adversial: maybe leave aside for now, if stuck
 * boundary detection (dataset BSDS): train boundary detector (there is a curve passing through center pixel = 1, or 0) on patches of an image. plot t-sne (of all patches of a single image), interpret what clusters means, (never done before?), what about cluster intersections?
 * boundary detection different models: 0/1 curve on central pixel, multi-class based on angles (8 classes), angle regression (directly: loss - angle) <- never done in CNN (?)
 
-shift invariance: test transfo only with a single sample x+y (no grid) to be fair
-shift-invariance: with an other (easy) dataset, boundary detection
-shift invariance: be fair with train range versus test range
-try to relate data augmentation (cost of freedom-degrees invariance) wrt accuracy, and can we measure the capacity (afterward)?
-try to plot capacity during training, compare different data augmentation (original versus shift), maybe gradient contribution is higher for a certain sort of degrees
+* shift-invariance: with an other (easy) dataset, boundary detection
+* try to relate data augmentation (cost of freedom-degrees invariance) wrt accuracy, and can we measure the capacity (afterward)?
+* try to plot capacity during training, compare different data augmentation (original versus shift), maybe gradient contribution is higher for a certain sort of degrees
 
 
 
@@ -61,3 +60,6 @@ try to plot capacity during training, compare different data augmentation (origi
 * add key for plot (to zoom-in/out)
 * rerun different seed closest t-sne
 * get the closest point to the original digit (apply t-sne)
+* shift invariance: test transfo only with a single sample x+y (no grid) to be fair
+* shift invariance: be fair with train range versus test range
+* add adversial transformation into the framework
