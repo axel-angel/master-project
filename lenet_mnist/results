@@ -649,8 +649,6 @@ lenet_mnist_v5-orig_iter_10000.caffemodel
 8:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.211499  0.408371  974
 9:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.091179  0.287864  1009
 avg:ALL  0.202779  0.079323  10000
-29.30user 1.14system 0:03.05elapsed 997%CPU (0avgtext+0avgdata 323952maxresident)k
-16inputs+24outputs (0major+97179minor)pagefaults 0swaps
 
 lenet_mnist_v3-shift3_iter_10000.caffemodel
 0:(RND:shift_x:-10:+10)+(RND:shift_y:-10:+10)  0.511224  0.499874  980

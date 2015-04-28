@@ -53,3 +53,13 @@ set terminal pngcairo font 'Droid Sans,9' size 1200,600
 set title "Accuracy % of testset for rotate (r random)"
 set output 'test_transfo_rotate-v3.png'
 plot for [COL=2:16:2] 'test_transfo_rotate-v3.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)
+
+set terminal pngcairo font 'Droid Sans,9' size 1200,600
+set title "Accuracy % of testset for translate (xy random)"
+set output 'test_transfo_translate-v3b.png'
+plot for [COL=2:10:2] 'test_transfo_translate-v3b.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)
+
+set terminal pngcairo font 'Droid Sans,9' size 1200,600
+set title "Accuracy % of testset for rotate (r random)"
+set output 'test_transfo_rotate-v3b.png'
+plot for [COL=2:10:2] 'test_transfo_rotate-v3b.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)
