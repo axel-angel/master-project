@@ -1,0 +1,11 @@
+* main subject (properties of cnn), don't use technical terms, why this happens
+* dataset (mnist), why present it before model, explain task (digits) and why (simple), stroke, why we choose this in our project (simple: no variance, we can play with)
+* what are cnn (layers, fwd/bwd, sgd, compare to other model: cnn learn own feature extraction, whereas svm/lr by hand)
+* how cnn achieve mnist, lenet (archi)
+* previous works: cnn not well understood yet, intriguing properties (eg, adversials: classifier-recognizable vs human-recognizable), papers measure neuron activitation relation to patterns/translate/rotate
+* our researches: vector space analysis (t-sne=tool), invariance analysis then training using data augmentation (transformations: attacks by adversial, translate/rotate data-augmentation); they are related, complementary
+* findings on data-augmentation training (why, results, conclusions)
+* findings on t-sne applied to mnist (explain vector space, why t-sne? visualize, high dims space, keep closeness), (1) regular model without data-augmentation model (2) with shift-invariance -> crowded; model distinguish translation first (big clusters) then subclusters = digit
+* findings on adversial attacks (some examples and accuracies)
+* next steps:
+ * analysis of adversial attack (better graphs, data-augmented adversial training), compare distance between original image and adversial in image space versus vector space (in which layer it happens), write code to detect the responsible weights for divergence (for adversial) or convergence (for invariance), comparing two models
