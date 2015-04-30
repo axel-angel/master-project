@@ -40,8 +40,8 @@
     \frametitle{Motivations}
     \begin{itemize}
         \item What? Analysis of Convolutional Neutral Networks (CNNs)
-        \item How? Tools and experiments
         \item Why? Lab needs and personal interests
+        \item How? Tools and experiments
     \end{itemize}
 \end{frame}
 
@@ -66,7 +66,7 @@
 
 % what are cnn (layers, fwd/bwd, sgd, compare to other model: cnn learn own feature extraction, whereas svm/lr by hand)
 \begin{frame}
-    \frametitle{Fast review of CNNs}
+    \frametitle{Short recap of CNNs}
     \begin{itemize}
         \item Architecture (layers, forward/backward SGD)
         \item LeNet (good, simple, popular choice), 0.7\% error
@@ -97,7 +97,7 @@
         \item \dots and much more (but few gave insights)
     \end{itemize}
     \begin{figure}[h]
-        \begin{tabular}[]{c|c}
+        \begin{tabular}[]{cc}
             \includegraphics[width=0.45\textwidth]{midpres_figures/adversial_unrecogni.png}
             &
             \includegraphics[width=0.3\textwidth]{midpres_figures/adversial_imagenet.png}
@@ -111,14 +111,15 @@
     \frametitle{Our work}
     Two complementary axises:
     \begin{itemize}
+        \item Invariance analysis (data-augmentation and adversial attacks)
         \item Vector-space analysis (\eg: t-SNE)
-        \item Invariance analysis (image transformations: for attacks, for training)
     \end{itemize}
 \end{frame}
 
 % findings on data-augmentation training (why, results, conclusions)
 \begin{frame}
     \frametitle{Data-augmentation training}
+    Image transformations: for training
     \begin{itemize}
         \item Data-augmentation
         \item Invariance Training (particular case)
@@ -134,8 +135,8 @@
     \frametitle{Vector-space analysis}
     \begin{itemize}
         \item Visualization: t-SNE\footnote{t-Distributed Stochastic Neighbor Embedding (t=student distribution)} (2D map preserving closeness)
-        \item Optimisation problem: Model pair-distance by student-distribution, find good representation of such distribution in 2D (Kullback-Leibler divergence).
-        \item Visually compare in t-SNE vector-space: transformations and training
+        \item Optimisation problem: Model pair-distance by student-distribution, find a good equivalent distribution in 2D (Kullback-Leibler divergence).
+        \item Visually inspect high-dim vector-space using t-SNE: transformations and training
         % data_mnist/save_t-sne_transfo-v5-orig_10k_ip1_i0-9a-e_1427464401.js
         % data_mnist/save_t-sne_transfo-v4-shift4_10k_ip1_i0-9a-e_1427450541.js
     \end{itemize}
@@ -144,6 +145,7 @@
 % findings on adversial attacks (some examples and accuracies)
 \begin{frame}
     \frametitle{Adversial attacks\footnote{WARNING: early results}}
+    Image transformations: for attacks
     \begin{itemize}
         \item Adversial generation
         \item Examples
