@@ -77,4 +77,10 @@ rotate-invariance training: first we see that the original model was already pre
 rotate-invariance training: we tried to data-augment with 1*r 2*r 3*r and we see that it increase the accuracy of rotated samples significatively compared to the original (from 81\% to 99\%). This means the original dataset does already a good job at presenting a wide diversity of rotation but we can improve a bit by data-augmenting to add more rotation-invariance.
 Moreover these models perform as bad for shift as the original model, which means our augmented dataset doesn't add shift-invariance (as expected) and doesn't lower too much the translation accuracy.
 Moreover i+rxy is much better for shift-inv compared to other rotation-trained models but it's worse than any other shift-trained models (even the original one). Which means i+rxy really used a lot of capacity to learn a too wide space of images.
+
+% important change
+Justification of data-augmentation (with adversial): we wanted to be distortion/transformation invariant, and we found that it's necessarily the case with augmentation. We need to try other methods: making sure that samples related by label are close together in the vector space of the CNN, distortions shouldn't put them too far apart (wrt to other label). We can try to use our own loss function (distance?) and constraint our vector space directly.
+We train our network to have such properties directly. Then we can try to fine-tune a softmax layer at the output for classification as before but we now have a very different vector space shape (constrained on distances).
+
+
 \end{document}

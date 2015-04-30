@@ -19,7 +19,9 @@
 
 * compute measure of closeness ("energy") in ip1 layer (instead of t-sne heavy) to compare different models, how they can "cluster" or separate samples (compared to label, shape, etc), want to compare different data-augmentation datasets by transformation (shift close for shift-augmentation, rotated close for rotation-augmentation)
 
-* adversial: maybe leave aside for now, if stuck
+* analysis of adversial attack (better graphs, data-augmented adversial training)
+* compare distance between original image and adversial in image space versus vector space (in which layer it happens), write code to detect the responsible weights for divergence (for adversial) or convergence (for invariance), comparing two models
+
 * boundary detection (dataset BSDS): train boundary detector (there is a curve passing through center pixel = 1, or 0) on patches of an image. plot t-sne (of all patches of a single image), interpret what clusters means, (never done before?), what about cluster intersections?
 * boundary detection different models: 0/1 curve on central pixel, multi-class based on angles (8 classes), angle regression (directly: loss - angle) <- never done in CNN (?)
 
@@ -27,6 +29,9 @@
 * try to relate data augmentation (cost of freedom-degrees invariance) wrt accuracy, and can we measure the capacity (afterward)?
 * try to plot capacity during training, compare different data augmentation (original versus shift), maybe gradient contribution is higher for a certain sort of degrees
 
+* add more motivations/justification to research (goal-oriented)
+* data-augmentation: how can we justify our artifially-transformed testset? no, we can't. Instead: test over meaniful/natural dataset like house number (google street) dataset.
+* train model to cluster similar samples together in vector space (transformation-invariance)
 
 
 ================================================================================
