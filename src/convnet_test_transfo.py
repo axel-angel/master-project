@@ -5,51 +5,12 @@ from __future__ import division
 import sys
 import caffe
 import numpy as np
-import lmdb
 import argparse
 from collections import defaultdict
 from utils import lmdb_reader, npz_reader, parse_transfo
-from random import randint
 import utils
 import multiprocessing
 
-def mkCombinaisons(ranges):
-    vals = map(lambda x: [x], ranges[0])
-    for r in ranges[1:]:
-        print "r", r
-        ys = []
-        vals2 = [ xs + [y] for xs in vals for y in r ]
-        vals = vals2
-    return vals
-
-def parse_transfo_grid(transfo_grid):
-    trs = []
-    for k, transfos in enumerate(transfo_grid):
-        name = "*".join("("+ ('ALL:%s:%+i:%+i:%i' % (tr, x, y, dt)) + ")"
-                        for (tr, x, y, dt) in transfos)
-        ranges = [ range(x, y, dt*np.sign(y-x)) for (tr,x,y,dt) in transfos ]
-        values = mkCombinaisons(ranges)
-        for vs in values:
-            myf = lambda i: i
-            def reducer( f, (tf, v) ):
-                return lambda i: tf(f(i), v)
-            trfs = [ getattr(utils, 'img_%s' % (tr))
-                    for (tr,x,y,dt) in transfos ]
-            f = reduce(reducer, zip(trfs, vs), myf)
-            trs.append({ 'f': f, 'name': name })
-    return trs
-
-def parse_transfo_random(transfo_random):
-    trs = []
-    def fold_transfo(f, (tr, x, y)):
-        trf = getattr(utils, 'img_%s' % (tr))
-        return lambda i: trf(f(i), randint(x, y))
-    for transfos in args.transfo_random:
-        name = "+".join("("+ ('RND:%s:%+i:%+i' % (tr, x, y)) + ")"
-                        for (tr, x, y) in transfos)
-        foldedf = reduce(fold_transfo, transfos, lambda i: i)
-        trs.append({ 'f': foldedf, 'name': name })
-    return trs
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -75,9 +36,9 @@ if __name__ == "__main__":
         reader = npz_reader(args.npz)
 
     if args.transfo_grid:
-        trs = parse_transfo_grid(args.transfo_grid)
+        trs = utils.parse_transfo_grid(args.transfo_grid)
     if args.transfo_random:
-        trs = parse_transfo_random(args.transfo_random)
+        trs = utils.parse_transfo_random(args.transfo_random)
 
     trs_len = len(trs)
     print "Transformations: %s" % ("\n\t".join(map(repr, trs)))

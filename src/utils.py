@@ -148,3 +148,41 @@ def gen_adversial(net, img, real_label, target_label,
                      'plabel': predict_label, 'scale': scale }
         else:
             scale *= scale_factor
+
+def mkCombinaisons(ranges):
+    vals = map(lambda x: [x], ranges[0])
+    for r in ranges[1:]:
+        print "r", r
+        ys = []
+        vals2 = [ xs + [y] for xs in vals for y in r ]
+        vals = vals2
+    return vals
+
+def parse_transfo_grid(transfo_grid):
+    trs = []
+    for k, transfos in enumerate(transfo_grid):
+        name = "*".join("("+ ('ALL:%s:%+i:%+i:%i' % (tr, x, y, dt)) + ")"
+                        for (tr, x, y, dt) in transfos)
+        ranges = [ range(x, y, dt*np.sign(y-x)) for (tr,x,y,dt) in transfos ]
+        values = mkCombinaisons(ranges)
+        for vs in values:
+            myf = lambda i: i
+            def reducer( f, (tf, v) ):
+                return lambda i: tf(f(i), v)
+            trfs = [ getattr(utils, 'img_%s' % (tr))
+                    for (tr,x,y,dt) in transfos ]
+            f = reduce(reducer, zip(trfs, vs), myf)
+            trs.append({ 'f': f, 'name': name })
+    return trs
+
+def parse_transfo_random(transfo_random):
+    trs = []
+    def fold_transfo(f, (tr, x, y)):
+        trf = getattr(utils, 'img_%s' % (tr))
+        return lambda i: trf(f(i), randint(x, y))
+    for transfos in transfo_random:
+        name = "+".join("("+ ('RND:%s:%+i:%+i' % (tr, x, y)) + ")"
+                        for (tr, x, y) in transfos)
+        foldedf = reduce(fold_transfo, transfos, lambda i: i)
+        trs.append({ 'f': foldedf, 'name': name })
+    return trs
