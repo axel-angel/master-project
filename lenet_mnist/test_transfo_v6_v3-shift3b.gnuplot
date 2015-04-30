@@ -42,11 +42,11 @@ set output 'test_transfo_adversial_correct.png'
 plot for [COL=2:16:2] 'test_transfo_adversial_correct.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)
 
 set title "Accuracy % of testset for translation (xy random)"
-set output 'test_transfo_translate-v3.png'
+set output 'test_transfo_translate-v3a.png'
 plot for [COL=2:16:2] 'test_transfo_translate-v3.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)
 
 set title "Accuracy % of testset for rotate (r random)"
-set output 'test_transfo_rotate-v3.png'
+set output 'test_transfo_rotate-v3a.png'
 plot for [COL=2:16:2] 'test_transfo_rotate-v3.data' using (abs(column(COL)*100)):(sqrt(100*column(COL+1))):xticlabels(1) title columnheader(COL)
 
 set title "Accuracy % of testset for translate (xy random)"
