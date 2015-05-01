@@ -28,11 +28,11 @@ if __name__ == "__main__":
         mylabels = labels - set([ l ])
         return [ gen_adversial(net, img, l, tl) for tl in mylabels ]
 
+    num_cores = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(num_cores)
+    res = defaultdict(list)
+    count = 0
     try:
-        num_cores = multiprocessing.cpu_count()
-        pool = multiprocessing.Pool(num_cores)
-        res = defaultdict(list)
-        count = 0
         for i, xss in enumerate(pool.imap_unordered(process, reader)):
             for xs in xss:
                 if xs is None:
@@ -47,6 +47,7 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print "\nStopping as requested"
+    pool.terminate()
 
     print "Write NPZ"
     np.savez_compressed(args.out_npz, **res)

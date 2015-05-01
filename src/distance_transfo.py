@@ -50,10 +50,12 @@ if __name__ == "__main__":
         return res
 
     print "Start parallel computation"
+    num_cores = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(num_cores)
     distances = defaultdict(list)
     try:
-        num_cores = multiprocessing.cpu_count()
-        pool = multiprocessing.Pool(num_cores)
+        #from itertools import imap
+        #for i, xs in enumerate(imap(process, reader)):
         for i, xs in enumerate(pool.imap_unordered(process, reader)):
             for (label, name, pt) in xs:
                 distances[(label, name)].append(pt)
@@ -61,6 +63,7 @@ if __name__ == "__main__":
             sys.stdout.flush()
     except KeyboardInterrupt:
         print "\nStopping as requested"
+    pool.terminate()
 
     print ""
     print "Distances std"

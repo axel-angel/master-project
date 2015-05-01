@@ -64,10 +64,10 @@ if __name__ == "__main__":
         return res
 
     print "Start parallel testing"
+    num_cores = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(num_cores)
+    res = []
     try:
-        num_cores = multiprocessing.cpu_count()
-        pool = multiprocessing.Pool(num_cores)
-        res = []
         for i, xs in enumerate(pool.imap_unordered(process, reader)):
             for (label, name, iscorrect) in xs:
                 accuracies[(label, name)].append(iscorrect)
@@ -75,6 +75,7 @@ if __name__ == "__main__":
             sys.stdout.flush()
     except KeyboardInterrupt:
         print "\nStopping as requested"
+    pool.terminate()
 
     print ""
     print "Extremum correct classification:"

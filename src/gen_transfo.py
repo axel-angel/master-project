@@ -48,6 +48,7 @@ if __name__ == "__main__":
     num_cores = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(num_cores)
     res = pool.map(process, enumerate(np.array([ xs, ls ]).T))
+    pool.terminate()
     print ""
 
     print "Write NPZ"
