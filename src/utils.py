@@ -7,6 +7,7 @@ from scipy.ndimage.filters import gaussian_filter
 import scipy.misc
 from skimage.transform import PiecewiseAffineTransform, warp
 import sys
+from random import randint
 
 def flat_shape(x):
     "Returns x without singleton dimension, eg: (1,28,28) -> (28,28)"
@@ -169,7 +170,7 @@ def parse_transfo_grid(transfo_grid):
             myf = lambda i: i
             def reducer( f, (tf, v) ):
                 return lambda i: tf(f(i), v)
-            trfs = [ getattr(utils, 'img_%s' % (tr))
+            trfs = [ globals().get('img_%s' % (tr))
                     for (tr,x,y,dt) in transfos ]
             f = reduce(reducer, zip(trfs, vs), myf)
             trs.append({ 'f': f, 'name': name })
@@ -178,7 +179,7 @@ def parse_transfo_grid(transfo_grid):
 def parse_transfo_random(transfo_random):
     trs = []
     def fold_transfo(f, (tr, x, y)):
-        trf = getattr(utils, 'img_%s' % (tr))
+        trf = globals().get('img_%s' % (tr))
         return lambda i: trf(f(i), randint(x, y))
     for transfos in transfo_random:
         name = "+".join("("+ ('RND:%s:%+i:%+i' % (tr, x, y)) + ")"
