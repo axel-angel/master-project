@@ -65,24 +65,26 @@ if __name__ == "__main__":
         print "\nStopping as requested"
     pool.terminate()
 
-    print ""
-    print "Distances std"
     centers = {}
     for (label, name), ds in sorted(distances.iteritems()):
         dsarr = np.array(ds)
-        centers[(label, name)] = dsarr.sum(axis=0) / len(dsarr)
+        center = dsarr.sum(axis=0) / len(dsarr)
+        centers[(label, name)] = center
 
-    print "Cross-Distances std"
+    print ""
+    print "Distances std"
     for (label, name1), ds in sorted(distances.iteritems()):
         dsarr = np.array(ds)
         center = centers[(label, name1)]
-        std = np.sqrt(np.sum(np.dot(x, x) for x in dsarr - center) / len(ds))
-        print "%s:%s %.1f" % (label, name, std)
+        radius = np.max([ np.sqrt(np.sum( (x - center)**2 )) for x in dsarr ])
+        std = np.sqrt(np.sum([ (x - center)**2 for x in dsarr ]) / len(ds))
+        print "%s:%s %0.f (%0.f)" % (label, name1, std, radius)
 
         for (label2, name2), _ in sorted(distances.iteritems()):
             if label2 != label or name1 == name2:
                 continue
             center2 = centers[(label2, name2)]
+            dcenters = np.sqrt(np.sum( (center2 - center)**2 ))
             std = np.sqrt(np.sum(np.dot(x, x) for x in dsarr - center2)
                     / len(ds))
-            print "%s:%s->%s %.1f" % (label, name1, name2, std)
+            print "%s:%s->%s %0.f (%0.f)" % (label, name1, name2, std, dcenters)
