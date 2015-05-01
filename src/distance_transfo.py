@@ -67,6 +67,21 @@ if __name__ == "__main__":
 
     print ""
     print "Distances std"
+    centers = {}
     for (label, name), ds in sorted(distances.iteritems()):
-        std = np.array(ds).std()
+        dsarr = np.array(ds)
+        center = dsarr.sum(axis=0) / len(dsarr)
+        std = np.sqrt(np.sum(np.dot(x, x) for x in dsarr - center) / len(ds))
+        centers[(label, name)] = center
         print "%s:%s %f" % (label, name, std)
+
+    print "Cross-Distances std"
+    for (label, name1), ds in sorted(distances.iteritems()):
+        for (label2, name2), _ in sorted(distances.iteritems()):
+            if label2 != label or name1 == name2:
+                continue
+            center2 = centers[(label2, name2)]
+            dsarr = np.array(ds)
+            std = np.sqrt(np.sum(np.dot(x, x) for x in dsarr - center2)
+                    / len(ds))
+            print "%s:%s:%s %f" % (label, name1, name2, std)
