@@ -52,11 +52,9 @@ if __name__ == "__main__":
     print "Start parallel computation"
     distances = defaultdict(list)
     try:
-        #num_cores = multiprocessing.cpu_count()
-        #pool = multiprocessing.Pool(num_cores)
-        #for i, xs in enumerate(pool.imap_unordered(process, reader)):
-        for (i, image, label) in reader:
-            xs = process((i, image, label))
+        num_cores = multiprocessing.cpu_count()
+        pool = multiprocessing.Pool(num_cores)
+        for i, xs in enumerate(pool.imap_unordered(process, reader)):
             for (label, name, pt) in xs:
                 distances[(label, name)].append(pt)
             sys.stdout.write("\rRunning: %i" % (i))
@@ -65,9 +63,7 @@ if __name__ == "__main__":
         print "\nStopping as requested"
 
     print ""
-    print "Distances"
+    print "Distances std"
     for (label, name), ds in sorted(distances.iteritems()):
-        center = reduce(operator.add, ds) / len(ds)
-        ptdots = ( np.dot((d - center), (d - center)) for d in ds )
-        var = np.sqrt(reduce(operator.add, ptdots))
-        print "%s:%s %f" % (label, name, var)
+        std = np.array(ds).std()
+        print "%s:%s %f" % (label, name, std)
