@@ -153,7 +153,6 @@ def gen_adversial(net, img, real_label, target_label,
 def mkCombinaisons(ranges):
     vals = map(lambda x: [x], ranges[0])
     for r in ranges[1:]:
-        print "r", r
         ys = []
         vals2 = [ xs + [y] for xs in vals for y in r ]
         vals = vals2
