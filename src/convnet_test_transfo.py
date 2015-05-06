@@ -45,7 +45,6 @@ if __name__ == "__main__":
 
     count = 0
     accuracies = defaultdict(list) # extreme disto value correctly classified
-    labels_set = set()
 
     print "Test network against transformations"
     def process( (i, image, label) ):
@@ -58,6 +57,7 @@ if __name__ == "__main__":
             out = net.forward_all(data=np.asarray([ image2_caffe ]))
             plabel = int(out['prob'][0].argmax(axis=0))
 
+            label = int(label)
             iscorrect = label == plabel
             res.append((label, name, int(iscorrect)))
 
