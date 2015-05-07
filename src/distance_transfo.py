@@ -76,6 +76,7 @@ if __name__ == "__main__":
     print ""
     print "Distances std"
     std_avgs = defaultdict(list)
+    center_avgs = defaultdict(list)
     for (label, name1), ds in sorted(distances.iteritems()):
         dsarr = np.array(ds)
         center = centers[(label, name1)]
@@ -93,9 +94,11 @@ if __name__ == "__main__":
             print "%s:%s->%s %0.f %0.f" % (label, name1, name2, std, dcenters)
 
             std_avgs[(name1,name2)].append(std)
+            center_avgs[(name1,name2)].append(dcenters)
 
     print "\nDistances average std"
     for name1, name2 in utils.mkCombinaisons([names, names]):
         if name1 == name2: continue
-        std = np.average(std_avgs[(name1,name2)])
-        print "avg:%s->%s %0.f" % (name1, name2, std)
+        std_avg = np.average(std_avgs[(name1,name2)])
+        center_avg = np.average(center_avgs[(name1,name2)])
+        print "avg:%s->%s %0.f %0.f" % (name1, name2, std_avg, center_avg)
