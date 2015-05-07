@@ -1156,6 +1156,21 @@ lenet_mnist_v7-shift6_iter_10000.caffemodel
 (9, (identity:+0:+1:1)) | 0.047262 ± 0.212199 [9077]
 (-, avg) | 0.209882 ± 0.256476 [86548]
 
+
+> accuracy on housenumbers
+
+lenet_mnist_v5-orig_iter_10000.caffemodel
+avg:ALL  0.352645  0.193813  26032
+
+lenet_mnist_v3-shift3_iter_10000.caffemodel
+avg:ALL  0.213804  0.266441  26032
+
+lenet_mnist_v6-shift4_iter_10000.caffemodel
+avg:ALL  0.141338  0.287634  26032
+
+lenet_mnist_v7-shift6_iter_10000.caffemodel
+avg:ALL  0.194020  0.277298  26032
+
 > old
 $ python ../src/convnet_test_lmdb.py --proto lenet.prototxt --model snapshots/lenet_mnist_v3-shift_iter_10000.caffemodel --lmdb data/test_shift
 Accuracy: 92.5%, 27765/30008 corrects
