@@ -66,19 +66,22 @@ if __name__ == "__main__":
     pool.terminate()
 
     centers = {}
+    names = set()
     for (label, name), ds in sorted(distances.iteritems()):
         dsarr = np.array(ds)
         center = dsarr.sum(axis=0) / len(dsarr)
         centers[(label, name)] = center
+        names.add(name)
 
     print ""
     print "Distances std"
+    std_avgs = defaultdict(list)
     for (label, name1), ds in sorted(distances.iteritems()):
         dsarr = np.array(ds)
         center = centers[(label, name1)]
         radius = np.max([ np.sqrt(np.sum( (x - center)**2 )) for x in dsarr ])
         std = np.sqrt(np.sum([ (x - center)**2 for x in dsarr ]) / len(ds))
-        print "%s:%s %0.f (%0.f)" % (label, name1, std, radius)
+        print "%s:%s %0.f %0.f" % (label, name1, std, radius)
 
         for (label2, name2), _ in sorted(distances.iteritems()):
             if label2 != label or name1 == name2:
@@ -87,4 +90,12 @@ if __name__ == "__main__":
             dcenters = np.sqrt(np.sum( (center2 - center)**2 ))
             std = np.sqrt(np.sum(np.dot(x, x) for x in dsarr - center2)
                     / len(ds))
-            print "%s:%s->%s %0.f (%0.f)" % (label, name1, name2, std, dcenters)
+            print "%s:%s->%s %0.f %0.f" % (label, name1, name2, std, dcenters)
+
+            std_avgs[(name1,name2)].append(std)
+
+    print "\nDistances average std"
+    for name1, name2 in utils.mkCombinaisons([names, names]):
+        if name1 == name2: continue
+        std = np.average(std_avgs[(name1,name2)])
+        print "avg:%s->%s %0.f" % (name1, name2, std)
