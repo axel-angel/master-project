@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import caffe
 import numpy as np
 from scipy.ndimage.interpolation import rotate, shift
 from scipy.ndimage.filters import gaussian_filter
