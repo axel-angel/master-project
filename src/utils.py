@@ -74,11 +74,23 @@ def parse_transfo(s):
         raise argparse.ArgumentTypeError("Invalid")
 
 def lmdb_reader(fpath):
+    import lmdb
     lmdb_env = lmdb.open(fpath)
     lmdb_txn = lmdb_env.begin()
     lmdb_cursor = lmdb_txn.cursor()
 
     for key, value in lmdb_cursor:
+        datum = caffe.proto.caffe_pb2.Datum()
+        datum.ParseFromString(value)
+        label = int(datum.label)
+        image = caffe.io.datum_to_array(datum).astype(np.uint8)
+        yield (key, flat_shape(image), label)
+
+def leveldb_reader(fpath):
+    import leveldb
+    db = leveldb.LevelDB(fpath)
+
+    for key, value in db.RangeIter():
         datum = caffe.proto.caffe_pb2.Datum()
         datum.ParseFromString(value)
         label = int(datum.label)
