@@ -81,6 +81,7 @@ if __name__ == "__main__":
 
     print ""
     print "Mean angle"
+    diffs_vars = []
     for (label, name), diffs in sorted(diffs_all.iteritems()):
         arr = np.array(diffs)
         mean = np.mean(arr, axis=0)
@@ -91,10 +92,15 @@ if __name__ == "__main__":
         angle_mean = np.mean(angle_diffs)
         angle_var = np.var(angle_diffs)
         print "%s %s %.5f %.5f" % (label, name, angle_mean, angle_var)
+        diffs_vars.append(angle_var)
+    print "avg %.5f" % (np.mean(diffs_vars))
 
     print "Distance norm"
+    dists_vars = []
     for (label, name), dists in sorted(dists_all.iteritems()):
         arr = np.array(dists)
         mean = np.mean(arr, axis=0)
         var = np.var(arr, axis=0)
         print "%s %s %.0f %.0f" % (label, name, mean, var)
+        dists_vars.append(var)
+    print "avg %.5f" % (np.mean(dists_vars))
