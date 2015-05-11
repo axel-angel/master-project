@@ -1171,6 +1171,33 @@ avg:ALL  0.141338  0.287634  26032
 lenet_mnist_v7-shift6_iter_10000.caffemodel
 avg:ALL  0.194020  0.277298  26032
 
+> distances/energy between classes/transformations
+
+lenet_mnist_v5-orig_iter_10000.caffemodel
+avg:(RND:identity:+0:+1)->(RND:shift_x:+2:+2) 4361 1886
+avg:(RND:identity:+0:+1)->(RND:shift_x:+4:+4) 5321 3571
+avg:(RND:shift_x:+2:+2)->(RND:identity:+0:+1) 4213 1886
+avg:(RND:shift_x:+2:+2)->(RND:shift_x:+4:+4) 4354 2183
+avg:(RND:shift_x:+4:+4)->(RND:identity:+0:+1) 4975 3571
+avg:(RND:shift_x:+4:+4)->(RND:shift_x:+2:+2) 4085 2183
+
+lenet_mnist_v3-shift3_iter_10000.caffemodel
+avg:(RND:identity:+0:+1)->(RND:shift_x:+2:+2) 4619 2239
+avg:(RND:identity:+0:+1)->(RND:shift_x:+4:+4) 5733 4055
+avg:(RND:shift_x:+2:+2)->(RND:identity:+0:+1) 4539 2239
+avg:(RND:shift_x:+2:+2)->(RND:shift_x:+4:+4) 4531 2236
+avg:(RND:shift_x:+4:+4)->(RND:identity:+0:+1) 5515 4055
+avg:(RND:shift_x:+4:+4)->(RND:shift_x:+2:+2) 4336 2236
+
+lenet_mnist_v7-shift6_iter_10000.caffemodel
+avg:(RND:identity:+0:+1)->(RND:shift_x:+2:+2) 6083 3068
+avg:(RND:identity:+0:+1)->(RND:shift_x:+4:+4) 7744 5673
+avg:(RND:shift_x:+2:+2)->(RND:identity:+0:+1) 5917 3068
+avg:(RND:shift_x:+2:+2)->(RND:shift_x:+4:+4) 5951 3129
+avg:(RND:shift_x:+4:+4)->(RND:identity:+0:+1) 7391 5673
+avg:(RND:shift_x:+4:+4)->(RND:shift_x:+2:+2) 5665 3129
+
+
 > old
 $ python ../src/convnet_test_lmdb.py --proto lenet.prototxt --model snapshots/lenet_mnist_v3-shift_iter_10000.caffemodel --lmdb data/test_shift
 Accuracy: 92.5%, 27765/30008 corrects
