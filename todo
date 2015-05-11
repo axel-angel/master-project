@@ -1,10 +1,6 @@
 ================================================================================
 == TODO ========================================================================
 ================================================================================
-* choose what I'd like to do
-* ideas papers said "further study needed" for:
-  - intriguing props of NN: For MNIST, we do not have results for convolutional models yet, but […] may behave similarly as well.
-  - towards deep NN arch robust to adversial examples: Evaluate the performance loss due to layer-wise penalties […]. In addition, exploring non-Euclidean adversarial examples […] could lead to insights into semantic attributes of features learned at high levels of representation.
 
 * then on subset of ImageNet (link in blog, ILSVRC)
 * compare CNN code for similar objects (animals breeds, similar to article), eg: v(bulldog) - v(dalmatian) ~ v(cat siamoi) - v(cat egyptian)
@@ -13,26 +9,25 @@
 * can use t-SNE again (or show as image for conv layers)
 * try on other lower layers
 
-* later on: try to combine two/or more transformations at the same time, see if it's a grid (row=1st transf, cols=2nd transfo) in t-SNE space, separate plots, by pairs
-
-* later on: given a simple shape which a few neurons detect in a model A, how can we relate to neurons in a second model B trained with translation-invariance (wrt to neuron activation: activated at the same time in A and B but with transalation in B). Can we find a relation between neurons. (ref to visualizing cnns, forget for now because it's hard)
-
 * compute measure of closeness ("energy") in ip1 layer (instead of t-sne heavy) to compare different models, how they can "cluster" or separate samples (compared to label, shape, etc), want to compare different data-augmentation datasets by transformation (shift close for shift-augmentation, rotated close for rotation-augmentation)
 
-* analysis of adversial attack (better graphs, data-augmented adversial training)
-* compare distance between original image and adversial in image space versus vector space (in which layer it happens), write code to detect the responsible weights for divergence (for adversial) or convergence (for invariance), comparing two models
-
-* boundary detection (dataset BSDS): train boundary detector (there is a curve passing through center pixel = 1, or 0) on patches of an image. plot t-sne (of all patches of a single image), interpret what clusters means, (never done before?), what about cluster intersections?
-* boundary detection different models: 0/1 curve on central pixel, multi-class based on angles (8 classes), angle regression (directly: loss - angle) <- never done in CNN (?)
-
-* shift-invariance: with an other (easy) dataset, boundary detection
-* try to relate data augmentation (cost of freedom-degrees invariance) wrt accuracy, and can we measure the capacity (afterward)?
-* try to plot capacity during training, compare different data augmentation (original versus shift), maybe gradient contribution is higher for a certain sort of degrees
-
-* add more motivations/justification to research (goal-oriented)
-* data-augmentation: how can we justify our artifially-transformed testset? no, we can't. Instead: test over meaniful/natural dataset like house number (google street) dataset.
-* train model to cluster similar samples together in vector space (transformation-invariance)
-
+directions:
+* data augmented (house numbers), meaningful training, should drop this?
+ - data-augment transfo: scaling,
+ - house numbers: recenter for receptive field
+ - o/w train (data-augment) on house numbers directly, drop mnist
+* contrastive loss:
+ - try siamese continuous-translation pairs, in 2D/3D see useful properties (predictable directions, distances, visually, or create tool to measure?)
+ - keep in mind, mnist is (too) simple?
+ - if don't work: other loss, using comb of dist and angle/dir?
+ - can force some dimensions in embedding to encode displacement (x,y,z), or rotation angle?
+ - find predictable mapping (linear, non-linear?) F(x) -> F(x+t) ~= F(x) + ~t (idea: train a own shallow network/function for that?)
+ - o/w: compare siamese quantitatively, distance in vector space? what tool?
+ - keep aside: try to see if siamese embedding, fine tuned better accuracy than regular?
+ - keep aside: adversersial on siamese, train against, better resistance? t-sne show diff?
+ - siamese embedding: directions (not without special training?), digit=too simple, use imagenet?
+ - train embedding: F(x+t) = F(x) +t
+ - use case: medical imaging, detect structures, need to detect for every angles, then easy to compute F(x) then apply R on F(x) (instead of refeeding for every rotation), then can put into last application-oriented angle-dependent layer.
 
 ================================================================================
 == DONE ========================================================================
@@ -68,3 +63,30 @@
 * shift invariance: test transfo only with a single sample x+y (no grid) to be fair
 * shift invariance: be fair with train range versus test range
 * add adversial transformation into the framework
+
+* add more motivations/justification to research (goal-oriented)
+* data-augmentation: how can we justify our artifially-transformed testset? no, we can't. Instead: test over meaniful/natural dataset like house number (google street) dataset.
+* train model to cluster similar samples together in vector space (transformation-invariance)
+
+================================================================================
+== ASIDE =======================================================================
+================================================================================
+
+* choose what I'd like to do
+* ideas papers said "further study needed" for:
+  - intriguing props of NN: For MNIST, we do not have results for convolutional models yet, but […] may behave similarly as well.
+  - towards deep NN arch robust to adversial examples: Evaluate the performance loss due to layer-wise penalties […]. In addition, exploring non-Euclidean adversarial examples […] could lead to insights into semantic attributes of features learned at high levels of representation.
+
+* shift-invariance: with an other (easy) dataset, boundary detection
+* try to relate data augmentation (cost of freedom-degrees invariance) wrt accuracy, and can we measure the capacity (afterward)?
+* try to plot capacity during training, compare different data augmentation (original versus shift), maybe gradient contribution is higher for a certain sort of degrees
+
+* later on: try to combine two/or more transformations at the same time, see if it's a grid (row=1st transf, cols=2nd transfo) in t-SNE space, separate plots, by pairs
+
+* later on: given a simple shape which a few neurons detect in a model A, how can we relate to neurons in a second model B trained with translation-invariance (wrt to neuron activation: activated at the same time in A and B but with transalation in B). Can we find a relation between neurons. (ref to visualizing cnns, forget for now because it's hard)
+
+* boundary detection (dataset BSDS): train boundary detector (there is a curve passing through center pixel = 1, or 0) on patches of an image. plot t-sne (of all patches of a single image), interpret what clusters means, (never done before?), what about cluster intersections?
+* boundary detection different models: 0/1 curve on central pixel, multi-class based on angles (8 classes), angle regression (directly: loss - angle) <- never done in CNN (?)
+
+* analysis of adversial attack (better graphs, data-augmented adversial training)
+* compare distance between original image and adversial in image space versus vector space (in which layer it happens), write code to detect the responsible weights for divergence (for adversial) or convergence (for invariance), comparing two models
