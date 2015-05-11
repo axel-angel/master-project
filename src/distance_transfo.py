@@ -85,13 +85,12 @@ if __name__ == "__main__":
         print "%s:%s %0.f %0.f" % (label, name1, std, radius)
 
         for (label2, name2), _ in sorted(distances.iteritems()):
-            if label2 != label or name1 == name2:
-                continue
             center2 = centers[(label2, name2)]
             dcenters = np.sqrt(np.sum( (center2 - center)**2 ))
             std = np.sqrt(np.sum(np.dot(x, x) for x in dsarr - center2)
                     / len(ds))
-            print "%s:%s->%s %0.f %0.f" % (label, name1, name2, std, dcenters)
+            print "%s%s->%s%s %0.f %0.f" \
+                    % (label, name1, label2, name2, std, dcenters)
 
             std_avgs[(name1,name2)].append(std)
             center_avgs[(name1,name2)].append(dcenters)
