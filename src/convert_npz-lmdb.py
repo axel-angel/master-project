@@ -16,7 +16,8 @@ if __name__ == "__main__":
 
     print "Load dataset"
     X = np.load(args.in_npz)
-    xs = X['arr_0'].reshape(-1, 1, *X['arr_0'].shape[-2:])
+    xs = X['arr_0']
+    if len(xs.shape) == 2: xs = xs.reshape(-1, 1, *xs.shape[-2:])
     ls = X['arr_1']
     count = xs.shape[0]
 
