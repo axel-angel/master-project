@@ -79,7 +79,7 @@ Moreover these models perform as bad for shift as the original model, which mean
 Moreover i+rxy is much better for shift-inv compared to other rotation-trained models but it's worse than any other shift-trained models (even the original one). Which means i+rxy really used a lot of capacity to learn a too wide space of images.
 
 % important change
-Justification of data-augmentation (with adversarial): we wanted to be distortion/transformation invariant, and we found that it's necessarily the case with augmentation. We need to try other methods: making sure that samples related by label are close together in the vector space of the CNN, distortions shouldn't put them too far apart (wrt to other label). We can try to use our own loss function (distance?) and constraint our vector space directly.
+Justification of data-augmentation (with adversarial): we wanted to be distortion/transformation invariant, and we found that it's not necessarily the case with augmentation. We need to try other methods: making sure that samples related by label are close together in the vector space of the CNN, distortions shouldn't put them too far apart (wrt to other label). We can try to use our own loss function (distance?) and constraint our vector space directly.
 We train our network to have such properties directly. Then we can try to fine-tune a softmax layer at the output for classification as before but we now have a very different vector space shape (constrained on distances).
 
 
