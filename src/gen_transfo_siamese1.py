@@ -55,14 +55,25 @@ if __name__ == "__main__":
     out_imgs = []
     out_labels = []
     for i in xrange(args.num):
-        xs, ys = rand.sample(res, k=2)
-        # pick a similar pair
+        xs, ys, zs = rand.sample(res, k=3)
         idx = rand.randint(0, len(xs) - 2)
-        (l1, i1, v1), (l2, i2, v2) = xs[idx:idx+2]
-        out_imgs.append( np.array([ i1, i2 ]) )
-        out_labels.append( 1 )
+        # pick a similar pair
+        if rand.randint(0, 1):
+            # either we take the same sample with two cont transfo
+            idxs = [idx, idx+1] # choose two transfo index
+            (l1, i1, v1), (l2, i2, v2) = xs[idx:idx+2]
+            out_imgs.append( np.array([ i1, i2 ]) )
+            out_labels.append( 1 )
+        else:
+            # either we take two different samples but with same transfo
+            # FIXME: we don't care about labels!
+            idxs = [idx] # choose this single transfo index
+            (l1, i1, v1), (l2, i2, v2) = xs[idx], zs[idx]
+            out_imgs.append( np.array([ i1, i2 ]) )
+            out_labels.append( 1 )
         # pick a disimilar pair
-        (l3, i3, v3) = rand.choice(ys)
+        (l3, i3, v3) = rand.choice([ y # pick a disimilar transfo
+            for j, y in enumerate(ys) if j not in idxs ])
         out_imgs.append( np.array([ i1, i3 ]) )
         out_labels.append( 0 )
 
