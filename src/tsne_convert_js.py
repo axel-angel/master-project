@@ -2,25 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import matplotlib.pyplot as plt
-from random import random
-from math import sin, cos
-from utils import partition
 import json
 from collections import defaultdict
-from base64 import b64encode
-from scipy.misc import imsave
-from io import BytesIO
 from utils import *
 
 def conv(d): # legacy conversion of label to int
     d['l'] = int(d['l'])
     return d
-
-def img_encode(i):
-    bio = BytesIO()
-    imsave(bio, flat_shape(i.astype(np.uint8)), format='jpeg')
-    return b64encode(bio.getvalue())
 
 if __name__ == "__main__":
     import argparse
@@ -46,9 +34,9 @@ if __name__ == "__main__":
     dataset_npz = np.load(args.dataset_npz)
     imgs = []
     for img in dataset_npz['arr_0']:
-        imgs.append(img_encode(img)) # include dataset set
+        imgs.append(js_img_encode(img)) # include dataset set
     for img in X['imgs_tr_np']:
-        imgs.append(img_encode(img)) # include distorted set too
+        imgs.append(js_img_encode(img)) # include distorted set too
 
     # convert to json-serialisable
     ds = [ dict(x=pt[0], y=pt[1], i=i, **conv(info)) for pt, info, i in Y ]

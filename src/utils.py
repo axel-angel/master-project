@@ -5,10 +5,12 @@ import caffe
 import numpy as np
 from scipy.ndimage.interpolation import rotate, shift
 from scipy.ndimage.filters import gaussian_filter
-import scipy.misc
 from skimage.transform import PiecewiseAffineTransform, warp
 import sys
 from random import randint
+from io import BytesIO
+from scipy.misc import imsave
+from base64 import b64encode
 
 def flat_shape(x):
     "Returns x without singleton dimension, eg: (1,28,28) -> (28,28)"
@@ -199,3 +201,9 @@ def parse_transfo_random(transfo_random):
         foldedf = reduce(fold_transfo, transfos, lambda i: i)
         trs.append({ 'f': foldedf, 'name': name })
     return trs
+
+def js_img_encode(i):
+    bio = BytesIO()
+    imsave(bio, flat_shape(i.astype(np.uint8)), format='jpeg')
+    return b64encode(bio.getvalue())
+
