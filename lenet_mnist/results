@@ -1197,6 +1197,23 @@ avg:(RND:shift_x:+2:+2)->(RND:shift_x:+4:+4) 5951 3129
 avg:(RND:shift_x:+4:+4)->(RND:identity:+0:+1) 7391 5673
 avg:(RND:shift_x:+4:+4)->(RND:shift_x:+2:+2) 5665 3129
 
+> angles
+
+lenet_mnist_v5-orig_iter_10000.caffemodel
+Mean angle avg 0.05414
+Distance norm avg 224569.09375
+avg 0.05373
+avg 423765.15625
+avg 0.05480
+avg 225279.03125
+
+lenet_mnist_v4-shift3b_iter_10000.caffemodel
+Mean angle avg 0.03894
+Distance norm avg 246424.28125
+avg 0.03864
+avg 419392.31250
+avg 0.03920
+avg 235229.03125
 
 > old
 $ python ../src/convnet_test_lmdb.py --proto lenet.prototxt --model snapshots/lenet_mnist_v3-shift_iter_10000.caffemodel --lmdb data/test_shift
