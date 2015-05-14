@@ -44,9 +44,9 @@ class OwnContrastiveLossLayer(caffe.Layer):
                 alpha = sign * top[0].diff[0] / bottom[i].num
                 for j in xrange(bottom[i].num):
                     if bottom[2].data[j]: # similar pairs
-                        bottom[i].data[j,...] = self.diff[j] * +alpha
+                        bottom[i].diff[j,...] = self.diff[j] * +alpha
                     else: # dissimilar pairs
                         if self.m - self.dist_sq[j] > 0.0:
-                            bottom[i].data[j,...] = self.diff[j] * -alpha
+                            bottom[i].diff[j,...] = self.diff[j] * -alpha
                         else:
-                            bottom[i].data[j,...] = 0.0
+                            bottom[i].diff[j,...] = 0.0
