@@ -16,6 +16,8 @@ class OwnContrastiveLossLayer(caffe.Layer):
             raise Exception("Inputs must have the same dimension.")
         # difference is shape of inputs
         self.diff = np.zeros(bottom[0].num, dtype=np.float32)
+        self.dist_sq = np.zeros(bottom[0].num, dtype=np.float32)
+        self.m = 1.0
         # loss output is scalar
         top[0].reshape(1)
 
@@ -23,18 +25,28 @@ class OwnContrastiveLossLayer(caffe.Layer):
         GW1 = bottom[0].data
         GW2 = bottom[1].data
         Y = bottom[2].data
-        DW2 = np.sum( (GW1 - GW2)**2 , axis=1)
-        DW = np.sqrt( DW2 )
-        m = 1.0 # dissimilar margin
-        mdiffmax = np.clip(m - DW2, 0, inf)
-        loss = np.sum( np.multiply(Y, DW2) + np.multiply((1-Y), mdiffmax) )
-        top[0].data[...] = loss / 2.0 / bottom[0].num
-        self.diff[...] = np.multiply(Y, DW) - np.multiply((1-Y), np.clip( m - DW, 0, inf) )
-        print "locals", locals()
-        raise Exception("Stop")
+        loss = 0.0
+        self.diff = GW1 - GW2
+        for i in xrange(bottom[0].num):
+            dist_sq = np.dot(self.diff[i], self.diff[i])
+            self.dist_sq[i] = dist_sq
+            if Y[i]: # similar pairs
+                loss += self.dist_sq[i]
+            else: # dissimilar pair
+                loss += max(0.0, self.m - self.dist_sq[i])
+        top[0].data[0] = loss / 2.0 / bottom[0].num
+        #print "locals", locals()
+        #raise Exception("Stop")
 
     def backward(self, top, propagate_down, bottom):
         for i, sign in enumerate([ +1, -1 ]):
             if propagate_down[i]:
-                Ndiffs = np.repeat([ self.diff ], bottom[i].channels, axis=0).T
-                bottom[i].diff[...] = sign * Ndiffs / bottom[i].num
+                alpha = sign * top[0].diff[0] / bottom[i].num
+                for j in xrange(bottom[i].num):
+                    if bottom[2].data[j]: # similar pairs
+                        bottom[i].data[j,...] = self.diff[j] * +alpha
+                    else: # dissimilar pairs
+                        if self.m - self.dist_sq[j] > 0.0:
+                            bottom[i].data[j,...] = self.diff[j] * -alpha
+                        else:
+                            bottom[i].data[j,...] = 0.0
