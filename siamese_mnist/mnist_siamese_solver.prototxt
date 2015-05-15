@@ -5,7 +5,7 @@ net: "mnist_siamese_train_test.prototxt"
 # covering the full 10,000 testing images.
 test_iter: 100
 # Carry out testing every 500 training iterations.
-test_interval: 500
+test_interval: 100
 # The base learning rate, momentum and the weight decay of the network.
 base_lr: 0.01
 momentum: 0.9
@@ -20,6 +20,8 @@ display: 100
 max_iter: 50000
 # snapshot intermediate results
 snapshot: 5000
-snapshot_prefix: "snapshots/siamese"
+snapshot_prefix: "snapshots/tmp_siamese"
 # solver mode: CPU or GPU
 solver_mode: CPU
+# training is reproducible
+random_seed: 42

@@ -17,9 +17,11 @@ power: 0.75
 # Display every 100 iterations
 display: 100
 # The maximum number of iterations
-max_iter: 1000
+max_iter: 50000
 # snapshot intermediate results
 snapshot: 5000
-snapshot_prefix: "snapshots/siamese_custom1"
+snapshot_prefix: "snapshots/tmp_siamese_custom1"
 # solver mode: CPU or GPU
 solver_mode: CPU
+# training is reproducible
+random_seed: 42
