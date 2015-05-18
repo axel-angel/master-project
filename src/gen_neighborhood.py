@@ -29,8 +29,10 @@ if __name__ == "__main__":
 
     def process( (i, (x, l)) ):
         distsq = np.sum((x - X)**2, axis=(1,2))
-        ids = sorted(enumerate(distsq), key=lambda (j,d): d)
-        ns = np.array([j for (j,d) in ids if j != i]) # skip itself
+        distsq_ls = np.array([distsq, ls]).T
+        ids = sorted(enumerate(distsq_ls), key=lambda (j,(d,l2)): d)
+        # skip itself and different labels
+        ns = np.array([j for (j,(d,l2)) in ids if l2 == l and j != i])
         return (i, ns[0:args.count])
 
     print "Compute distances"
