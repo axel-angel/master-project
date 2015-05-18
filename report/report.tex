@@ -82,5 +82,10 @@ Moreover i+rxy is much better for shift-inv compared to other rotation-trained m
 Justification of data-augmentation (with adversarial): we wanted to be distortion/transformation invariant, and we found that it's not necessarily the case with augmentation. We need to try other methods: making sure that samples related by label are close together in the vector space of the CNN, distortions shouldn't put them too far apart (wrt to other label). We can try to use our own loss function (distance?) and constraint our vector space directly.
 We train our network to have such properties directly. Then we can try to fine-tune a softmax layer at the output for classification as before but we now have a very different vector space shape (constrained on distances).
 
+% lecun contrastive
+applied to mnist, contrastive with 2D embedding (pair by label), gives interesting clustering, where digits are quite well separated by label, there are some overlap.
+
+contrastive, pairing by contiguous shift x (4x same samples, shift-x -4 -2 +0 +2 +4), samples form small clusters, no obvious relation inside clusters (no direction), no obvious separation of label. the embedding seems to ergroup by stroke shape.
+
 
 \end{document}
