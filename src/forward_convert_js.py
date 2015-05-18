@@ -7,7 +7,7 @@ import json
 from collections import defaultdict
 from utils import *
 import multiprocessing
-from itertools import izip, chain
+from itertools import izip, chain, imap
 
 if __name__ == "__main__":
     import argparse
@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser.add_argument('--layer', type=str, default='ip1')
     parser.add_argument('--in-npz', type=str, required=True)
     parser.add_argument('--out-js', type=str, required=True)
-    parser.add_argument('--label', type=int, nargs='+', required=True)
+    parser.add_argument('--label', type=int, nargs='+', default=[])
     args = parser.parse_args()
 
     print "Load model"
@@ -28,7 +28,9 @@ if __name__ == "__main__":
     npz = np.load(args.in_npz)
     X = npz['arr_0']
     ls = npz['arr_1']
-    Xls = filter(lambda (x, l): l in args.label, np.array([ X, ls ]).T)
+    Xls = np.array([ X, ls ]).T
+    if len(args.label) > 0:
+        Xls = filter(lambda (x, l): l in args.label, Xls)
     X = None; ls = None
     print "Filtered %i images" % (len(Xls))
 
@@ -64,8 +66,8 @@ if __name__ == "__main__":
     for i, (pt, l, v, img64) in enumerate(chain.from_iterable(itr)):
         ds.append(dict(x=pt[0], y=pt[1], i=i, l=l, v=v, **info))
         imgs.append(img64)
-        sys.stdout.write("\rForwarding: %.0f%%" % (i * 100. / samples))
-        sys.stdout.flush()
+        sys.stderr.write("\rForwarding: %.0f%%" % (i * 100. / samples))
+    pool.terminate()
     print ""
 
     # convert to json-serialisable
