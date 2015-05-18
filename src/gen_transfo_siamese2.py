@@ -52,23 +52,23 @@ if __name__ == "__main__":
     pool.terminate()
     print ""
 
-    rand = Random(1)
-    out_imgs = []
-    out_labels = []
-    for i in xrange(count):
+    def process2( i ):
+        imgs = []
+        labels = []
+        rand = Random(i)
         xs = res[i]
         ns = nss[i]
         # pick similar pairs
         for idx in xrange(0, len(xs) - 1):
             # pick the sample translations
             (l1, i1, v1), (l2, i2, v2) = xs[idx:idx+2]
-            out_imgs.append( np.array([ i1, i2 ]) )
-            out_labels.append( 1 )
+            imgs.append( np.array([ i1, i2 ]) )
+            labels.append( 1 )
             # pick translated neighbors as well
             for n in ns:
                 (l3, i3, v3) = res[n][idx]
-                out_imgs.append( np.array([ i1, i3 ]) )
-                out_labels.append( 1 )
+                imgs.append( np.array([ i1, i3 ]) )
+                labels.append( 1 )
         # pick disimilar pairs
         js = rand.sample([ k for k in xrange(count) if k not in ns ], k=neighs)
         for j in js:
@@ -76,10 +76,19 @@ if __name__ == "__main__":
             for idx in xrange(0, len(ys) - 1):
                 (l1, i1, v1) = xs[idx]
                 (l4, i4, v4) = ys[idx]
-                out_imgs.append( np.array([ i1, i4 ]) )
-                out_labels.append( 0 )
+                imgs.append( np.array([ i1, i4 ]) )
+                labels.append( 0 )
 
-        sys.stderr.write("\rPairing: %.0f%%" % (i * 100. / count))
+        return (i, imgs, labels)
+
+    out_imgs = []
+    out_labels = []
+    pool = multiprocessing.Pool(num_cores)
+    itr = pool.imap_unordered(process2, xrange(count))
+    for it, (i, imgs, labels) in enumerate(itr):
+        out_imgs.extend(imgs)
+        out_labels.extend(labels)
+        sys.stderr.write("\rPairing: %.0f%%" % (it * 100. / count))
 
     print ""
     print "Write NPZ"
