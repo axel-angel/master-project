@@ -16,6 +16,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-npz', type=str, required=True)
     parser.add_argument('--out-npz', type=str, required=True)
+    parser.add_argument('--pair-displaced', action='store_true', default=False)
     args = parser.parse_args()
 
     print "Load dataset"
@@ -66,9 +67,11 @@ if __name__ == "__main__":
             labels.append( 1 )
             # pick translated neighbors as well
             for n in ns:
-                (l3, i3, v3) = res[n][idx]
-                imgs.append( np.array([ i1, i3 ]) )
-                labels.append( 1 )
+                for idx2 in xrange(0, len(xs) - 1):
+                    (l3, i3, v3) = res[n][idx2]
+                    imgs.append( np.array([ i1, i3 ]) )
+                    myl = (idx == idx2) or args.pair_displaced
+                    labels.append( int(myl) )
         # pick disimilar pairs
         js = rand.sample([ k for k in xrange(count) if k not in ns ], k=neighs)
         for j in js:
