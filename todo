@@ -29,6 +29,15 @@ directions:
  - train embedding: F(x+t) = F(x) +t
  - use case: medical imaging, detect structures, need to detect for every angles, then easy to compute F(x) then apply R on F(x) (instead of refeeding for every rotation), then can put into last application-oriented angle-dependent layer.
 
+ - reproduce figure 7 lecun, use distance/angle to compare afterward, for distances, compare same-distortion different-labels distances instead, makes more sense. We already know that; show that 6-6_+2 versus 6_+2-7_+2
+ - try limted 2D-pairing: 5 closest image-space neighbors with same displacement distortions (no pairing with different displacement)
+ - Amos loss function 1D (pair by label) + 1D (pair by displacement)
+ - If amos loss work, then compare with two different machines (1 for label 1D, 1 for same-translation 1D; merge embedding vector)
+ - multiple pairing way: all same-labels together, or smart similar same-label tegether, etc
+ - if time, try aligner loss, compare and stuff
+
+ - write report: around 50-100 pages
+
 ================================================================================
 == DONE ========================================================================
 ================================================================================
