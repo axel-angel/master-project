@@ -76,8 +76,7 @@ if __name__ == "__main__":
                     myl = (idx == idx2) or args.pair_displaced
                     labels.append( int(myl) )
         # pick disimilar pairs
-        balance = max(1, (2*sum(labels) - len(labels)) / trs_count)
-        js = rand.sample([ k for k in xrange(count) if k not in ns ], k=balance)
+        js = rand.sample([ k for k in xrange(count) if k not in ns ], k=len(xs))
         for j in js:
             ys = res[j]
             for idx in rand.sample(xrange(0, len(ys)), k=1):
