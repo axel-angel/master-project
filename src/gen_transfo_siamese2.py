@@ -60,13 +60,15 @@ if __name__ == "__main__":
         rand = Random(i)
         xs = res[i]
         ns = nss[i]
-        # pick similar pairs
+        # pick pairs
         for idx in xrange(0, len(xs) - 1):
-            # pick the sample translations
-            (l1, i1, v1), (l2, i2, v2) = xs[idx:idx+2]
-            imgs.append( np.array([ i1, i2 ]) )
-            labels.append( 1 )
-            # pick translated neighbors as well
+            (l1, i1, v1) = xs[idx]
+            # pick all sample translations
+            for idx2 in xrange(idx, len(xs) - 1):
+                (l2, i2, v2) = xs[idx2]
+                imgs.append( np.array([ i1, i2 ]) )
+                labels.append( 1 )
+            # pick all translated neighbors as well
             for n in ns:
                 for idx2 in xrange(0, len(xs) - 1):
                     (l3, i3, v3) = res[n][idx2]
