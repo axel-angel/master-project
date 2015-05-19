@@ -30,6 +30,7 @@ if __name__ == "__main__":
     neighs = nss.shape[1]
 
     trs = [3, 6]
+    trs_count = 1 + 2*len(trs)
     print "Transformations:\n\t%s" % ("\n\t".join(map(repr, trs)))
 
     def process( (x, l, i) ):
@@ -73,7 +74,8 @@ if __name__ == "__main__":
                     myl = (idx == idx2) or args.pair_displaced
                     labels.append( int(myl) )
         # pick disimilar pairs
-        js = rand.sample([ k for k in xrange(count) if k not in ns ], k=neighs)
+        balance = max(1, (2*sum(labels) - len(labels)) / trs_count)
+        js = rand.sample([ k for k in xrange(count) if k not in ns ], k=balance)
         for j in js:
             ys = res[j]
             for idx in xrange(0, len(ys) - 1):
