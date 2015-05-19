@@ -63,14 +63,14 @@ if __name__ == "__main__":
         # pick pairs
         for idx in xrange(0, len(xs) - 1):
             (l1, i1, v1) = xs[idx]
-            # pick all sample translations
-            for idx2 in xrange(idx, len(xs) - 1):
+            # pick sample translations
+            for idx2 in rand.sample(xrange(idx, len(xs) - 1), k=1):
                 (l2, i2, v2) = xs[idx2]
                 imgs.append( np.array([ i1, i2 ]) )
                 labels.append( 1 )
-            # pick all translated neighbors as well
-            for n in ns:
-                for idx2 in xrange(0, len(xs) - 1):
+            # pick translated neighbors as well
+            for n in rand.sample(ns, k=1):
+                for idx2 in rand.sample(xrange(0, len(xs)), k=1):
                     (l3, i3, v3) = res[n][idx2]
                     imgs.append( np.array([ i1, i3 ]) )
                     myl = (idx == idx2) or args.pair_displaced
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         js = rand.sample([ k for k in xrange(count) if k not in ns ], k=balance)
         for j in js:
             ys = res[j]
-            for idx in xrange(0, len(ys) - 1):
+            for idx in rand.sample(xrange(0, len(ys)), k=1):
                 (l1, i1, v1) = xs[idx]
                 (l4, i4, v4) = ys[idx]
                 imgs.append( np.array([ i1, i4 ]) )
