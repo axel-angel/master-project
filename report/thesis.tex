@@ -36,8 +36,39 @@
 \end{abstract}
 
 \section{Introduction}
+common use of high-dim data
+dim reduction
+need mapping
+predictable mapping
 
 \section{Previous works}
+Encoded Invariance in Convolutional Neural Networks
+encoding invariance in the learnt embedding which preserves the signal. Formal analysis of impact of rigid motions versus deformations on classification. Proposing wavelet networks.
+
+Deep Symmetry Networks
+proposes an alternative network, symmetry networks, to extend invariance beyond translation by using feature map over arbitrary symmetry groups by use of kernel-based interpolation.
+
+Dimensionality Reduction by Learning an Invariant Mapping
+proposes to creates a dimensionality reducing mapping by training a CNN using a new loss function, the contrastive loss, based on energy models. The results on NORB is a mapping from image space to a 3D cylinder where two axes describes the 2D orientation and the third axe describes the azimuth angle, the mapping is invariant to illumination. Results on 4s and 9s of MNIST shows that CNN can learn a mapping that separates labels and make similar digits close despite translations.
+
+Intriguing properties of neural networks
+adversial attacks, linearity of networks.
+
+Towards Deep Neural Network Architectures Robust To Adversarial Examples
+
+Analysis of classifiers' robustness to adversarial perturbations
+
+Stochastic Neighbor Embedding
+proposes a maximization problem that compute from a high-dim dataset a 2D embedding preserving neighborhood distances. Kullback-leibler divergence.
+
+Visualizing Data using t-SNE
+proposes a variation of Stochastic Neighbor Embedding, easier to optimize, produces better 2D map by spreading points more evenly and preserving topological structures
+
+Caffe: Convolutional Architecture for Fast Feature Embedding
+proposes a deep-learning framework focusing on CNN, easy experiment, easily modifiable source, reference models (lenet, imagenet), scalable, GPU, active community.
+
+DIY Deep Learning for Vision: a Hands-On Tutorial with Caffe
+caffe tutorial
 
 \section{Theory}
 
