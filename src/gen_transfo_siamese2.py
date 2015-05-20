@@ -95,6 +95,7 @@ if __name__ == "__main__":
         out_imgs.extend(imgs)
         out_labels.extend(labels)
         sys.stderr.write("\rPairing: %.0f%%" % (it * 100. / count))
+    pool.terminate()
 
     print ""
     print "Write NPZ"
