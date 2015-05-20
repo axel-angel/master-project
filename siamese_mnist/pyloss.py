@@ -1,8 +1,6 @@
 import caffe
 import numpy as np
 
-inf = float('inf') # +infinity
-
 class OwnContrastiveLossLayer(caffe.Layer):
 
     def setup(self, bottom, top):
@@ -42,6 +40,62 @@ class OwnContrastiveLossLayer(caffe.Layer):
                 alphas = np.where(Y > 0, +1.0, -1.0) * sign * top[0].diff[0] / bottom[i].num
                 facts = ((1-Y) * disClose + Y) * alphas
                 bottom[i].diff[...] = np.array([facts, facts]).T * self.diff
+
+class OwnDoubleContrastiveLossLayer(caffe.Layer):
+
+    def setup(self, bottom, top):
+        # check input pair
+        if len(bottom) != 3:
+            raise Exception("Need two inputs to compute distance.")
+
+    def reshape(self, bottom, top):
+        # check input dimensions match
+        if bottom[0].count != bottom[1].count:
+            raise Exception("Inputs must have the same dimension.")
+        # difference is shape of inputs
+        self.diff1 = np.zeros(bottom[0].num, dtype=np.float32)
+        self.diff2 = np.zeros(bottom[0].num, dtype=np.float32)
+        self.dist_sq1 = np.zeros(bottom[0].num, dtype=np.float32)
+        self.dist_sq2 = np.zeros(bottom[0].num, dtype=np.float32)
+        self.zeros = np.zeros(bottom[0].num)
+        self.m = 1.0
+        self.n = 1.0
+        self.C = 1.0
+        # loss output is scalar
+        top[0].reshape(1)
+
+    def forward(self, bottom, top):
+        GW1f = bottom[0].data[:,0]
+        GW2f = bottom[1].data[:,0]
+        GW1g = bottom[0].data[:,1]
+        GW2g = bottom[1].data[:,1]
+        Y = (bottom[2].data >> 0) & 1 # digit label
+        Z = (bottom[2].data >> 1) & 1 # transfo label
+        loss = 0.0
+        self.diff1 = GW1f - GW2f
+        self.diff2 = GW1g - GW2g
+        self.dist_sq1 = np.sum(self.diff1**2, axis=1)
+        self.dist_sq2 = np.sum(self.diff2**2, axis=1)
+        losses1 = Y * self.dist_sq1 \
+           + (1-Y) * np.max([self.zeros, self.m - self.dist_sq1], axis=0)
+        losses2 = Z * self.dist_sq2 \
+           + (1-Z) * np.max([self.zeros, self.n - self.dist_sq2], axis=0)
+        loss = np.sum(losses1) + self.C * np.sum(losses2)
+        top[0].data[0] = loss / 2.0 / bottom[0].num
+
+    def backward(self, top, propagate_down, bottom):
+        Y = (bottom[2].data >> 0) & 1 # digit label
+        Z = (bottom[2].data >> 1) & 1 # transfo label
+        disClose1 = np.where(self.m - self.dist_sq1 > 0.0, 1.0, 0.0)
+        disClose2 = np.where(self.n - self.dist_sq2 > 0.0, 1.0, 0.0)
+        for i, sign in enumerate([ +1, -1 ]):
+            if propagate_down[i]:
+                alphas1 = np.where(Y > 0, +1.0, -1.0) * sign * top[0].diff[0] / bottom[i].num
+                alphas2 = np.where(Z > 0, +1.0, -1.0) * sign * top[0].diff[0] / bottom[i].num
+                facts1 = ((1-Y) * disClose1 + Y) * alphas1
+                facts2 = ((1-Z) * disClose2 + Z) * alphas2
+                bottom[i].diff[...] = np.array([facts1, facts1]).T * self.diff1\
+                                    + np.array([facts2, facts2]).T * self.diff2
 
 class OwnAlignerLossLayer(caffe.Layer):
 
