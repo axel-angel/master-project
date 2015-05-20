@@ -1,0 +1,9 @@
+> gen dataset
+siamese1: gen_transfo_siamese1 (pair same sample translations, rest dissimilar)
+siamese2: gen_transfo_siamese1 (pair all same transfo all label)
+lecun_siamese1: gen_transfo_siamese2 (no neighbor translation appearing)
+lecun_siamese2: gen_transfo_siamese2 (neighbor translation dissimilar)
+> with balacing, non continuous sample translation
+lecun_siamese3: gen_transfo_siamese2 (--pair-displaced)
+lecun_siamese4: gen_transfo_siamese2 (no --pair-displaced)
+lecun_siamese3b: train with m=10,5 -> diverged NaN (iter ~2k)
