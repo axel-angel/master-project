@@ -11,6 +11,7 @@ import multiprocessing
 from utils import *
 from collections import defaultdict
 from random import Random
+from itertools import izip, imap
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -155,29 +156,33 @@ if __name__ == "__main__":
         rand = Random(i)
         xs = res[i]
         ns = nss[i]
-        # pick similar pairs
+        l, _, _ = xs[0] # label
+        yss = rand.sample(filter(lambda ys: ys[0][0] != l, res.itervalues()),
+                k=neighs) # dissimilar labels
         for idx in xrange(0, len(xs) - 1):
-            # pick the sample translations
-            (l1, i1, v1), (l2, i2, v2) = xs[idx:idx+2]
-            imgs.append( np.array([ i1, i2 ]) )
-            labels.append( combine_label(1, 0) )
-            # pick translated neighbors as well
+            (l1, i1, v1) = xs[idx]
+            # pick similar pairs
             for n in ns:
                 ys = res[n]
-                for idx2 in xrange(0, len(ys)):
-                    (l3, i3, v3) = ys[idx2]
-                    imgs.append( np.array([ i1, i3 ]) )
-                    labels.append( combine_label(1, int(idx == idx2)) )
-        # pick disimilar pairs
-        js = rand.sample([ k for k in xrange(count) if k not in ns ], k=neighs)
-        for j in js:
-            ys = res[j]
-            for idx in rand.sample(xrange(0, len(ys) - 1), k=2):
-                (l1, i1, v1) = xs[idx]
-                for idx2 in xrange(0, len(ys) - 1):
-                    (l4, i4, v4) = ys[idx]
-                    imgs.append( np.array([ i1, i4 ]) )
-                    labels.append( combine_label(int(l1 == l4), int(idx == idx2)) )
+                idx2 = rand.choice(xrange(0, len(ys) - 1))
+                (l3, i3, v3) = ys[idx2]
+                imgs.append( np.array([ i1, i3 ]) )
+                labels.append( combine_label(1, int(idx == idx2)) )
+            # pick disimilar pairs
+            for ys in yss:
+                (l5, i5, v5) = ys[idx]
+                imgs.append( np.array([ i1, i5 ]) )
+                labels.append( combine_label(0, 1) )
+
+                idx2s = set(xrange(0, len(ys) - 1))
+                idx2s.remove(idx)
+                idx2 = rand.choice(list(idx2s))
+                (l4, i4, v4) = ys[idx2]
+                assert l1 == l
+                assert l4 != l
+                assert idx2 != idx
+                imgs.append( np.array([ i1, i4 ]) )
+                labels.append( combine_label(0, 0) )
 
         return (i, imgs, labels)
 
