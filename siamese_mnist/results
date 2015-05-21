@@ -9,6 +9,11 @@ lecun_siamese4: gen_transfo_siamese2 (no --pair-displaced)
 lecun_siamese3b: train with m=10,5 -> diverged NaN (iter ~2k)
 > select probabilistic: neighbor/translations k=1
 lecun_siamese31: gen_transfo_siamese2 (no --pair-displaced)
+lecun_siamese21: gen_transfo_siameseX 2a
+> 2D
+lecun_siamese2Da: gen_transfo_siameseX 2Da (sample cont shift, sample with neigh all shift, sample with not neigh all same-shift)
+lecun_siamese2Db: gen_transfo_siameseX 2Db (sample with all neigh shift, sample with no-neigh diff-label same-shift, sample with no-neigh diff-label diff-shift)
+
 
 > models
 lecun_siamese2b: use lecun_siamese2, random seed 43
