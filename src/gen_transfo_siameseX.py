@@ -147,6 +147,40 @@ if __name__ == "__main__":
 
         return (i, imgs, labels)
 
+    def pairing_2Db( i ): # for 2D contrastive loss
+        def combine_label(label_digit, label_transfo):
+            return (label_digit << 0) + (label_transfo << 1)
+        imgs = []
+        labels = []
+        rand = Random(i)
+        xs = res[i]
+        ns = nss[i]
+        # pick similar pairs
+        for idx in xrange(0, len(xs) - 1):
+            # pick the sample translations
+            (l1, i1, v1), (l2, i2, v2) = xs[idx:idx+2]
+            imgs.append( np.array([ i1, i2 ]) )
+            labels.append( combine_label(1, 0) )
+            # pick translated neighbors as well
+            for n in ns:
+                ys = res[n]
+                for idx2 in xrange(0, len(ys)):
+                    (l3, i3, v3) = ys[idx2]
+                    imgs.append( np.array([ i1, i3 ]) )
+                    labels.append( combine_label(1, int(idx == idx2)) )
+        # pick disimilar pairs
+        js = rand.sample([ k for k in xrange(count) if k not in ns ], k=neighs)
+        for j in js:
+            ys = res[j]
+            for idx in rand.sample(xrange(0, len(ys) - 1), k=2):
+                (l1, i1, v1) = xs[idx]
+                for idx2 in xrange(0, len(ys) - 1):
+                    (l4, i4, v4) = ys[idx]
+                    imgs.append( np.array([ i1, i4 ]) )
+                    labels.append( combine_label(int(l1 == l4), int(idx == idx2)) )
+
+        return (i, imgs, labels)
+
     def pairing_2b( i ):
         imgs = []
         labels = []
