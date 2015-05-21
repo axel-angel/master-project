@@ -32,6 +32,7 @@ if __name__ == "__main__":
     neighs = nss.shape[1]
 
     trs = [3, 6]
+    idx_orig = len(trs) # after 1x trs comes the original
     print "Transformations:\n\t%s" % ("\n\t".join(map(repr, trs)))
 
     def process( (x, l, i) ):
@@ -189,30 +190,31 @@ if __name__ == "__main__":
         rand = Random(i)
         xs = res[i]
         ns = nss[i]
+        (l0, i0, v0) = xs[idx_orig]
         # pick pairs
-        for idx in xrange(0, len(xs) - 1):
+        for idx in xrange(0, len(xs)):
             (l1, i1, v1) = xs[idx]
-            # pick sample translations
-            for idx2 in rand.sample(xrange(idx, len(xs) - 1), k=1):
-                (l2, i2, v2) = xs[idx2]
-                imgs.append( np.array([ i1, i2 ]) )
+            # pair original with its 4 translations
+            if idx != idx_orig:
+                imgs.append( np.array([ i0, i1 ]) )
                 labels.append( 1 )
-            # pick translated neighbors as well
-            for n in rand.sample(ns, k=1):
+            # pair all 4 translations of 5 neighbors
+            for n in ns:
                 for idx2 in rand.sample(xrange(0, len(xs)), k=1):
-                    (l3, i3, v3) = res[n][idx2]
-                    imgs.append( np.array([ i1, i3 ]) )
+                    (l2, i2, v2) = res[n][idx2]
+                    imgs.append( np.array([ i1, i2 ]) )
                     myl = (idx == idx2) or args.pair_displaced
                     labels.append( int(myl) )
-        # pick disimilar pairs
-        js = rand.sample([ k for k in xrange(count) if k not in ns ], k=len(xs))
+        # pick lots of disimilar pairs
+        js = rand.sample([ k for k in xrange(count) if k not in ns ], k=100)
         for j in js:
             ys = res[j]
-            for idx in rand.sample(xrange(0, len(ys)), k=1):
-                (l1, i1, v1) = xs[idx]
-                (l4, i4, v4) = ys[idx]
-                imgs.append( np.array([ i1, i4 ]) )
-                labels.append( 0 )
+            idx = rand.choice(xrange(0, len(xs) - 1))
+            idx2 = rand.choice(xrange(0, len(ys) - 1))
+            (l1, i1, v1) = xs[idx]
+            (l3, i3, v3) = ys[idx2]
+            imgs.append( np.array([ i1, i3 ]) )
+            labels.append( 0 )
 
         return (i, imgs, labels)
 
