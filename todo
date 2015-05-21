@@ -36,7 +36,12 @@ directions:
  - multiple pairing way: all same-labels together, or smart similar same-label tegether, etc
  - if time, try aligner loss, compare and stuff
 
- - write report: around 50-100 pages
+
+ - need to reproduce lecun mnist!
+ - compare with distances/angles (have a quantitative measure)
+ - NORB dataset, try plane, see if we can train faster/smaller dataset than lecun, get same shape, stuff
+ - try rotation on mnist (4/8 groups, large enough so we don't care about natural rotation)
+ - write report: around 50-100 pages, introduction is big part containing all in summary
 
 ================================================================================
 == DONE ========================================================================
