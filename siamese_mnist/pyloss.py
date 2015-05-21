@@ -65,12 +65,12 @@ class OwnDoubleContrastiveLossLayer(caffe.Layer):
         top[0].reshape(1)
 
     def forward(self, bottom, top):
-        GW1f = bottom[0].data[:,0]
-        GW2f = bottom[1].data[:,0]
-        GW1g = bottom[0].data[:,1]
-        GW2g = bottom[1].data[:,1]
-        Y = (bottom[2].data >> 0) & 1 # digit label
-        Z = (bottom[2].data >> 1) & 1 # transfo label
+        GW1f = bottom[0].data[:,0].reshape(-1, 1)
+        GW2f = bottom[1].data[:,0].reshape(-1, 1)
+        GW1g = bottom[0].data[:,1].reshape(-1, 1)
+        GW2g = bottom[1].data[:,1].reshape(-1, 1)
+        Y = np.right_shift(bottom[2].data.astype(int), 0) & 1 # digit label
+        Z = np.right_shift(bottom[2].data.astype(int), 1) & 1 # transfo label
         loss = 0.0
         self.diff1 = GW1f - GW2f
         self.diff2 = GW1g - GW2g
@@ -84,8 +84,8 @@ class OwnDoubleContrastiveLossLayer(caffe.Layer):
         top[0].data[0] = loss / 2.0 / bottom[0].num
 
     def backward(self, top, propagate_down, bottom):
-        Y = (bottom[2].data >> 0) & 1 # digit label
-        Z = (bottom[2].data >> 1) & 1 # transfo label
+        Y = np.right_shift(bottom[2].data.astype(int), 0) & 1 # digit label
+        Z = np.right_shift(bottom[2].data.astype(int), 1) & 1 # transfo label
         disClose1 = np.where(self.m - self.dist_sq1 > 0.0, 1.0, 0.0)
         disClose2 = np.where(self.n - self.dist_sq2 > 0.0, 1.0, 0.0)
         for i, sign in enumerate([ +1, -1 ]):
@@ -94,8 +94,9 @@ class OwnDoubleContrastiveLossLayer(caffe.Layer):
                 alphas2 = np.where(Z > 0, +1.0, -1.0) * sign * top[0].diff[0] / bottom[i].num
                 facts1 = ((1-Y) * disClose1 + Y) * alphas1
                 facts2 = ((1-Z) * disClose2 + Z) * alphas2
-                bottom[i].diff[...] = np.array([facts1, facts1]).T * self.diff1\
-                                    + np.array([facts2, facts2]).T * self.diff2
+                bottom[i].diff[...] = \
+                                   np.array([facts1, facts1]).T * self.diff1 \
+                        + self.C * np.array([facts2, facts2]).T * self.diff2
 
 class OwnAlignerLossLayer(caffe.Layer):
 
