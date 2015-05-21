@@ -156,7 +156,7 @@ if __name__ == "__main__":
         rand = Random(i)
         xs = res[i]
         ns = nss[i]
-        l, _, _ = xs[0] # label
+        (l, _, _) = xs[0] # label
         yss = rand.sample(filter(lambda ys: ys[0][0] != l, res.itervalues()),
                 k=neighs) # dissimilar labels
         for idx in xrange(0, len(xs) - 1):
@@ -178,9 +178,6 @@ if __name__ == "__main__":
                 idx2s.remove(idx)
                 idx2 = rand.choice(list(idx2s))
                 (l4, i4, v4) = ys[idx2]
-                assert l1 == l
-                assert l4 != l
-                assert idx2 != idx
                 imgs.append( np.array([ i1, i4 ]) )
                 labels.append( combine_label(0, 0) )
 
