@@ -65,17 +65,17 @@ class OwnDoubleContrastiveLossLayer(caffe.Layer):
         top[0].reshape(1)
 
     def forward(self, bottom, top):
-        GW1f = bottom[0].data[:,0].reshape(-1, 1)
-        GW2f = bottom[1].data[:,0].reshape(-1, 1)
-        GW1g = bottom[0].data[:,1].reshape(-1, 1)
-        GW2g = bottom[1].data[:,1].reshape(-1, 1)
+        GW1f = bottom[0].data[:,0]
+        GW2f = bottom[1].data[:,0]
+        GW1g = bottom[0].data[:,1]
+        GW2g = bottom[1].data[:,1]
         Y = np.right_shift(bottom[2].data.astype(int), 0) & 1 # digit label
         Z = np.right_shift(bottom[2].data.astype(int), 1) & 1 # transfo label
         loss = 0.0
         self.diff1 = GW1f - GW2f
         self.diff2 = GW1g - GW2g
-        self.dist_sq1 = np.sum(self.diff1**2, axis=1)
-        self.dist_sq2 = np.sum(self.diff2**2, axis=1)
+        self.dist_sq1 = self.diff1**2
+        self.dist_sq2 = self.diff2**2
         losses1 = Y * self.dist_sq1 \
            + (1-Y) * np.max([self.zeros, self.m - self.dist_sq1], axis=0)
         losses2 = Z * self.dist_sq2 \
@@ -94,9 +94,8 @@ class OwnDoubleContrastiveLossLayer(caffe.Layer):
                 alphas2 = np.where(Z > 0, +1.0, -1.0) * sign * top[0].diff[0] / bottom[i].num
                 facts1 = ((1-Y) * disClose1 + Y) * alphas1
                 facts2 = ((1-Z) * disClose2 + Z) * alphas2
-                bottom[i].diff[...] = \
-                                   np.array([facts1, facts1]).T * self.diff1 \
-                        + self.C * np.array([facts2, facts2]).T * self.diff2
+                bottom[i].diff[:,0] = facts1 * self.diff1
+                bottom[i].diff[:,1] = facts2 * self.diff2 * self.C
 
 class OwnAlignerLossLayer(caffe.Layer):
 
