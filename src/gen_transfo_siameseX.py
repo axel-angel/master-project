@@ -220,6 +220,30 @@ if __name__ == "__main__":
 
         return (i, imgs, labels)
 
+    def pairing_0( i ):
+        imgs = []
+        labels = []
+        rand = Random(i)
+        xs = res[i]
+        ns = nss[i]
+        (l0, i0, v0) = xs[idx_orig]
+        (l1, i1, v1) = xs[idx_orig]
+        # pick pairs, only neighbors
+        for n in ns:
+            (l2, i2, v2) = res[n][idx_orig]
+            imgs.append( np.array([ i1, i2 ]) )
+            labels.append( 1 )
+        # pick disimilar pairs
+        js = rand.sample([ k for k in xrange(count) if k not in ns ], k=neighs)
+        for j in js:
+            ys = res[j]
+            (l1, i1, v1) = xs[idx_orig]
+            (l3, i3, v3) = ys[idx_orig]
+            imgs.append( np.array([ i1, i3 ]) )
+            labels.append( 0 )
+
+        return (i, imgs, labels)
+
     out_imgs = []
     out_labels = []
     pool = multiprocessing.Pool(num_cores)
