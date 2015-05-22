@@ -41,7 +41,7 @@ if __name__ == "__main__":
     for _, l in Xls:
         label_set[str(l)] += 1
 
-    values = [0, 2, 4, -2, -4]
+    values = [0, 3, 6, -3, -6]
     samples = len(Xls) * len(values)
     def process( (img, l) ):
         xs = []
