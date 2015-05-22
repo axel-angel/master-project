@@ -270,14 +270,21 @@ if __name__ == "__main__":
         print "  has: %s" % ({ l:len(xs) for l,xs in out_d.iteritems() })
         out_imgs = []
         out_labels = []
-        while np.all([ len(xs) > 0 for xs in out_d.itervalues() ]):
-            for l in out_d.iterkeys():
-                myl = out_d[l][:args.grouped]
-                out_imgs.extend(myl)
-                out_labels.extend([l] * len(myl))
-                out_d[l] = out_d[l][args.grouped:]
-                assert len(out_imgs) == len(out_labels)
-        print "  left: %s" % ({ l:len(xs) for l,xs in out_d.iteritems() })
+        # for each label, make lazy chunks of grouped-length
+        out_iters = { l: izip(*([ iter(out_d[l]) ] * args.grouped))
+                for l in out_d }
+        counts = defaultdict(int)
+        try:
+            while True:
+                for l in out_d.iterkeys():
+                    xs = out_iters[l].next()
+                    out_imgs.extend(xs)
+                    out_labels.extend([l] * len(xs))
+                    counts[l] += len(xs)
+                    assert len(out_imgs) == len(out_labels)
+        except StopIteration:
+            pass
+        print "  left: %s" % ({ l:len(out_d[l])-counts[l] for l in out_d })
 
     assert len(out_imgs) == len(out_labels)
     print "Write NPZ, %i pairs" % (len(out_imgs))
