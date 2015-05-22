@@ -20,6 +20,7 @@ if __name__ == "__main__":
     parser.add_argument('--method', type=str, required=True)
     parser.add_argument('--pair-displaced', action='store_true', default=False)
     parser.add_argument('--shuffle', action='store_true', default=False)
+    parser.add_argument('--grouped', type=int, default=None)
     args = parser.parse_args()
 
     print "Load dataset"
@@ -229,12 +230,31 @@ if __name__ == "__main__":
         out_labels.extend(labels)
         sys.stderr.write("\rPairing: %.0f%%" % (it * 100. / count))
     pool.terminate()
+    print ""
 
+    assert len(out_imgs) == len(out_labels)
     if args.shuffle:
         print "Shuffle dataset"
         Random(42).shuffle(out_imgs)
         Random(42).shuffle(out_labels)
 
-    print ""
-    print "Write NPZ"
+    if args.grouped:
+        print "Group per label by %i" % (args.grouped)
+        out_d = defaultdict(list)
+        for x, l in izip(out_imgs, out_labels):
+            out_d[l].append(x)
+        print "  has: %s" % ({ l:len(xs) for l,xs in out_d.iteritems() })
+        out_imgs = []
+        out_labels = []
+        while np.all([ len(xs) > 0 for xs in out_d.itervalues() ]):
+            for l in out_d.iterkeys():
+                myl = out_d[l][:args.grouped]
+                out_imgs.extend(myl)
+                out_labels.extend([l] * len(myl))
+                out_d[l] = out_d[l][args.grouped:]
+                assert len(out_imgs) == len(out_labels)
+        print "  left: %s" % ({ l:len(xs) for l,xs in out_d.iteritems() })
+
+    assert len(out_imgs) == len(out_labels)
+    print "Write NPZ, %i pairs" % (len(out_imgs))
     np.savez_compressed(args.out_npz, out_imgs, out_labels)
