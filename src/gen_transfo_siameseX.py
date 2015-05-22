@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser.add_argument('--out-npz', type=str, required=True)
     parser.add_argument('--method', type=str, required=True)
     parser.add_argument('--pair-displaced', action='store_true', default=False)
+    parser.add_argument('--shuffle', action='store_true', default=False)
     args = parser.parse_args()
 
     print "Load dataset"
@@ -200,7 +201,7 @@ if __name__ == "__main__":
                 labels.append( 1 )
             # pair all 4 translations of 5 neighbors
             for n in ns:
-                for idx2 in rand.sample(xrange(0, len(xs)), k=1):
+                for idx2 in xrange(0, len(xs) - 1):
                     (l2, i2, v2) = res[n][idx2]
                     imgs.append( np.array([ i1, i2 ]) )
                     myl = (idx == idx2) or args.pair_displaced
@@ -228,6 +229,11 @@ if __name__ == "__main__":
         out_labels.extend(labels)
         sys.stderr.write("\rPairing: %.0f%%" % (it * 100. / count))
     pool.terminate()
+
+    if args.shuffle:
+        print "Shuffle dataset"
+        Random(42).shuffle(out_imgs)
+        Random(42).shuffle(out_labels)
 
     print ""
     print "Write NPZ"
