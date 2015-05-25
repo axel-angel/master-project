@@ -13,6 +13,14 @@ lecun_siamese21: gen_transfo_siameseX 2a
 > 2D
 lecun_siamese2Da: gen_transfo_siameseX 2Da (sample cont shift, sample with neigh all shift, sample with not neigh all same-shift)
 lecun_siamese2Db: gen_transfo_siameseX 2Db (sample with all neigh shift, sample with no-neigh diff-label same-shift, sample with no-neigh diff-label diff-shift)
+# train3k neights_v2, b2 (new version), pairing like lecun but dissimilar is probabilistic
+lecun_siamese2bv2: use lecun_siameseX b2 (forgot --pair-displaced!)
+lecun_siamese2bv3: use lecun_siameseX b2 (--pair-displaced)
+lecun_siamese2bv4: use lecun_siameseX b2 (--shufle --pair-displaced --grouped 32)
+lecun_siamese0: use lecun_siameseX b2, --pair-displaced --shuffle --grouped 32
+# train3k neights_v3, test2k neights_v3 (neigh ignore label)
+lecun_siamese2bv5: use lecun_siameseX b2, --pair-displaced --shuffle
+lecun_siamese0v2: use lecun_siameseX 0, --shuffle --grouped 32
 
 
 > models
