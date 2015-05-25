@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{article}
+\documentclass[a4paper,12pt]{report}
 
 \usepackage[utf8x]{inputenc}
 \usepackage[english]{babel}
@@ -20,7 +20,7 @@
 
 \lhead{Axel Angel}
 \rhead{Properties of Convolutional Neural Networks}
-\chead{Report}
+\chead{}
 \rfoot{Page \thepage\ of \pageref{LastPage}}
 \lfoot{\today}
 
@@ -32,21 +32,36 @@
 
 \begin{document}
 \begin{abstract}
-    % TODO
+    % TODO: rewrite
+    Current research in computer vision has shown CNNs gives high accuracy for classification tasks and have been successfully used for other problems as well.
+    The embedding of CNNs, which is the internal representation produced by the last layer, can learn indirectly interesting topological and relational properties.
+    By using a particular loss function, these models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
+    In this work, we give useful insights about CNNs embeddings and we propose a new loss function, derived from the contrastive loss, whose mapping under particular distortions is predictable.
+    Given an input image, only a single forward pass is necessary to generate the outputs of all possible distortions, whereas standard models would require computing all combinaisons of distortions which is too costly in practice or invariant models would loose the distortion information.
 \end{abstract}
 
-\section{Introduction}
+\chapter{Introduction}
 common use of high-dim data
-dim reduction
-need mapping
+dim reduction (LLE, isomap, t-SNE), drawbacks
+need mapping (like DrLIM)
 predictable mapping
+need quantitive measures (to compare)
+new loss function, short summary of results
+use case (medical imaging)
 
-\section{Previous works}
+\section{Thesis Outline}
+% list chapters with their summarzied content
+
+\chapter{Related Work}
+% explain each paper, group them and discuss result adv/drawbacks
 Encoded Invariance in Convolutional Neural Networks
 encoding invariance in the learnt embedding which preserves the signal. Formal analysis of impact of rigid motions versus deformations on classification. Proposing wavelet networks.
 
 Deep Symmetry Networks
 proposes an alternative network, symmetry networks, to extend invariance beyond translation by using feature map over arbitrary symmetry groups by use of kernel-based interpolation.
+
+% required by NORB dataset
+Learning Methods for Generic Object Recognition with Invariance to Pose and Lighting. IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR) 2004
 
 Dimensionality Reduction by Learning an Invariant Mapping
 proposes to creates a dimensionality reducing mapping by training a CNN using a new loss function, the contrastive loss, based on energy models. The results on NORB is a mapping from image space to a 3D cylinder where two axes describes the 2D orientation and the third axe describes the azimuth angle, the mapping is invariant to illumination. Results on 4s and 9s of MNIST shows that CNN can learn a mapping that separates labels and make similar digits close despite translations.
@@ -70,13 +85,35 @@ proposes a deep-learning framework focusing on CNN, easy experiment, easily modi
 DIY Deep Learning for Vision: a Hands-On Tutorial with Caffe
 caffe tutorial
 
-\section{Theory}
+\chapter{Theory: Dimensionality reduction}
 
-\section{Methodology}
+\section{Optimisation Problem}
+optimisation problem that optimize visualization in 2D like t-SNE
 
-\section{Results}
+introduce theory of t-sne and such
 
-\section{Discussion}
+\section{CNN Classifier}
+introduce CNN and embeddings
 
-\section{Conclusion}
+we can use them as classifier and take the last layer as a smart dimension reduction (better than PCA), then use t-sne
+
+\section{CNN for Reduction}
+introduce contrastive loss
+
+we can go further and directly ask the CNN to learn a mapping that ressembles t-sne.
+
+\section{CNN for Predictable Reduction}
+introduce our loss function
+
+instead of being invariant, we can optimize the embedding to be predictable in certain way, for eg: quantifying one distortion per axis.
+
+\chapter{Methodology}
+
+\chapter{Results}
+
+\chapter{Discussion}
+
+\chapter{Conclusion}
+
+% bibliography
 \end{document}
