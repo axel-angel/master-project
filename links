@@ -5,6 +5,8 @@ visualize filters: http://nbviewer.ipython.org/github/BVLC/caffe/blob/master/exa
 courses on NN and CNN: https://www.youtube.com/playlist?list=PL6Xpj9I5qXYEcOhn7TqghAJ6NAPrNmUBH
 train from python: http://nbviewer.ipython.org/github/BVLC/caffe/blob/tutorial/examples/01-learning-lenet.ipynb
 fine-tune from python: http://nbviewer.ipython.org/github/BVLC/caffe/blob/tutorial/examples/03-fine-tuning.ipynb
+caffe py layer: https://github.com/BVLC/caffe/blob/master/python/caffe/test/test_python_layer.py https://gist.github.com/shelhamer/8d9a94cf75e6fb2df221
+caffe py layer params: https://github.com/BVLC/caffe/pull/2001
 
 BSDS dataset http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/resources.html
 paper CNN codes for boundary detection: http://sites.skoltech.ru/compvision/projects/n4/
