@@ -48,7 +48,7 @@ if __name__ == "__main__":
         values = [0, 3, 6, -3, -6]
     print "Transformations:", values
     samples = len(Xls) * len(values)
-    def process( (img, l) ):
+    def process( (i, (img, l)) ):
         xs = []
         for v in values:
             img2 = img_shift_x(img, v)
@@ -57,19 +57,19 @@ if __name__ == "__main__":
             out = net.forward_all(data=data, blobs=[ args.layer ])
             pt = flat_shape(out[args.layer][0])
             img64 = js_img_encode(img2) # encode64 for JS
-            xs.append( (map(np.asscalar, pt), int(l), v, img64) )
+            xs.append( (i, map(np.asscalar, pt), int(l), v, img64) )
         return xs
 
     # forward in parallel
     print "Processing images"
     num_cores = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(num_cores)
-    itr = pool.imap_unordered(process, Xls)
+    itr = pool.imap_unordered(process, enumerate(Xls))
     info = dict(tr='shift_x', src='dataset')
     ds = []
     imgs = []
-    for i, (pt, l, v, img64) in enumerate(chain.from_iterable(itr)):
-        ds.append(dict(x=pt[0], y=pt[1], i=i, l=l, v=v, **info))
+    for i, (j, pt, l, v, img64) in enumerate(chain.from_iterable(itr)):
+        ds.append(dict(x=pt[0], y=pt[1], i=i, l=l, v=v, sample=j, **info))
         imgs.append(img64)
         sys.stderr.write("\rForwarding: %.0f%%" % (i * 100. / samples))
     pool.terminate()

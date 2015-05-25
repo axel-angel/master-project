@@ -51,7 +51,17 @@ window.onload = function () {
         markerType: "circle",
         dataPoints: data[k],
       };
-    }),
+    }).concat([{
+        type: "scatter",
+        markerSize: 4,
+        legendText: 'Overlay',
+        showInLegend: "true",
+        markerType: "triangle",
+        dataPoints: [],
+        markerColor: 'yellow',
+        markerBorderThickness: 1,
+        markerBorderColor: 'black',
+    }]),
   });
   chart.render();
 
@@ -127,13 +137,33 @@ function applyFilters() {
   var $form = $('#filters');
   var label = $form.find('input[name="label"]').val();
   var src = $form.find('input[name="src"]').val();
+  var sample = $form.find('input[name="sample"]').val();
   var label_rx = new RegExp(label, 'i');
   var src_rx = new RegExp(src, 'i');
+  var sample_rx = new RegExp(sample, 'i');
+
+  var overlayData = chart.options.data.filter(function (d) {
+    return (d.legendText == "Overlay");
+  })[0];
 
   chart.options.data.forEach(function (d) {
+    if (d == overlayData) return;
     var first = d.dataPoints[0];
     d.visible = (label_rx.test(first.l))
              && (src_rx.test(first.src));
   });
+
+  overlayData.dataPoints.length = 0;
+  overlayPoints = []
+  if (sample.length > 0) {
+    chart.options.data.forEach(function (d) {
+      d.dataPoints.forEach(function (p) {
+        if (sample_rx.test(p.sample)) {
+          overlayPoints.push(p)
+        }
+      });
+    });
+    overlayData.dataPoints = overlayPoints;
+  }
   chart.render();
 }
