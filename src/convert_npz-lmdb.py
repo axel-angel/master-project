@@ -32,6 +32,6 @@ if __name__ == "__main__":
             lmdb_txn.put("%010d" % (i), datum.SerializeToString())
 
             if i%1000 == 0:
-                sys.stdout.write("Progress %4.1f%% (%i/%i)\r" \
+                sys.stderr.write("Progress %4.0f%% (%i/%i)\r" \
                         % (100.*i/count, i, count))
-                sys.stdout.flush()
+    print ""
