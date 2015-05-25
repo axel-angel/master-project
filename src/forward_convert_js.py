@@ -18,6 +18,7 @@ if __name__ == "__main__":
     parser.add_argument('--in-npz', type=str, required=True)
     parser.add_argument('--out-js', type=str, required=True)
     parser.add_argument('--label', type=int, nargs='+', default=[])
+    parser.add_argument('--no-transfo', action='store_true', default=False)
     args = parser.parse_args()
 
     print "Load model"
@@ -41,7 +42,11 @@ if __name__ == "__main__":
     for _, l in Xls:
         label_set[str(l)] += 1
 
-    values = [0, 3, 6, -3, -6]
+    if args.no_transfo:
+        values = [0]
+    else:
+        values = [0, 3, 6, -3, -6]
+    print "Transformations:", values
     samples = len(Xls) * len(values)
     def process( (img, l) ):
         xs = []
