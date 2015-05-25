@@ -6,6 +6,10 @@ import argparse
 from random import Random
 from itertools import izip
 
+def info_dict(ii):
+    return dict(instance=ii[0], elevation=ii[1], azimuth=ii[2],
+                lighting=ii[3], pair=i)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-npz', type=str, required=True)
@@ -27,7 +31,7 @@ if __name__ == "__main__":
     ls = npz['arr_1']
     infos = npz['arr_2']
 
-    Xlsi = [ (x, l, ii)
+    Xlsi = [ (x, l, info_dict(ii))
              for (xs, l, ii) in izip(X, ls, infos)
              if not args.category  or l in args.category
              if not args.instance  or ii[0] in args.instance
