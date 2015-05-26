@@ -1,0 +1,40 @@
+name: "smallnorb_lecun_siamese"
+input: "data"
+input_dim: 1
+input_dim: 1
+input_dim: 96
+input_dim: 96
+layer {
+  name: "prod1"
+  type: "InnerProduct"
+  bottom: "data"
+  top: "prod1"
+  param {
+    name: "prod1_w"
+    lr_mult: 1
+  }
+  param {
+    name: "prod1_b"
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 20
+  }
+}
+layer {
+  name: "prod2"
+  type: "InnerProduct"
+  bottom: "data"
+  top: "prod2"
+  param {
+    name: "prod2_w"
+    lr_mult: 1
+  }
+  param {
+    name: "prod2_b"
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 3
+  }
+}
