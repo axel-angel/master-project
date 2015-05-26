@@ -2,45 +2,15 @@
 == TODO ========================================================================
 ================================================================================
 
-* then on subset of ImageNet (link in blog, ILSVRC)
-* compare CNN code for similar objects (animals breeds, similar to article), eg: v(bulldog) - v(dalmatian) ~ v(cat siamoi) - v(cat egyptian)
-* compare line-wise in CNN code space, find directions/segments that make sense, perpendicular, other directions?
-  CNN code is taken from the layer before the last (before softmax) in article
-* can use t-SNE again (or show as image for conv layers)
-* try on other lower layers
-
-* compute measure of closeness ("energy") in ip1 layer (instead of t-sne heavy) to compare different models, how they can "cluster" or separate samples (compared to label, shape, etc), want to compare different data-augmentation datasets by transformation (shift close for shift-augmentation, rotated close for rotation-augmentation)
-
-directions:
-* data augmented (house numbers), meaningful training, should drop this?
- - data-augment transfo: scaling,
- - house numbers: recenter for receptive field
- - o/w train (data-augment) on house numbers directly, drop mnist
-* contrastive loss:
- - try siamese continuous-translation pairs, in 2D/3D see useful properties (predictable directions, distances, visually, or create tool to measure?)
- - keep in mind, mnist is (too) simple?
- - if don't work: other loss, using comb of dist and angle/dir?
- - can force some dimensions in embedding to encode displacement (x,y,z), or rotation angle?
- - find predictable mapping (linear, non-linear?) F(x) -> F(x+t) ~= F(x) + ~t (idea: train a own shallow network/function for that?)
- - o/w: compare siamese quantitatively, distance in vector space? what tool?
- - keep aside: try to see if siamese embedding, fine tuned better accuracy than regular?
- - keep aside: adversersial on siamese, train against, better resistance? t-sne show diff?
- - siamese embedding: directions (not without special training?), digit=too simple, use imagenet?
- - train embedding: F(x+t) = F(x) +t
- - use case: medical imaging, detect structures, need to detect for every angles, then easy to compute F(x) then apply R on F(x) (instead of refeeding for every rotation), then can put into last application-oriented angle-dependent layer.
-
- - reproduce figure 7 lecun, use distance/angle to compare afterward, for distances, compare same-distortion different-labels distances instead, makes more sense. We already know that; show that 6-6_+2 versus 6_+2-7_+2
- - try limted 2D-pairing: 5 closest image-space neighbors with same displacement distortions (no pairing with different displacement)
- - Amos loss function 1D (pair by label) + 1D (pair by displacement)
- - If amos loss work, then compare with two different machines (1 for label 1D, 1 for same-translation 1D; merge embedding vector)
- - multiple pairing way: all same-labels together, or smart similar same-label tegether, etc
- - if time, try aligner loss, compare and stuff
-
-
  - need to reproduce lecun mnist!
- - compare with distances/angles (have a quantitative measure)
- - NORB dataset, try plane, see if we can train faster/smaller dataset than lecun, get same shape, stuff
+ - compare with distances/angles (have a quantitative measure). for distances, compare same-distortion different-labels distances instead, makes more sense. We already know that; show that 6-6_+2 versus 6_+2-7_+2
+
+ - compare with two different machines (1 for label 1D, 1 for same-translation 1D; merge embedding vector), argue it's more expensive to train, forward. see if better or not?
+
  - try rotation on mnist (4/8 groups, large enough so we don't care about natural rotation)
+ - NORB dataset, try plane, see if we can train faster/smaller dataset than lecun, get same shape, stuff
+ - variant of contrastive: use logistic/non-zero loss instead of max, see if more spread and close are closer
+
  - write report: around 50-100 pages, introduction is big part containing all in summary
 
 ================================================================================
@@ -82,6 +52,30 @@ directions:
 * data-augmentation: how can we justify our artifially-transformed testset? no, we can't. Instead: test over meaniful/natural dataset like house number (google street) dataset.
 * train model to cluster similar samples together in vector space (transformation-invariance)
 
+ - try limted 2D-pairing: 5 closest image-space neighbors with same displacement distortions (no pairing with different displacement)
+ - Amos loss function 1D (pair by label) + 1D (pair by displacement)
+ - multiple pairing way: all same-labels together, or smart similar same-label tegether, etc
+ - if time, try aligner loss, compare and stuff
+
+directions:
+* data augmented (house numbers), meaningful training, should drop this?
+ - data-augment transfo: scaling,
+ - house numbers: recenter for receptive field
+ - o/w train (data-augment) on house numbers directly, drop mnist
+* contrastive loss:
+ - try siamese continuous-translation pairs, in 2D/3D see useful properties (predictable directions, distances, visually, or create tool to measure?)
+ - keep in mind, mnist is (too) simple?
+ - if don't work: other loss, using comb of dist and angle/dir?
+ - can force some dimensions in embedding to encode displacement (x,y,z), or rotation angle?
+ - find predictable mapping (linear, non-linear?) F(x) -> F(x+t) ~= F(x) + ~t (idea: train a own shallow network/function for that?)
+ - o/w: compare siamese quantitatively, distance in vector space? what tool?
+ - keep aside: try to see if siamese embedding, fine tuned better accuracy than regular?
+ - keep aside: adversersial on siamese, train against, better resistance? t-sne show diff?
+ - siamese embedding: directions (not without special training?), digit=too simple, use imagenet?
+ - train embedding: F(x+t) = F(x) +t
+ - use case: medical imaging, detect structures, need to detect for every angles, then easy to compute F(x) then apply R on F(x) (instead of refeeding for every rotation), then can put into last application-oriented angle-dependent layer.
+
+
 ================================================================================
 == ASIDE =======================================================================
 ================================================================================
@@ -104,3 +98,11 @@ directions:
 
 * analysis of adversial attack (better graphs, data-augmented adversial training)
 * compare distance between original image and adversial in image space versus vector space (in which layer it happens), write code to detect the responsible weights for divergence (for adversial) or convergence (for invariance), comparing two models
+
+* then on subset of ImageNet (link in blog, ILSVRC)
+* compare CNN code for similar objects (animals breeds, similar to article), eg: v(bulldog) - v(dalmatian) ~ v(cat siamoi) - v(cat egyptian)
+* compare line-wise in CNN code space, find directions/segments that make sense, perpendicular, other directions?
+  CNN code is taken from the layer before the last (before softmax) in article
+* can use t-SNE again (or show as image for conv layers)
+* try on other lower layers
+
