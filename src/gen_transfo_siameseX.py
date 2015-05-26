@@ -227,6 +227,42 @@ if __name__ == "__main__":
 
         return (i, imgs, labels)
 
+    def pairing_2Dd( i ): # for 2D contrastive loss
+        def combine_label(label_digit, label_transfo):
+            return (label_digit << 0) + (label_transfo << 1)
+        imgs = []
+        labels = []
+        rand = Random(i)
+        xs = res[i]
+        ns = nss[i]
+        (l, _, _) = xs[0] # label
+        yss = rand.sample(filter(lambda ys: ys[0][0] != l, res.itervalues()),
+                k=neighs) # dissimilar labels
+        for idx in xrange(0, len(xs) - 1):
+            (l1, i1, v1) = xs[idx]
+            # pick similar pairs
+            idx2s = filter(lambda idx2: idx2 != idx, xrange(0, len(xs) - 1))
+            for idx2 in idx2s:
+                (l2, i2, v2) = xs[idx2]
+                assert v1 != v2
+                imgs.append( np.array([ i1, i2 ]) )
+                labels.append( combine_label(1, 0) )
+            # no neighbor pairing here
+            # pick disimilar pairs
+            for ys in yss:
+                (l5, i5, v5) = ys[idx]
+                imgs.append( np.array([ i1, i5 ]) )
+                labels.append( combine_label(0, 1) )
+
+                idx2s = set(xrange(0, len(ys) - 1))
+                idx2s.remove(idx)
+                idx2 = rand.choice(list(idx2s))
+                (l4, i4, v4) = ys[idx2]
+                imgs.append( np.array([ i1, i4 ]) )
+                labels.append( combine_label(0, 0) )
+
+        return (i, imgs, labels)
+
     def pairing_2b( i ):
         imgs = []
         labels = []
