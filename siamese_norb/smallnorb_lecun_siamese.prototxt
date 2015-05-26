@@ -24,7 +24,7 @@ layer {
 layer {
   name: "prod2"
   type: "InnerProduct"
-  bottom: "data"
+  bottom: "prod1"
   top: "prod2"
   param {
     name: "prod2_w"
