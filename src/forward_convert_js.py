@@ -19,6 +19,8 @@ if __name__ == "__main__":
     parser.add_argument('--out-js', type=str, required=True)
     parser.add_argument('--label', type=int, nargs='+', default=[])
     parser.add_argument('--no-transfo', action='store_true', default=False)
+    parser.add_argument('--axis1', type=int, default=0)
+    parser.add_argument('--axis2', type=int, default=1)
     args = parser.parse_args()
 
     print "Load model"
@@ -68,8 +70,10 @@ if __name__ == "__main__":
     info = dict(tr='shift_x', src='dataset')
     ds = []
     imgs = []
+    ax1 = args.axis1
+    ax2 = args.axis2
     for i, (j, pt, l, v, img64) in enumerate(chain.from_iterable(itr)):
-        ds.append(dict(x=pt[0], y=pt[1], i=i, l=l, v=v, sample=j, **info))
+        ds.append(dict(x=pt[ax1], y=pt[ax2], i=i, l=l, v=v, sample=j, **info))
         imgs.append(img64)
         sys.stderr.write("\rForwarding: %.0f%%" % (i * 100. / samples))
     pool.terminate()
