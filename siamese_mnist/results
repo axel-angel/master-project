@@ -26,6 +26,11 @@ lecun_siamese2Dc: X 2Dc --shuffle --grouped 32
 lecun_siamese2bv5: use lecun_siameseX b2, --pair-displaced --shuffle
 lecun_siamese0v2: use lecun_siameseX 0, --shuffle --grouped 32
 
+> replication of lecun
+lecun_siamese0b
+lecun_siamese2bv6
+> our result
+lecun_siamese2Dc
 
 > models
 lecun_siamese2b: use lecun_siamese2, random seed 43
