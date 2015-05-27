@@ -11,7 +11,7 @@ layer {
     scale: 0.00390625
   }
   data_param {
-    source: "data/lecun_siamese0b_train"
+    source: "data/lecun_siamese2Dd_train"
     batch_size: 64
     backend: LMDB
   }
@@ -28,7 +28,7 @@ layer {
     scale: 0.00390625
   }
   data_param {
-    source: "data/lecun_siamese0b_test"
+    source: "data/lecun_siamese2Dd_test"
     batch_size: 100
     backend: LMDB
   }
@@ -212,14 +212,30 @@ layer {
     }
   }
 }
+#layer {
+#  name: "loss"
+#  type: "ContrastiveLoss"
+#  bottom: "feat"
+#  bottom: "feat_p"
+#  bottom: "sim"
+#  top: "loss"
+#  contrastive_loss_param {
+#    margin: 1
+#  }
+#}
 layer {
   name: "loss"
-  type: "ContrastiveLoss"
+  type: "Python"
   bottom: "feat"
   bottom: "feat_p"
   bottom: "sim"
   top: "loss"
-  contrastive_loss_param {
-    margin: 1
+  python_param {
+    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
+    module: "pyloss"
+    # the layer name -- the class name in the module
+    layer: "OwnDoubleContrastiveLossLayer"
   }
+  # set loss weight so Caffe knows this is a loss layer
+  loss_weight: 1
 }
