@@ -33,11 +33,12 @@
 \begin{document}
 \begin{abstract}
     % TODO: rewrite
-    Current research in computer vision has shown CNNs gives high accuracy for classification tasks and have been successfully used for other problems as well.
-    The embedding of CNNs, which is the internal representation produced by the last layer, can learn indirectly interesting topological and relational properties.
-    By using a particular loss function, these models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
-    In this work, we give useful insights about CNNs embeddings and we propose a new loss function, derived from the contrastive loss, whose mapping under particular distortions is predictable.
-    Given an input image, only a single forward pass is necessary to generate the outputs of all possible distortions, whereas standard models would require computing all combinaisons of distortions which is too costly in practice or invariant models would loose the distortion information.
+    Current research in Computer Vision has shown that Convolutional Neural Networks (CNNs) give state-of-the-art performance in many classification tasks and Computer Vision problems.
+    The embedding of CNNs, which is the internal representation produced by the last layer, can indirectly learn interesting topological and relational properties.
+    By using a suitable loss function, these models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
+    In this work, we give useful insights about CNNs embeddings and we propose a new loss function, derived from the contrastive loss, whose mapping under particular distortions is predictable. 
+    Given an input image, only a single forward pass is necessary to generate the outputs of all possible distortions, whereas standard models would require computing all combinations of distortions which is too expensive in practice or invariant models would lose the distortion information.
+    % ^ TODO: careful about this last statement, too strong!
 \end{abstract}
 
 \chapter{Introduction}
