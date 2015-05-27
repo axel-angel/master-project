@@ -95,3 +95,15 @@ target/
 *.xdy
 *.tdo
 
+*.js
+*.npz
+*.data
+*.mat
+*.gz
+*.png
+*/data
+*/snapshots
+*/*local*.prototxt
+report/*.pdf
+admin
+*/examples
