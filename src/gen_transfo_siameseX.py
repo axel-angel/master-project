@@ -21,6 +21,8 @@ if __name__ == "__main__":
     parser.add_argument('--pair-displaced', action='store_true', default=False)
     parser.add_argument('--shuffle', action='store_true', default=False)
     parser.add_argument('--grouped', type=int, default=None)
+    parser.add_argument('--transfo-values', type=int, nargs='+')
+    parser.add_argument('--transfo-name', type=str, required=True)
     args = parser.parse_args()
 
     print "Load dataset"
@@ -33,17 +35,19 @@ if __name__ == "__main__":
     count = X.shape[0]
     neighs = nss.shape[1]
 
-    trs = [3, 6]
+    tr_f = globals().get('img_%s' % (args.transfo_name))
+    trs = args.transfo_values
+    #trs = [3, 6]
     idx_orig = len(trs) # after 1x trs comes the original
-    print "Transformations:\n\t%s" % ("\n\t".join(map(repr, trs)))
+    print "Transformations: %s, [%s]" % (tr_f, ", ".join(map(repr, trs)))
 
     def process( (x, l, i) ):
         xs = []
         for v in reversed(trs):
-            xs.append( (l, img_shift_x(x, -v), -v) )
+            xs.append( (l, tr_f(x, -v), -v) )
         xs.append( (l, x, 0) )
         for v in trs:
-            xs.append( (l, img_shift_x(x, +v), +v) )
+            xs.append( (l, tr_f(x, +v), +v) )
         return (i, xs)
 
     print "Generate images"
