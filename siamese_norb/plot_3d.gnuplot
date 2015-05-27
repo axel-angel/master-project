@@ -7,4 +7,4 @@ set parametric
 set style data points
 set xlabel "data style point - no dgrid"
 set key box
-splot "save_lecun_siamese0b_iter1k.data"
+splot 'save_lecun_siamese2_iter100k.data' u 1:2:3:4 palette
