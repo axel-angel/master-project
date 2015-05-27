@@ -32,8 +32,8 @@ window.onload = function () {
   var data_keys = Object.keys(data);
   data_keys.sort();
   chart = new CanvasJS.Chart("chartContainer", {
-    axisX: { minimum: -6, maximum: 6 },
-    axisY: { minimum: -6, maximum: 6 },
+    axisX: { minimum: -6, maximum: 6, gridThickness: 1 },
+    axisY: { minimum: -6, maximum: 6, gridThickness: 1 },
     legend: { // TODO: remove because our filters are better!
       cursor: "pointer",
       itemclick: function (e) { // toggle cluster when click on legend
