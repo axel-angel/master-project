@@ -4,6 +4,7 @@
 import caffe
 import numpy as np
 from utils import *
+from itertools import izip
 
 if __name__ == "__main__":
     import argparse
@@ -23,6 +24,7 @@ if __name__ == "__main__":
     X = np.load(args.in_npz)
     xs = X['arr_0']
     ls = X['arr_1']
+    infos = X['arr_2']
 
     print "Forward output"
     dims = xs.shape[-2:]
@@ -33,5 +35,6 @@ if __name__ == "__main__":
 
     print "Save into GNUplot data"
     with open(args.out_data, 'w') as fd:
-        for xs in out[args.layer]:
-            fd.write( (" ".join(map(lambda x: "%f" % (x), xs))) + "\n")
+        for ii, xs in izip(infos, out[args.layer]):
+            cols = map(lambda x: "%f" % (x), xs) + [ str(ii['elevation']) ]
+            fd.write( (" ".join(cols)) + "\n")
