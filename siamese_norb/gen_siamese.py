@@ -52,7 +52,9 @@ if __name__ == "__main__":
             continue
         xs1 = xss[(elv1,azi1)]
         xs2 = xss[(elv2,azi2)]
-        isneigh = (abs(elv1 - elv2) == 1) and (abs(azi1 - azi2) == 2)
+        isneigh_elv = (abs(elv1 - elv2) == 1)
+        isneigh_azi = (abs(azi1 - azi2) == 2) or (abs(azi1 - azi2) == 34)
+        isneigh = isneigh_elv and isneigh_azi
         for x1, x2 in product(xs1, xs2):
             out_imgs.append( np.array([ x1, x2 ]) )
             out_labels.append( int(isneigh) )
