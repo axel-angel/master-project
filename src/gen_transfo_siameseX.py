@@ -39,15 +39,13 @@ if __name__ == "__main__":
     trs = args.transfo_values
     #trs = [3, 6]
     idx_orig = len(trs) # after 1x trs comes the original
-    print "Transformations: %s, [%s]" % (tr_f, ", ".join(map(repr, trs)))
+    trs_all = list(reversed(trs)) + [0] + trs
+    print "Transformations: %s, [%s]" % (tr_f, ", ".join(map(repr, trs_all)))
 
     def process( (x, l, i) ):
         xs = []
-        for v in reversed(trs):
-            xs.append( (l, tr_f(x, -v), -v) )
-        xs.append( (l, x, 0) )
-        for v in trs:
-            xs.append( (l, tr_f(x, +v), +v) )
+        for v in trs_all:
+            xs.append( (l, tr_f(x, v), v) )
         return (i, xs)
 
     print "Generate images"
