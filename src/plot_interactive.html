@@ -9,19 +9,21 @@
 </head>
 <body>
   <form id="filters">
-    <fieldset class="label">
-      <legend>Label:</legend>
-      <input type="text" name="label" placeholder="regex">
+    <fieldset class="dataset">
+      <legend>Dataset:</legend>
+      <span>Label:</span>
+      <input type="text" name="label" placeholder="regex" size="6">
+      <span>Source:</span>
+      <input type="text" name="src" placeholder="regex" size="6">
     </fieldset>
-    <fieldset class="src">
-      <legend>Source:</legend>
-      <input type="text" name="src" placeholder="regex">
+    <fieldset class="overlay">
+      <legend>Overlay:</legend>
+      <span>Sample:</span>
+      <input type="text" name="sample" placeholder="regex" size="6">
+      <span>Transfo:</span>
+      <input type="text" name="transfo" placeholder="regex" size="6">
     </fieldset>
-    <fieldset class="sample">
-      <legend>Sample:</legend>
-      <input type="text" name="sample" placeholder="regex">
-    </fieldset>
-    <button type="button" onClick="applyFilters();" />Apply</button>
+    <button type="submit" onClick="applyFilters();" />Apply</button>
   </form>
   <pre id="debug" style="clear:both"></pre>
   <div id="chartContainer" style="height: 700px; width: 100%;">

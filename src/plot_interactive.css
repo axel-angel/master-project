@@ -13,3 +13,7 @@
 #filters fieldset {
   float: left;
 }
+
+fieldset {
+    float: left;
+}

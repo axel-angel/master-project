@@ -69,6 +69,8 @@ window.onload = function () {
     chart.options.axisY.maximum += dy * diry / 4;
     chart.render();
   }
+
+  $('#filters').submit(applyFilters);
 };
 
 $(window).on('hashchange', on_hash_change);
@@ -147,7 +149,7 @@ function plot() {
       };
     }).concat([{
         type: "scatter",
-        markerSize: 10,
+        markerSize: 5,
         legendText: 'Overlay',
         showInLegend: "true",
         markerType: "triangle",
@@ -160,14 +162,17 @@ function plot() {
   chart.render();
 }
 
-function applyFilters() {
+function applyFilters(e) {
+  if (e) e.preventDefault();
   var $form = $('#filters');
   var label = $form.find('input[name="label"]').val();
-  var src = $form.find('input[name="src"]').val();
-  var sample = $form.find('input[name="sample"]').val();
   var label_rx = new RegExp(label, 'i');
+  var src = $form.find('input[name="src"]').val();
   var src_rx = new RegExp(src, 'i');
+  var sample = $form.find('input[name="sample"]').val();
   var sample_rx = new RegExp(sample, 'i');
+  var transfo = $form.find('input[name="transfo"]').val();
+  var transfo_rx = new RegExp(transfo, 'i');
 
   var overlayData = chart.options.data.filter(function (d) {
     return (d.legendText == "Overlay");
@@ -182,10 +187,12 @@ function applyFilters() {
 
   overlayData.dataPoints.length = 0;
   overlayPoints = []
-  if (sample.length > 0) {
+  if (sample.length > 0 || transfo.length > 0) {
     chart.options.data.forEach(function (d) {
       d.dataPoints.forEach(function (p) {
-        if (sample_rx.test(p.sample)) {
+        var cond = ( sample.length == 0  || sample_rx.test(p.sample) )
+                && ( transfo.length == 0 || transfo_rx.test(p.v) )
+        if (cond) {
           overlayPoints.push(p)
         }
       });
