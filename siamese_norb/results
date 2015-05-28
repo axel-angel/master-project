@@ -5,3 +5,5 @@ lecun_smallnorb_v0b: --shuffle --grouped 32
 lecun_smallnorb_v1: --shuffle --grouped 32
 lecun_smallnorb_v1b: --shuffle
 lecun_smallnorb_v1b2: use v1b margin=5
+>> remove duplicate pairs (elv1=2, azi1=2)
+lecun_smallnorb_v2: use v1b2 margin=5
