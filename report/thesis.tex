@@ -13,21 +13,28 @@
 \usepackage{graphicx}
 \usepackage{lastpage}
 
+\linespread{1.2}
+
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhead{}
 \fancyfoot{}
 
-\lhead{Axel Angel}
-\rhead{Properties of Convolutional Neural Networks}
-\chead{}
+\newcommand{\myname}{Axel Angel}
+\newcommand{\mytitle}{Properties of Convolutional Neural Networks}
+\newcommand{\mysubtitle}{Report}
+\newcommand{\mydate}{\today}
+
+\lhead{\myname}
+\rhead{\mytitle}
+\chead{\mysubtitle}
 \rfoot{Page \thepage\ of \pageref{LastPage}}
-\lfoot{\today}
+\lfoot{\mydate}
 
 \pdfinfo{
-    /Author (Authors)
-    /Title (Title)
-    /Subject (Subject)
+    /Author (\myname)
+    /Title (\mytitle)
+    /Subject (\mysubtitle)
     }
 
 \begin{document}
@@ -36,55 +43,74 @@
     Current research in Computer Vision has shown that Convolutional Neural Networks (CNNs) give state-of-the-art performance in many classification tasks and Computer Vision problems.
     The embedding of CNNs, which is the internal representation produced by the last layer, can indirectly learn interesting topological and relational properties.
     By using a suitable loss function, these models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
-    In this work, we give useful insights about CNNs embeddings and we propose a new loss function, derived from the contrastive loss, whose mapping under particular distortions is predictable. 
+    In this work, we give useful insights about CNNs embeddings and we propose a new loss function, derived from the contrastive loss, whose mapping under particular distortions is predictable.
     Given an input image, only a single forward pass is necessary to generate the outputs of all possible distortions, whereas standard models would require computing all combinations of distortions which is too expensive in practice or invariant models would lose the distortion information.
     % ^ TODO: careful about this last statement, too strong!
 \end{abstract}
 
 \chapter{Introduction}
-common use of high-dim data
-dim reduction (LLE, isomap, t-SNE), drawbacks
-need mapping (like DrLIM)
-predictable mapping
-need quantitive measures (to compare)
+\begin{verbatim}
+common use of high-dim data, like images
+dim reduction (LLE, isomap, t-SNE), why, drawbacks
+an other approach is to use CNN to classify, then dim reduction on embedding
+allows to understand what's happening in CNN, better topology
+distortions are spread in the embedding
+what about learning invariance? but keep information
+need mapping (like DrLIM), train with siamese network
+predictable mapping << our contribution
+need quantitive measures (to compare) << our contribution
 new loss function, short summary of results
 use case (medical imaging)
+\end{verbatim}
 
 \section{Thesis Outline}
 % list chapters with their summarzied content
 
 \chapter{Related Work}
 % explain each paper, group them and discuss result adv/drawbacks
-Encoded Invariance in Convolutional Neural Networks
-encoding invariance in the learnt embedding which preserves the signal. Formal analysis of impact of rigid motions versus deformations on classification. Proposing wavelet networks.
 
-Deep Symmetry Networks
-proposes an alternative network, symmetry networks, to extend invariance beyond translation by using feature map over arbitrary symmetry groups by use of kernel-based interpolation.
+research found NN are good to classify lots of problems. CNN are naturally more inclined for computer vision (accuracy and speed).
 
-% required by NORB dataset
-Learning Methods for Generic Object Recognition with Invariance to Pose and Lighting. IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR) 2004
+deeper architectures improves accuracy on more complex tasks, people found optimisations to make them fast.
 
-Dimensionality Reduction by Learning an Invariant Mapping
-proposes to creates a dimensionality reducing mapping by training a CNN using a new loss function, the contrastive loss, based on energy models. The results on NORB is a mapping from image space to a 3D cylinder where two axes describes the 2D orientation and the third axe describes the azimuth angle, the mapping is invariant to illumination. Results on 4s and 9s of MNIST shows that CNN can learn a mapping that separates labels and make similar digits close despite translations.
+paper: Flexible, high performance convolutional neural networks for image classification
 
-Intriguing properties of neural networks
-adversial attacks, linearity of networks.
+Even though they give impressive results and are widely used in computer vision, we still lack important formal understanding why they work so well.
 
-Towards Deep Neural Network Architectures Robust To Adversarial Examples
+paper: Intriguing properties of neural networks
 
-Analysis of classifiers' robustness to adversarial perturbations
+CNN are complex and strange results were found. Research found multiple hypothesises.
 
-Stochastic Neighbor Embedding
+% adversial attacks, linearity of networks.
+% Towards Deep Neural Network Architectures Robust To Adversarial Examples
+% Analysis of classifiers' robustness to adversarial perturbations
+
+It is not possible to directly look into the embedding, due to high dim space. however people uses dim reduction to create a human viewable representation of this space.
+lots of dim reduction exists
+
+paper: Stochastic Neighbor Embedding
+
 proposes a maximization problem that compute from a high-dim dataset a 2D embedding preserving neighborhood distances. Kullback-leibler divergence.
 
-Visualizing Data using t-SNE
+paper: Visualizing Data using t-SNE
 proposes a variation of Stochastic Neighbor Embedding, easier to optimize, produces better 2D map by spreading points more evenly and preserving topological structures
 
-Caffe: Convolutional Architecture for Fast Feature Embedding
-proposes a deep-learning framework focusing on CNN, easy experiment, easily modifiable source, reference models (lenet, imagenet), scalable, GPU, active community.
+we can see how CNN are clustering samples depending on multiple factors.
+people add distorted samples to their dataset (data augmentation) so models can learn to be transfo invariant, but results shows the embedding cluster them into clusters per transfo instead of per label [XXX].
+altought it is not intuitive, this can be seen by inspecting the embedding.
+we can add constraints against distortions directly over the embedding, to cluster them the way we meant.
 
-DIY Deep Learning for Vision: a Hands-On Tutorial with Caffe
-caffe tutorial
+paper: Encoded Invariance in Convolutional Neural Networks
+
+encoding invariance in the learnt embedding which preserves the signal. Formal analysis of impact of rigid motions versus deformations on classification. Proposing wavelet networks.
+
+paper: Deep Symmetry Networks
+
+proposes an alternative network, symmetry networks, to extend invariance beyond translation by using feature map over arbitrary symmetry groups by use of kernel-based interpolation.
+
+paper: Dimensionality Reduction by Learning an Invariant Mapping
+
+proposes to creates a dimensionality reducing mapping by training a CNN using a new loss function, the contrastive loss, based on energy models. The results on NORB is a mapping from image space to a 3D cylinder where two axes describes the 2D orientation and the third axe describes the azimuth angle, the mapping is invariant to illumination. Results on 4s and 9s of MNIST shows that CNN can learn a mapping that separates labels and make similar digits close despite translations.
 
 \chapter{Theory: Dimensionality reduction}
 
@@ -110,11 +136,42 @@ instead of being invariant, we can optimize the embedding to be predictable in c
 
 \chapter{Methodology}
 
+explain our models
+
+use of Caffe
+
+introduce datasets: mnist and norb.
+
+how we create our train/test dataset
+
+how are models trained in caffe
+
+how we can compute our energy-distance for comparisons.
+
 \chapter{Results}
+
+tables and graphs: loss of training (for major models), add accuracy for comparison, compare lecun with ours (energy-distance).
+
+\section{t-SNE on AlexNet}
+explain what we found using t-sne on last layer of alexnet, on mnist.
+
+\section{Contrastive AlexNet}
+explain what we found using double-contrastive loss with alexnet, on mnist.
+
+can add norb, when finished.
 
 \chapter{Discussion}
 
 \chapter{Conclusion}
 
 % bibliography
+
+Caffe: Convolutional Architecture for Fast Feature Embedding
+proposes a deep-learning framework focusing on CNN, easy experiment, easily modifiable source, reference models (lenet, imagenet), scalable, GPU, active community.
+
+DIY Deep Learning for Vision: a Hands-On Tutorial with Caffe
+caffe tutorial
+
+% required by NORB dataset
+Learning Methods for Generic Object Recognition with Invariance to Pose and Lighting. IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR) 2004
 \end{document}
