@@ -40,7 +40,7 @@ if __name__ == "__main__":
     trs = args.transfo_values
     #trs = [3, 6]
     idx_orig = len(trs) # after 1x trs comes the original
-    trs_all = list(reversed(trs)) + [0] + trs
+    trs_all = map(lambda x: -x, trs[::-1]) + [0] + trs
     print "Transformations: %s, [%s]" % (tr_f, ", ".join(map(repr, trs_all)))
 
     def process( (x, l, i) ):
