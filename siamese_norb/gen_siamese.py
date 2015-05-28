@@ -48,14 +48,14 @@ if __name__ == "__main__":
     eas = product(elvs, azis, elvs, azis)
     eas_count = len(elvs)**2 * len(azis)**2
     for it, (elv1, azi1, elv2, azi2) in enumerate(eas):
-        if (elv1 >= elv2) or (azi1 >= azi2):
-            continue
+        if (elv1 >= elv2) or (azi1 >= azi2): continue # skip duplicates
         xs1 = xss[(elv1,azi1)]
         xs2 = xss[(elv2,azi2)]
         isneigh_elv = (abs(elv1 - elv2) == 1)
         isneigh_azi = (abs(azi1 - azi2) == 2) or (abs(azi1 - azi2) == 34)
         isneigh = isneigh_elv and isneigh_azi
-        for x1, x2 in product(xs1, xs2):
+        for (i,x1), (j,x2) in product(enumerate(xs1), enumerate(xs2)):
+            if i >= j: continue # skip duplicates
             out_imgs.append( np.array([ x1, x2 ]) )
             out_labels.append( int(isneigh) )
         sys.stderr.write("\rPairing: %.0f%%" % (it * 100. / eas_count))
