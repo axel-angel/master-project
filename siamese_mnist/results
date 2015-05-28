@@ -29,6 +29,7 @@ lecun_siamese0v2: use lecun_siameseX 0, --shuffle --grouped 32
 # rotate train 3k neights_v2, test2k neights_v3, lecun model
 lecun_siamese2bv6_rotate X 2b --shuffle --grouped 32 --pair-displaced --transfo-name rotate --transfo-values 45 90
 lecun_siamese2Dc X 2Dc --shuffle --grouped 32 --transfo-name rotate --transfo-values 45 90
+lecun_siamese2Dc2 X 2Dc --shuffle --shuffle-seed 43 --grouped 32 --transfo-name rotate --transfo-values 45 90
 
 
 > replication of lecun
