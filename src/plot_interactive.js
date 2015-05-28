@@ -1,7 +1,74 @@
 var chart;
+var lastwheel = new Date();
+var chart_focus = false;
 
 window.onload = function () {
     on_hash_change();
+
+  // handle zoom with mouse wheel
+  $('#chartContainer').bind('wheel', function (e) {
+    var dir = e.originalEvent.deltaY < 0 ? +1 : -1;
+    if (e.originalEvent.deltaY == 0) return; // ignore horizontal
+    e.preventDefault();
+
+    var now = new Date();
+    if (now - lastwheel < 1000) return; // don't call it too often
+    zoom(dir);
+    lastwheel = now;
+  });
+
+  function zoom(dir) {
+    var scale = dir > 0 ? 1/2 : 2;
+    var subscale = dir > 0 ? +1/4 : -1/2;
+
+    chart.options.data.forEach(function (d) {
+      d.markerSize /= Math.sqrt(scale); // heuristic to avoid overlap, works!
+    });
+    var dx = chart.options.axisX.maximum - chart.options.axisX.minimum;
+    var dy = chart.options.axisY.maximum - chart.options.axisY.minimum;
+    chart.options.axisX.minimum += dx * subscale;
+    chart.options.axisY.minimum += dy * subscale;
+    chart.options.axisX.maximum -= dx * subscale;
+    chart.options.axisY.maximum -= dy * subscale;
+    chart.render()
+  }
+
+  $('#chartContainer')
+    .mouseenter(function () { chart_focus = true; })
+    .mouseleave(function () { chart_focus = false; });
+
+  // handle move and zoom with keyboard arrows
+  $('body').keydown(onkeypress);
+  $('body').keypress(onkeypress);
+  function onkeypress(e) {
+    if (!chart_focus) return; // only when focusing
+    if (e.charCode != 0) return; // avoid bug with ( in chrome
+
+    var dirx = 0;
+    var diry = 0;
+    if (e.keyCode == 39) dirx = +1;
+    if (e.keyCode == 37) dirx = -1;
+    if (e.keyCode == 38) diry = +1;
+    if (e.keyCode == 40) diry = -1;
+    if (e.shiftKey && diry != 0) {
+        zoom(diry);
+        e.preventDefault();
+    }
+    else if (dirx != 0 || diry != 0) {
+        move(dirx, diry);
+        e.preventDefault();
+    }
+  }
+
+  function move(dirx, diry) {
+    var dx = chart.options.axisX.maximum - chart.options.axisX.minimum;
+    var dy = chart.options.axisY.maximum - chart.options.axisY.minimum;
+    chart.options.axisX.minimum += dx * dirx / 4;
+    chart.options.axisY.minimum += dy * diry / 4;
+    chart.options.axisX.maximum += dx * dirx / 4;
+    chart.options.axisY.maximum += dy * diry / 4;
+    chart.render();
+  }
 };
 
 $(window).on('hashchange', on_hash_change);
@@ -72,7 +139,7 @@ function plot() {
     data: data_keys.map(function (k) {
       return {
         type: "scatter",
-        markerSize: 2,
+        markerSize: 1,
         legendText: legends[k],
         showInLegend: "true",
         markerType: "circle",
@@ -80,7 +147,7 @@ function plot() {
       };
     }).concat([{
         type: "scatter",
-        markerSize: 4,
+        markerSize: 10,
         legendText: 'Overlay',
         showInLegend: "true",
         markerType: "triangle",
@@ -91,73 +158,6 @@ function plot() {
     }]),
   });
   chart.render();
-
-  // handle zoom with mouse wheel
-  var lastwheel = new Date();
-  $('#chartContainer').bind('wheel', function (e) {
-    var dir = e.originalEvent.deltaY < 0 ? +1 : -1;
-    if (e.originalEvent.deltaY == 0) return; // ignore horizontal
-    e.preventDefault();
-
-    var now = new Date();
-    if (now - lastwheel < 1000) return; // don't call it too often
-    zoom(dir);
-    lastwheel = now;
-  });
-
-  function zoom(dir) {
-    var scale = dir > 0 ? 1/2 : 2;
-    var subscale = dir > 0 ? +1/4 : -1/2;
-
-    chart.options.data.forEach(function (d) {
-      d.markerSize /= Math.sqrt(scale); // heuristic to avoid overlap, works!
-    });
-    var dx = chart.options.axisX.maximum - chart.options.axisX.minimum;
-    var dy = chart.options.axisY.maximum - chart.options.axisY.minimum;
-    chart.options.axisX.minimum += dx * subscale;
-    chart.options.axisY.minimum += dy * subscale;
-    chart.options.axisX.maximum -= dx * subscale;
-    chart.options.axisY.maximum -= dy * subscale;
-    chart.render()
-  }
-
-  var chart_focus = false;
-  $('#chartContainer')
-    .mouseenter(function () { chart_focus = true; })
-    .mouseleave(function () { chart_focus = false; });
-
-  // handle move and zoom with keyboard arrows
-  $('body').keydown(onkeypress);
-  $('body').keypress(onkeypress);
-  function onkeypress(e) {
-    if (!chart_focus) return; // only when focusing
-    if (e.charCode != 0) return; // avoid bug with ( in chrome
-
-    var dirx = 0;
-    var diry = 0;
-    if (e.keyCode == 39) dirx = +1;
-    if (e.keyCode == 37) dirx = -1;
-    if (e.keyCode == 38) diry = +1;
-    if (e.keyCode == 40) diry = -1;
-    if (e.shiftKey && diry != 0) {
-        zoom(diry);
-        e.preventDefault();
-    }
-    else if (dirx != 0 || diry != 0) {
-        move(dirx, diry);
-        e.preventDefault();
-    }
-  }
-
-  function move(dirx, diry) {
-    var dx = chart.options.axisX.maximum - chart.options.axisX.minimum;
-    var dy = chart.options.axisY.maximum - chart.options.axisY.minimum;
-    chart.options.axisX.minimum += dx * dirx / 4;
-    chart.options.axisY.minimum += dy * diry / 4;
-    chart.options.axisX.maximum += dx * dirx / 4;
-    chart.options.axisY.maximum += dy * diry / 4;
-    chart.render();
-  }
 }
 
 function applyFilters() {
