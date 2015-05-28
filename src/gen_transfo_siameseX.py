@@ -20,6 +20,7 @@ if __name__ == "__main__":
     parser.add_argument('--method', type=str, required=True)
     parser.add_argument('--pair-displaced', action='store_true', default=False)
     parser.add_argument('--shuffle', action='store_true', default=False)
+    parser.add_argument('--shuffle-seed', type=int, default=42)
     parser.add_argument('--grouped', type=int, default=None)
     parser.add_argument('--transfo-values', type=int, nargs='+')
     parser.add_argument('--transfo-name', type=str, required=True)
@@ -338,8 +339,8 @@ if __name__ == "__main__":
     assert len(out_imgs) == len(out_labels)
     if args.shuffle:
         print "Shuffle dataset"
-        Random(42).shuffle(out_imgs)
-        Random(42).shuffle(out_labels)
+        Random(args.shuffle_seed).shuffle(out_imgs)
+        Random(args.shuffle_seed).shuffle(out_labels)
 
     if args.grouped:
         print "Group per label by %i" % (args.grouped)
