@@ -1,4 +1,31 @@
+var chart;
+
 window.onload = function () {
+    on_hash_change();
+};
+
+$(window).on('hashchange', on_hash_change);
+
+function on_hash_change() {
+  // load js specified after the hash
+  var $debug = $('#debug');
+  $debug.text("Loading...");
+  if (chart) {
+      chart.options.data = [];
+      chart.render();
+  }
+  var data_url = window.location.hash.substr(1);
+  $.get(data_url, function (j) {
+      eval(j);
+      plot();
+      $debug.text("Data loaded: "+ data_url);
+  }).error(function (e) {
+      console.error(e);
+      $debug.text("Error: "+ e.statusText);
+  });
+}
+
+function plot() {
   // init our objects
   var data = {};
   var legends = {};
