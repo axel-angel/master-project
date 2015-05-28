@@ -12,6 +12,7 @@ from utils import *
 from collections import defaultdict
 from random import Random
 from itertools import izip, imap
+from operator import neg
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     trs = args.transfo_values
     #trs = [3, 6]
     idx_orig = len(trs) # after 1x trs comes the original
-    trs_all = map(lambda x: -x, trs[::-1]) + [0] + trs
+    trs_all = map(neg, trs[::-1]) + [0] + trs
     print "Transformations: %s, [%s]" % (tr_f, ", ".join(map(repr, trs_all)))
 
     def process( (x, l, i) ):
@@ -65,7 +66,7 @@ if __name__ == "__main__":
         imgs = []
         labels = []
         rand = Random(i)
-        xs, ys, zs = rand.sample(res, k=3)
+        xs, ys, zs = map(res.get, rand.sample(res, k=3))
         idx = rand.randint(0, len(xs) - 2)
         # pick a similar pair
         if rand.randint(0, 1):
@@ -96,7 +97,7 @@ if __name__ == "__main__":
         xs = res[i]
         ns = nss[i]
         # pick similar pairs
-        for idx in xrange(0, len(xs) - 1):
+        for idx in xrange(0, len(xs) - 2):
             # pick the sample translations
             (l1, i1, v1), (l2, i2, v2) = xs[idx:idx+2]
             imgs.append( np.array([ i1, i2 ]) )
@@ -146,7 +147,7 @@ if __name__ == "__main__":
         js = rand.sample([ k for k in xrange(count) if k not in ns ], k=neighs)
         for j in js:
             ys = res[j]
-            for idx in xrange(0, len(ys) - 1):
+            for idx in xrange(0, len(ys)):
                 (l1, i1, v1) = xs[idx]
                 (l4, i4, v4) = ys[idx]
                 imgs.append( np.array([ i1, i4 ]) )
@@ -165,12 +166,12 @@ if __name__ == "__main__":
         (l, _, _) = xs[0] # label
         yss = rand.sample(filter(lambda ys: ys[0][0] != l, res.itervalues()),
                 k=neighs) # dissimilar labels
-        for idx in xrange(0, len(xs) - 1):
+        for idx in xrange(0, len(xs)):
             (l1, i1, v1) = xs[idx]
             # pick similar pairs
             for n in ns:
                 ys = res[n]
-                idx2 = rand.choice(xrange(0, len(ys) - 1))
+                idx2 = rand.randint(0, len(ys) - 1)
                 (l3, i3, v3) = ys[idx2]
                 imgs.append( np.array([ i1, i3 ]) )
                 labels.append( combine_label(1, int(idx == idx2)) )
@@ -180,7 +181,7 @@ if __name__ == "__main__":
                 imgs.append( np.array([ i1, i5 ]) )
                 labels.append( combine_label(0, 1) )
 
-                idx2s = set(xrange(0, len(ys) - 1))
+                idx2s = set(xrange(0, len(ys)))
                 idx2s.remove(idx)
                 idx2 = rand.choice(list(idx2s))
                 (l4, i4, v4) = ys[idx2]
@@ -200,10 +201,10 @@ if __name__ == "__main__":
         (l, _, _) = xs[0] # label
         yss = rand.sample(filter(lambda ys: ys[0][0] != l, res.itervalues()),
                 k=neighs) # dissimilar labels
-        for idx in xrange(0, len(xs) - 1):
+        for idx in xrange(0, len(xs)):
             (l1, i1, v1) = xs[idx]
             # pick similar pairs
-            idx2s = filter(lambda idx2: idx2 != idx, xrange(0, len(xs) - 1))
+            idx2s = filter(lambda idx2: idx2 != idx, xrange(0, len(xs)))
             for idx2 in idx2s:
                 (l2, i2, v2) = xs[idx2]
                 assert v1 != v2
@@ -221,7 +222,7 @@ if __name__ == "__main__":
                 imgs.append( np.array([ i1, i5 ]) )
                 labels.append( combine_label(0, 1) )
 
-                idx2s = set(xrange(0, len(ys) - 1))
+                idx2s = set(xrange(0, len(ys)))
                 idx2s.remove(idx)
                 idx2 = rand.choice(list(idx2s))
                 (l4, i4, v4) = ys[idx2]
@@ -282,7 +283,7 @@ if __name__ == "__main__":
                 labels.append( 1 )
             # pair all 4 translations of 5 neighbors
             for n in ns:
-                for idx2 in xrange(0, len(xs) - 1):
+                for idx2 in xrange(0, len(xs)):
                     (l2, i2, v2) = res[n][idx2]
                     imgs.append( np.array([ i1, i2 ]) )
                     myl = (idx == idx2) or args.pair_displaced
@@ -291,8 +292,8 @@ if __name__ == "__main__":
         js = rand.sample([ k for k in xrange(count) if k not in ns ], k=100)
         for j in js:
             ys = res[j]
-            idx = rand.choice(xrange(0, len(xs) - 1))
-            idx2 = rand.choice(xrange(0, len(ys) - 1))
+            idx = rand.randint(0, len(xs) - 1)
+            idx2 = rand.randint(0, len(ys) - 1)
             (l1, i1, v1) = xs[idx]
             (l3, i3, v3) = ys[idx2]
             imgs.append( np.array([ i1, i3 ]) )
@@ -326,9 +327,10 @@ if __name__ == "__main__":
 
     out_imgs = []
     out_labels = []
-    pool = multiprocessing.Pool(num_cores)
+    #pool = multiprocessing.Pool(num_cores)
     pairingf = locals().get('pairing_'+ args.method)
-    itr = pool.imap_unordered(pairingf, xrange(count))
+    #itr = pool.imap_unordered(pairingf, xrange(count))
+    itr = imap(pairingf, xrange(count))
     for it, (i, imgs, labels) in enumerate(itr):
         out_imgs.extend(imgs)
         out_labels.extend(labels)
