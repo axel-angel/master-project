@@ -19,6 +19,8 @@ if __name__ == "__main__":
     parser.add_argument('--out-js', type=str, required=True)
     parser.add_argument('--label', type=int, nargs='+', default=[])
     parser.add_argument('--no-transfo', action='store_true', default=False)
+    parser.add_argument('--transfo-values', type=int, nargs='*', default=None)
+    parser.add_argument('--transfo-name', type=str, default=None)
     parser.add_argument('--axis1', type=int, default=0)
     parser.add_argument('--axis2', type=int, default=1)
     args = parser.parse_args()
@@ -44,16 +46,19 @@ if __name__ == "__main__":
     for _, l in Xls:
         label_set[str(l)] += 1
 
-    if args.no_transfo:
-        values = [0]
+    if args.transfo_name and args.transfo_values:
+        tr_f = globals().get('img_%s' % (args.transfo_name))
+        values = args.transfo_values
+        #values = [0, 3, 6, -3, -6]
     else:
-        values = [0, 3, 6, -3, -6]
-    print "Transformations:", values
+        tr_f = img_identity
+        values = [0]
+    print "Transformations: %s, [%s]" % (tr_f, ", ".join(map(repr, values)))
     samples = len(Xls) * len(values)
     def process( (i, (img, l)) ):
         xs = []
         for v in values:
-            img2 = img_shift_x(img, v)
+            img2 = tr_f(img, v)
             img_caffe = img2.reshape(1, *img2.shape)
             data = np.asarray([ img_caffe/255. ]) # normalize!
             out = net.forward_all(data=data, blobs=[ args.layer ])
