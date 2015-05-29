@@ -59,7 +59,7 @@ if __name__ == "__main__":
             if i >= j: continue # skip duplicates
             out_imgs.append( np.array([ x1, x2 ]) )
             if args.label_2D:
-                out_labels.append( combine_label(isneigh_elv, isneigh_azi) )
+                out_labels.append( combine_label(isneigh_azi, isneigh_elv) )
             else:
                 out_labels.append( int(isneigh) )
         sys.stderr.write("\rPairing: %.0f%%" % (it * 100. / eas_count))
