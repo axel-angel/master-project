@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser.add_argument('--out-npz', type=str, required=True)
     parser.add_argument('--shuffle', action='store_true', default=False)
     parser.add_argument('--grouped', type=int, default=None)
+    parser.add_argument('--label-2D', action='store_true', default=False)
     args = parser.parse_args()
 
     print "Load dataset"
@@ -57,7 +58,10 @@ if __name__ == "__main__":
         for (i,x1), (j,x2) in product(enumerate(xs1), enumerate(xs2)):
             if i >= j: continue # skip duplicates
             out_imgs.append( np.array([ x1, x2 ]) )
-            out_labels.append( int(isneigh) )
+            if args.label_2D:
+                out_labels.append( combine_label(isneigh_elv, isneigh_azi) )
+            else:
+                out_labels.append( int(isneigh) )
         sys.stderr.write("\rPairing: %.0f%%" % (it * 100. / eas_count))
     print ""
 
