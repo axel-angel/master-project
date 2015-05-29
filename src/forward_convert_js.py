@@ -23,6 +23,7 @@ if __name__ == "__main__":
     parser.add_argument('--transfo-name', type=str, default=None)
     parser.add_argument('--axis1', type=int, default=0)
     parser.add_argument('--axis2', type=int, default=1)
+    parser.add_argument('--norb-label', type=str, default=None)
     args = parser.parse_args()
 
     print "Load model"
@@ -32,7 +33,10 @@ if __name__ == "__main__":
     print "Load data"
     npz = np.load(args.in_npz)
     X = npz['arr_0']
-    ls = npz['arr_1']
+    if args.norb_label:
+        ls = [ ii[args.norb_label] for ii in npz['arr_2'] ]
+    else:
+        ls = npz['arr_1']
     Xls = np.array([ X, ls ]).T
     if len(args.label) > 0:
         Xls = filter(lambda (x, l): l in args.label, Xls)

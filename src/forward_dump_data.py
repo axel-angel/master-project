@@ -12,6 +12,7 @@ if __name__ == "__main__":
     parser.add_argument('--proto', type=str, required=True)
     parser.add_argument('--model', type=str, required=True)
     parser.add_argument('--layer', type=str, required=True)
+    parser.add_argument('--norb-label', type=str, default=None)
     parser.add_argument('--in-npz', type=str, required=True)
     parser.add_argument('--out-data', type=str, required=True)
     args = parser.parse_args()
@@ -21,10 +22,12 @@ if __name__ == "__main__":
     caffe.set_mode_cpu()
 
     print "Load data"
-    X = np.load(args.in_npz)
-    xs = X['arr_0']
-    ls = X['arr_1']
-    infos = X['arr_2']
+    npz = np.load(args.in_npz)
+    xs = npz['arr_0']
+    if args.norb_label:
+        ls = [ ii[args.norb_label] for ii in npz['arr_2'] ]
+    else:
+        ls = npz['arr_1']
 
     print "Forward output"
     dims = xs.shape[-2:]
@@ -35,6 +38,6 @@ if __name__ == "__main__":
 
     print "Save into GNUplot data"
     with open(args.out_data, 'w') as fd:
-        for ii, xs in izip(infos, out[args.layer]):
-            cols = map(lambda x: "%f" % (x), xs) + [ str(ii['elevation']) ]
+        for l, xs in izip(ls, out[args.layer]):
+            cols = map(lambda x: "%f" % (x), xs) + [ str(l) ]
             fd.write( (" ".join(cols)) + "\n")
