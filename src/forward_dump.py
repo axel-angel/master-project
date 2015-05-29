@@ -20,9 +20,9 @@ if __name__ == "__main__":
     caffe.set_mode_cpu()
 
     print "Load data"
-    X = np.load(args.in_npz)
-    xs = X['arr_0']
-    ls = X['arr_1']
+    npz = np.load(args.in_npz)
+    xs = npz['arr_0']
+    ls = npz['arr_1']
 
     print "Forward output"
     dims = xs.shape[-2:]
