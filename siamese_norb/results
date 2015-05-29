@@ -1,3 +1,4 @@
+>> lecun archi NN (2 fully connected)
 >> group by elv and azi, forgot to pair azi0 == azi34
 lecun_smallnorb_v0: no shuffle, no grouped
 lecun_smallnorb_v0b: --shuffle --grouped 32
@@ -10,3 +11,7 @@ lecun_smallnorb_v2b: use v1b2 margin=10 caffe_seed=43
 >> remove duplicate pairs (elv1=elv2, azi1=azi2)
 lecun_smallnorb_v3: use v1b2 margin=5
 lecun_smallnorb_v3b: use v1b2 margin=10 caffe_seed=43
+
+>> 2D versions, learning rate 0.001 (0.01 goes NaN!)
+lecun_smallnorb_2D1: margin=1 --shuffle --grouped 32 caffe_seed=42
+lecun_smallnorb_2D1b: margin=1 --shuffle --grouped 32 caffe_seed=43
