@@ -13,5 +13,7 @@ lecun_smallnorb_v3: use v1b2 margin=5
 lecun_smallnorb_v3b: use v1b2 margin=10 caffe_seed=43
 
 >> 2D versions, learning rate 0.001 (0.01 goes NaN!)
-lecun_smallnorb_2D1: margin=1 --shuffle --grouped 32 caffe_seed=42
-lecun_smallnorb_2D1b: margin=1 --shuffle --grouped 32 caffe_seed=43
+lecun_smallnorb_2D1: m=n=C=1 --shuffle --grouped 32 caffe_seed=42
+lecun_smallnorb_2D1b: use 2D1 m=n=C=1 caffe_seed=43
+lecun_smallnorb_2D1c: use 2D1 m=5, n=C=1 caffe_seed=44
+lecun_smallnorb_2D1d: use 2D1 m=20, n=C=1 caffe_seed=44
