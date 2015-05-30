@@ -12,6 +12,8 @@
 \usepackage{enumerate}
 \usepackage{graphicx}
 \usepackage{lastpage}
+\usepackage{cite}
+\usepackage{hyperref}
 
 \linespread{1.2}
 
@@ -26,8 +28,8 @@
 \newcommand{\mydate}{\today}
 
 \lhead{\myname}
-\rhead{\mytitle}
-\chead{\mysubtitle}
+\rhead{\mytitle{} - \mysubtitle{}}
+\chead{}
 \rfoot{Page \thepage\ of \pageref{LastPage}}
 \lfoot{\mydate}
 
@@ -37,7 +39,15 @@
     /Subject (\mysubtitle)
     }
 
+\newcommand{\eg}{e.g.}
+
+
 \begin{document}
+\thispagestyle{empty}
+% TODO: make
+First page (make guard, epfl logo, prof names, title, etc)
+
+\newpage
 \begin{abstract}
     % TODO: rewrite
     Current research in Computer Vision has shown that Convolutional Neural Networks (CNNs) give state-of-the-art performance in many classification tasks and Computer Vision problems.
@@ -48,24 +58,39 @@
     % ^ TODO: careful about this last statement, too strong!
 \end{abstract}
 
+% ==============================================================================
+\tableofcontents
+
+
+% ==============================================================================
 \chapter{Introduction}
-\begin{verbatim}
 common use of high-dim data, like images
+
 dim reduction (LLE, isomap, t-SNE), why, drawbacks
+
 an other approach is to use CNN to classify, then dim reduction on embedding
+
 allows to understand what's happening in CNN, better topology
+
 distortions are spread in the embedding
+
 what about learning invariance? but keep information
+
 need mapping (like DrLIM), train with siamese network
+
 predictable mapping << our contribution
+
 need quantitive measures (to compare) << our contribution
+
 new loss function, short summary of results
+
 use case (medical imaging)
-\end{verbatim}
 
 \section{Thesis Outline}
 % list chapters with their summarzied content
 
+
+% ==============================================================================
 \chapter{Related Work}
 % explain each paper, group them and discuss result adv/drawbacks
 
@@ -112,9 +137,24 @@ paper: Dimensionality Reduction by Learning an Invariant Mapping
 
 proposes to creates a dimensionality reducing mapping by training a CNN using a new loss function, the contrastive loss, based on energy models. The results on NORB is a mapping from image space to a 3D cylinder where two axes describes the 2D orientation and the third axe describes the azimuth angle, the mapping is invariant to illumination. Results on 4s and 9s of MNIST shows that CNN can learn a mapping that separates labels and make similar digits close despite translations.
 
+
+% ==============================================================================
 \chapter{Theory: Dimensionality reduction}
+Dimensionality reduction is an important method in machine learning that processes points which are in a high-dimensional space to represent them into a space with a lower number of dimensions.
+We are interested with a method that allows us to create representations suitable for human visualization, by keeping certain relations between points so that we can conlude useful properties of our models.
+In our experiments, we will use dimensionality reduction with our dataset images in pixel space and then CNN features in the embedding space.
 
 \section{Optimisation Problem}
+Various algorithms differenciate themself by several properties: their goal (\eg: interpolation, compression, visualization), by what they preserve (\eg: variance, distances), how they model point correlation (\eg: linearly or not) or whether they can model new points (\eg: a representation or a mapping).
+
+First, our choice is guided by our primary need, which is to visualize our two sorts of data.
+Thus the method should produce a representation in 2D or 3D, preferably in 2D for easy intepretation plotted as a scatter plot.
+Secondly, we need a strict preservation of the relation between points, especially distances that can keep clustered data together.
+
+take PCA, MDS as example, only linearity between points, goal is not to keep distances but variance (keep far point far). state of art showed other methods outperform pca easily for visalisuation. goal differs from ours.
+
+among non-linear dimensionality reduction methods, preserve local structure, cluster, isomap, LLE, sne, (…more). most fail to keep global coherence and local details at once. t-sne has shown more convincing examples, especially mnist \cite{t-sne}
+
 optimisation problem that optimize visualization in 2D like t-SNE
 
 introduce theory of t-sne and such
@@ -134,6 +174,8 @@ introduce our loss function
 
 instead of being invariant, we can optimize the embedding to be predictable in certain way, for eg: quantifying one distortion per axis.
 
+
+% ==============================================================================
 \chapter{Methodology}
 
 explain our models
@@ -148,6 +190,8 @@ how are models trained in caffe
 
 how we can compute our energy-distance for comparisons.
 
+
+% ==============================================================================
 \chapter{Results and Dicussion}
 
 tables and graphs: loss of training (for major models), add accuracy for comparison, compare lecun with ours (energy-distance).
@@ -160,9 +204,13 @@ explain what we found using double-contrastive loss with lenet, on mnist.
 
 can add norb, when finished.
 
+
+% ==============================================================================
 \chapter{Conclusion}
 
 % bibliography
+\bibliography{thesis}{}
+\bibliographystyle{plain}
 
 Caffe: Convolutional Architecture for Fast Feature Embedding
 proposes a deep-learning framework focusing on CNN, easy experiment, easily modifiable source, reference models (lenet, imagenet), scalable, GPU, active community.
@@ -172,4 +220,5 @@ caffe tutorial
 
 % required by NORB dataset
 Learning Methods for Generic Object Recognition with Invariance to Pose and Lighting. IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR) 2004
+
 \end{document}
