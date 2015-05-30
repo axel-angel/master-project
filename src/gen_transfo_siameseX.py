@@ -62,6 +62,9 @@ if __name__ == "__main__":
     pool.terminate()
     print ""
 
+    def combine_label(label_digit, label_transfo):
+        return (label_digit << 0) + (label_transfo << 1)
+
     def pairing_1( i ):
         imgs = []
         labels = []
@@ -123,8 +126,6 @@ if __name__ == "__main__":
         return (i, imgs, labels)
 
     def pairing_2Da( i ): # for 2D contrastive loss
-        def combine_label(label_digit, label_transfo):
-            return (label_digit << 0) + (label_transfo << 1)
         imgs = []
         labels = []
         rand = Random(i)
@@ -156,8 +157,6 @@ if __name__ == "__main__":
         return (i, imgs, labels)
 
     def pairing_2Db( i ): # for 2D contrastive loss
-        def combine_label(label_digit, label_transfo):
-            return (label_digit << 0) + (label_transfo << 1)
         imgs = []
         labels = []
         rand = Random(i)
@@ -191,8 +190,6 @@ if __name__ == "__main__":
         return (i, imgs, labels)
 
     def pairing_2Dc( i ): # for 2D contrastive loss
-        def combine_label(label_digit, label_transfo):
-            return (label_digit << 0) + (label_transfo << 1)
         imgs = []
         labels = []
         rand = Random(i)
@@ -232,8 +229,6 @@ if __name__ == "__main__":
         return (i, imgs, labels)
 
     def pairing_2Dd( i ): # for 2D contrastive loss
-        def combine_label(label_digit, label_transfo):
-            return (label_digit << 0) + (label_transfo << 1)
         imgs = []
         labels = []
         rand = Random(i)
