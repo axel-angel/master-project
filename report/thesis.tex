@@ -53,9 +53,10 @@ First page (make guard, epfl logo, prof names, title, etc)
     Current research in Computer Vision has shown that Convolutional Neural Networks (CNNs) give state-of-the-art performance in many classification tasks and Computer Vision problems.
     The embedding of CNNs, which is the internal representation produced by the last layer, can indirectly learn interesting topological and relational properties.
     By using a suitable loss function, these models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
-    In this work, we give useful insights about CNNs embeddings and we propose a new loss function, derived from the contrastive loss, whose mapping under particular distortions is predictable.
+    In this work, we give useful insights about CNNs embeddings and we propose a new loss function, derived from the contrastive loss, whose mapping under particular distortions is more predictable.
     Given an input image, only a single forward pass is necessary to generate the outputs of all possible distortions, whereas standard models would require computing all combinations of distortions which is too expensive in practice or invariant models would lose the distortion information.
     % ^ TODO: careful about this last statement, too strong!
+    Moreover we introduce a simple method to fairly compare quantitatively embeddings whose purpose is to capture topological structures of particular distortions.
 \end{abstract}
 
 % ==============================================================================
@@ -80,7 +81,7 @@ need mapping (like DrLIM), train with siamese network
 
 predictable mapping << our contribution
 
-need quantitive measures (to compare) << our contribution
+need quantitative measures (to compare) << our contribution
 
 new loss function, short summary of results
 
@@ -94,7 +95,8 @@ use case (medical imaging)
 \chapter{Related Work}
 % explain each paper, group them and discuss result adv/drawbacks
 
-research found NN are good to classify lots of problems. CNN are naturally more inclined for computer vision (accuracy and speed).
+research found NN are good to classify lots of problems.
+CNN are naturally more inclined for computer vision (accuracy and speed).
 
 deeper architectures improves accuracy on more complex tasks, people found optimisations to make them fast.
 
@@ -104,13 +106,15 @@ Even though they give impressive results and are widely used in computer vision,
 
 paper: Intriguing properties of neural networks
 
-CNN are complex and strange results were found. Research found multiple hypothesises.
+CNN are complex and strange results were found.
+Research found multiple hypothesises.
 
 % adversial attacks, linearity of networks.
 % Towards Deep Neural Network Architectures Robust To Adversarial Examples
 % Analysis of classifiers' robustness to adversarial perturbations
 
-It is not possible to directly look into the embedding, due to high dim space. however people uses dim reduction to create a human viewable representation of this space.
+It is not possible to directly look into the embedding, due to high dim space.
+however people uses dim reduction to create a human viewable representation of this space.
 lots of dim reduction exists
 
 paper: Stochastic Neighbor Embedding
@@ -146,15 +150,17 @@ Results on 4s and 9s of MNIST shows that CNN can learn a mapping that separates 
 % ==============================================================================
 \chapter{Theory: Dimensionality reduction}
 Dimensionality reduction is an important method in machine learning that processes points which are in a high-dimensional space to represent them into a space with a lower number of dimensions, which we call embedding or map.
-We are interested with a method that allows us to create representations suitable for human visualization, by keeping certain relations between points so that we can conlude useful properties of our models.
-In our experiments, we will use dimensionality reduction with our dataset images in pixel space and then CNN features in the embedding space.
+We need representations suitable for human visualization, by keeping certain relations between points.
+In our experiments, we will use dimensionality reduction, mostly on the CNN features in the embedding space, to compare qualitatively relations between distorted inputs and its impact on the outputs, by looking at structures constrained by distances.
+Structures represented with great fidelity in maps are necessary to find useful and comparable properties exhibited by different models, and to make educated hypothesises for our researches.
+In the following sections, we will discuss dimensionality reduction methods that weren't fit for our uses, then we introduce the one we used, called t-SNE, in details.
 
 \section{Optimisation Problem}
-Various algorithms differenciate themself by several properties: their goal (\eg: interpolation, compression, visualization), by what they preserve (\eg: variance, distances), how they model point correlation (\eg: linearly or not) or whether they can model new points (\eg: a representation or a mapping).
+Various algorithms differentiate themselves by several properties: their goal (\eg: interpolation, compression, visualization), by what they preserve (\eg: variance, distances), how they model point correlation (\eg: linearly or not) or whether they can model new points (\eg: a representation or a mapping).
 
-First, our choice is guided by our primary need, which is to visualize our two sorts of data.
-Thus the method should produce a 2D or 3D embedding, preferably in 2D for easy intepretation plotted as a scatter plot.
-Secondly, we need a strict preservation of the relation between points, especially distances that can keep clustered data together.
+First, our choice is guided by our primary need, which is to visualize our data.
+Thus the method should produce a 2D or 3D embedding, preferably in 2D for scatter plots easily interpretable.
+Secondly, we need a guarantee on the preservation of relations between points, especially the distances keeping them clustered or not.
 
 % FIXME: maybe better moved into related works
 take PCA, MDS as example, only linearity between points, goal is not to keep distances but variance (compute the linear projection that maximize original data variance, keep far point far).
@@ -162,14 +168,14 @@ state of art showed other non-linear methods outperform pca easily for visalisua
 goal differs from ours.
 
 among non-linear dimensionality reduction methods, use an optimisation algorithm with a loss function.
-they preserve local structure/cluster like: isomap, LLE, sne, (and more).
+they preserve local structure/cluster like: isomap, LLE, SNE, (and more).
 most fail to keep global clusters and local details at once.
-sne has presented a better optimisation problem to preserve locality\cite{SNE}.
-but sne suffers from: center-crowdedness and difficult optimisation.
-t-sne is introduced as a better optisimation formulation and preserve structure at multiple scale, and shown more convincing examples, especially mnist \cite{t-sne}.
-moreover other papers chosed t-sne as well to visualize nn embeddings \cite{yu2014visualizing}\cite{yaotiny}\cite{donahue2013decaf}.
+SNE has presented a better optimisation problem to preserve locality\cite{SNE}.
+but SNE suffers from: center-crowdedness and difficult optimisation.
+t-SNE is introduced as a better optisimation formulation and preserve structure at multiple scale, and shown more convincing examples, especially mnist \cite{t-SNE}.
+moreover other papers chosed t-SNE as well to visualize nn embeddings \cite{yu2014visualizing}\cite{yaotiny}\cite{donahue2013decaf}.
 
-introduce theory of sne, then t-sne modification.
+introduce theory of SNE, then t-SNE modification.
 let's define input space $X = \left\{ x_1, x_2, \dots, x_n \right\}$ then the goal is to map into a lower-space $Y = \left\{ y_1, y_2, \dots, y_m \right\}$, where $n$ is very high (around a few hundreds to thousands, \eg: mnist pixels dimensions: 784) and $m$ is $2$ or $3$.
 SNE models each point similarity by expressing the pair-wise distances into neighborhood probabilities.
 in a pair, the probability is the gaussian distribution modeling the first point electing the second as its neighbor.
@@ -180,15 +186,37 @@ This cost function gives an asymmetrical importance to the distances: nearby poi
 %There is a simple physical interpretation of the SNE optimisation problem: pairs are modeled by asymmetrical springs in a mechanical system, the best solution is when the system is still.
 The two major differences with t-SNE is the symmetrization of the cost function and replaces the distributions of the embedding by student variants.
 
-\section{CNN Classifier}
+\section{NN and CNN Classifier}
 introduce CNN and embeddings
 
-we can use them as classifier and take the last layer as a smart dimension reduction (better than PCA), then use t-sne
+nn and cnn are composed of inter-connected layers of units, or neurons.
+to classify an input we fed the first layer of the network.
+one layer does a single particular computation over its input, usually by adding a bias then followed by a non-linear function, which is then propagated through its connections to the next layer.
+the feedforwarding continues until we reach the last layer which is the output of the network.
+usual nn are characterized by: neuron computation is a simple inner product between its input and its own weight followed by a sigmoid; each unit is fully connected to all units in the next layer.
+training the weights of such network generally involve gradient descent which minimizes the loss function of the network.
+This loss function gives the error between the prediction of the network, its output versus the expected output, which is in classification the class label.
+To train, the input is first forwarded into the network to compute the error, then this latter is back-propagated up to the first layer, while each unit weights is adjusted to minimize the unit error.
+This process should be repeated until the error on the validation set has converged to a local optimum.
 
-\section{CNN for Reduction}
+cnn is a special case of nn by adding certain restrictions, working well experimentally with computer vision problems such as image classification.
+Three main ideas differentiate them: local receptive fields, weight sharing and subsampling.
+in cnn, a convolutional layer can model receptive fields by computing multiple trainable 2D kernels which is convoluted with its entire input whose result is called its feature maps.
+We can see a kernel convolution as the replication of a single unit along the dimensions of the input (a 2D grid for images), thus all weights are constrained to be equal by definition.
+a convolutional layer contains multiple units where each has its own kernel, thus there are different kernels applied to the image, where a single kernel convolution is called a feature map.
+Such layer naturally computes filters which can be seen like feature extractors driven by data.
+the benefit of weight sharing in convolutional layers is to reduce the number of global parameters to improve generalization.
+usual cnn add a subsampling layer right after a convolutional layer to reduce the dimensionality of the feature maps.
+moreover most cnn architectures connects convolutional-subsampling layers to the input which extract features, which is then feed into a regular nn.
+Thus we can see a cnn as two parts: a trainable feature extractor which is fed into a processing nn.
+meanwhile cnn have more constrained, it has been shown they generally outperforms nn with more invariance in multiple computer vision problems \cite{simard2003best}\cite{mnist_web}\cite{lawrence1997face}\cite{krizhevsky2012imagenet}.
+
+we can use them as classifier and take the last layer as a smart dimension reduction (better than PCA), then use t-SNE
+
+\section{CNN for Dimensionality Reduction}
 introduce contrastive loss
 
-we can go further and directly ask the CNN to learn a mapping that ressembles t-sne.
+we can go further and directly ask the CNN to learn a mapping that ressembles t-SNE.
 
 \section{CNN for Predictable Reduction}
 introduce our loss function
@@ -209,16 +237,16 @@ how we create our train/test dataset
 
 how are models trained in caffe
 
-how we can compute our energy-distance for comparisons.
+contribution: how we can compute our energy-distance for comparisons.
 
 
 % ==============================================================================
-\chapter{Results and Dicussion}
+\chapter{Results and Discussion}
 
 tables and graphs: loss of training (for major models), add accuracy for comparison, compare lecun with ours (energy-distance).
 
 \section{t-SNE on LeNet}
-explain what we found using t-sne on last layer of lenet, on mnist.
+explain what we found using t-SNE on last layer of lenet, on mnist.
 
 \section{Contrastive LeNet}
 explain what we found using double-contrastive loss with lenet, on mnist.
