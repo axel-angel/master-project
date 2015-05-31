@@ -172,8 +172,8 @@ they preserve local structure/cluster like: isomap, LLE, SNE, (and more).
 most fail to keep global clusters and local details at once.
 SNE has presented a better optimisation problem to preserve locality\cite{SNE}.
 but SNE suffers from: center-crowdedness and difficult optimisation.
-t-SNE is introduced as a better optisimation formulation and preserve structure at multiple scale, and shown more convincing examples, especially mnist \cite{t-SNE}.
-moreover other papers chosed t-SNE as well to visualize nn embeddings \cite{yu2014visualizing}\cite{yaotiny}\cite{donahue2013decaf}.
+t-SNE is introduced as a better optimisation formulation and preserve structure at multiple scale, and shown more convincing examples, for example on MNIST\cite{t-SNE} and similar datasets\cite{van2009new}.
+moreover other papers employed t-SNE as well to visualize nn embeddings \cite{donahue2013decaf}\cite{yu2014visualizing}\cite{yaotiny}.
 
 introduce theory of SNE, then t-SNE modification.
 let's define input space $X = \left\{ x_1, x_2, \dots, x_n \right\}$ then the goal is to map into a lower-space $Y = \left\{ y_1, y_2, \dots, y_m \right\}$, where $n$ is very high (around a few hundreds to thousands, \eg: mnist pixels dimensions: 784) and $m$ is $2$ or $3$.
@@ -185,6 +185,8 @@ SNE uses the Kullback-Leibler divergence, which represents the mismatch of these
 This cost function gives an asymmetrical importance to the distances: nearby points in $X$ are greatly penalized if they are far in $Y$; whereas a small cost is incurred for pairs far in $X$ but close in $Y$.
 %There is a simple physical interpretation of the SNE optimisation problem: pairs are modeled by asymmetrical springs in a mechanical system, the best solution is when the system is still.
 The two major differences with t-SNE is the symmetrization of the cost function and replaces the distributions of the embedding by student variants.
+
+introduce equations here?
 
 \section{NN and CNN Classifier}
 introduce CNN and embeddings
@@ -211,12 +213,29 @@ moreover most cnn architectures connects convolutional-subsampling layers to the
 Thus we can see a cnn as two parts: a trainable feature extractor which is fed into a processing nn.
 meanwhile cnn have more constrained, it has been shown they generally outperforms nn with more invariance in multiple computer vision problems \cite{simard2003best}\cite{mnist_web}\cite{lawrence1997face}\cite{krizhevsky2012imagenet}.
 
-we can use them as classifier and take the last layer as a smart dimension reduction (better than PCA), then use t-SNE
+as previously said, researches have shown with t-sne that nn trained for classification have interesting structures in their last-layer embedding.
+the choice of the layer is justified by the fact that: deeper layers extract more high-level informations, which is necessary to separate classes, moreover the prediction is a direct product with the last layer, which encourage the network to have a simple structure directly clustered by classes.
+that's why this last layer tend to cluster samples of the same class together while separating the rest\cite{donahue2013decaf}\cite{yu2014visualizing}.
+thus it is reasonable to evaluate the quality of this embedding as a dimensionality reduction method with great potential to capture more information compared to PCA which captures linear correlations.
+it is important to note that t-SNE plays an important role in the quality of this 2D embedding by preserving structures but it should be said also that t-sne cannot separate the original dataset as well as with the help of the classifier features.
+Because t-SNE has no knowledge of the labels, it is the classifier who improves the quality of the structures of the final embedding, because it learned specialized filters to distinguish the classes.
+This justifies why we combined CNN classifiers with t-SNE to create a 2D embedding for our visualisations.
 
 \section{CNN for Dimensionality Reduction}
-introduce contrastive loss
+because the method above has important drawbacks due to t-SNE, among them is the computational cost, the lack of mapping to visualize new points and the impossibility of controlling the embedding directly.
+there is a direct way to learn an embedding with CNN without t-SNE.
+instead of using cnn for classification, we can train it to create an embedding with chosen properties directly from the last layer.
+t-sne ideas can be reused with cnn.
+the most interesting constraint is to keep similar points together and dissimilar far.
+fortunately, instead of the softmax loss function used for classification, we can use a special training architecture with a suitable loss that when optimized tries to satisfy these constraints.
+One solution is the siamese network with a contrastive loss which is used only for the optimisation phase.
+The siamese architectural idea is to create two weight-sharing instances of a network where a pair of two samples are fed at once, one per network.
+The distance between the two outputs is computed to compute the error against the label for the pair.
+% FIXME: figure.
+the labels now defines whether pairs should be close in the embedding or not, which looks similar to classification problems but the main difference is in the classification
+the contrastive loss function is based on energy models to attract similar pairs and repulse dissimilar pairs, where similarity it to be defined by the usage.
 
-we can go further and directly ask the CNN to learn a mapping that ressembles t-SNE.
+when the training is complete, a single instance of this network is used to feed an input for dimensionality reduction.
 
 \section{CNN for Predictable Reduction}
 introduce our loss function
