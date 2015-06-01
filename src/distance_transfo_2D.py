@@ -19,8 +19,8 @@ if __name__ == "__main__":
     parser.add_argument('--model', type=str, required=True)
     parser.add_argument('--transfo-name', type=str, required=True)
     parser.add_argument('--transfo-values', type=int, nargs='+')
-    parser.add_argument('--axis-label', type=int, required=True)
-    parser.add_argument('--axis-transfo', type=int, required=True)
+    parser.add_argument('--axis-label', type=int, default=None)
+    parser.add_argument('--axis-transfo', type=int, default=None)
     parser.add_argument('--npz', type=str, default=None)
     parser.add_argument('--layer', type=str, default='ip1')
     args = parser.parse_args()
@@ -48,6 +48,15 @@ if __name__ == "__main__":
 
         return (i, label, res)
 
+    if args.axis_label != None:
+        project_label = lambda pt: pt[args.axis_label]
+    else:
+        project_label = lambda pt: pt
+    if args.axis_transfo != None:
+        project_transfo = lambda pt: pt[args.axis_transfo]
+    else:
+        project_transfo = lambda pt: pt
+
     print "Start parallel computation"
     num_cores = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(num_cores)
@@ -62,17 +71,17 @@ if __name__ == "__main__":
         for it, (i, l, res) in enumerate(pool.imap_unordered(process, reader)):
             label_set.add(l)
             # measure distance between same label between distortions
-            ds_transfo = [ pt[args.axis_label] for (pt,v) in res ]
-            dss_transfo[l].append( np.std(ds_transfo) )
+            ds_transfo = [ project_label(pt) for (pt,v) in res ]
+            dss_transfo[l].append( norm(np.std(ds_transfo, axis=0)) )
             # measure predictability along transfo axis
             res2 = zip(res[0:], res[1:])
-            ds_label = [ norm(pt2[args.axis_transfo] - pt1[args.axis_transfo])
+            ds_label = [ norm(project_transfo(pt2) - project_transfo(pt1))
                     for (pt1,v1),(pt2,v2) in res2 ]
             dss_label[l].append( np.std(ds_label) )
             # measure centers
             for (pt,v) in res:
-                center_transfo[v].append( pt[args.axis_transfo] )
-                center_label[l].append( pt[args.axis_label] )
+                center_transfo[v].append( project_transfo(pt) )
+                center_label[l].append( project_label(pt) )
             sys.stderr.write("\rRunning: %i" % (it))
     except KeyboardInterrupt:
         print "\nStopping as requested"
