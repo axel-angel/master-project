@@ -80,8 +80,8 @@ if __name__ == "__main__":
             dss_label[l].append( np.std(ds_label) )
             # measure centers
             for (pt,v) in res:
-                center_transfo[v].append( project_transfo(pt) )
-                center_label[l].append( project_label(pt) )
+                center_transfo[v].append( pt )
+                center_label[l].append( pt )
             sys.stderr.write("\rRunning: %i" % (it))
     except KeyboardInterrupt:
         print "\nStopping as requested"
@@ -92,10 +92,10 @@ if __name__ == "__main__":
     label_set = sorted(label_set)
     print "\nIntra-cluster distances"
     for l in label_set:
-        std = np.std( center_label[l] )
+        std = norm(np.std(center_label[l], axis=0))
         print "l:%s %f" % (l, std)
     for v in trs_all:
-        std = np.std( center_transfo[v] )
+        std = norm(np.std(center_transfo[v], axis=0))
         print "t:%+i %f" % (v, std)
 
     print "\nInter-cluster distances"
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         d = norm( np.average(center_transfo[v2]) - np.average(center_transfo[v1]) )
         print "t:%+i->%+i %f" % (v1, v2, d)
 
-    print "\nInter-sample and predictability"
+    print "\nInter-sample predictability (label, transfo)"
     dss_avg_label = []
     dss_avg_transfo = []
     for l in label_set:
@@ -116,7 +116,7 @@ if __name__ == "__main__":
         dss_avg_label.append( ds_label )
         dss_avg_transfo.append( ds_transfo )
 
-    print "\nFinal score"
+    print "\nFinal score (label, transfo)"
     ds_label = np.average( dss_avg_label )
     ds_transfo = np.average( dss_avg_transfo )
     print "avgs %f %f" % (ds_label, ds_transfo)
