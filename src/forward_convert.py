@@ -16,7 +16,6 @@ if __name__ == "__main__":
     parser.add_argument('--model', type=str, required=True)
     parser.add_argument('--layer', type=str, default='ip1')
     parser.add_argument('--in-npz', type=str, required=True)
-    parser.add_argument('--out-js', type=str, required=True)
     parser.add_argument('--label', type=int, nargs='+', default=[])
     parser.add_argument('--no-transfo', action='store_true', default=False)
     parser.add_argument('--transfo-values', type=int, nargs='*', default=None)
@@ -24,6 +23,9 @@ if __name__ == "__main__":
     parser.add_argument('--axis1', type=int, default=0)
     parser.add_argument('--axis2', type=int, default=1)
     parser.add_argument('--norb-label', type=str, default=None)
+    g = parser.add_mutually_exclusive_group(required=True)
+    g.add_argument('--out-js', type=str, default=None)
+    g.add_argument('--out-data', type=str, default=None)
     args = parser.parse_args()
 
     print "Load model"
@@ -82,24 +84,33 @@ if __name__ == "__main__":
     ax1 = args.axis1
     ax2 = args.axis2
     for i, (j, pt, l, v, img64) in enumerate(chain.from_iterable(itr)):
-        ds.append(dict(x=pt[ax1], y=pt[ax2], i=i, l=l, v=v, sample=j, **info))
+        ds.append(dict(x=pt[ax1], y=pt[ax2], i=i, l=l, v=v, sample=j,
+            pt=pt, **info))
         imgs.append(img64)
         sys.stderr.write("\rForwarding: %.0f%%" % (i * 100. / samples))
     pool.terminate()
     print ""
 
-    # convert to json-serialisable
-    print "Converting into JS"
-    with open(args.out_js, 'wb') as fd:
-        fd.write('var X = ')
-        json.dump(ds, fd)
-        fd.write(';')
-
-        fd.write('var imgs = ')
-        json.dump(imgs, fd)
-        fd.write(';')
-
-        for v in ['src_set', 'label_set', 'tr_set']:
-            fd.write('var %s = ' % (v))
-            json.dump(locals()[v], fd)
+    if args.out_js:
+        # convert to json-serialisable
+        print "Converting into JS"
+        with open(args.out_js, 'wb') as fd:
+            fd.write('var X = ')
+            json.dump(ds, fd)
             fd.write(';')
+
+            fd.write('var imgs = ')
+            json.dump(imgs, fd)
+            fd.write(';')
+
+            for v in ['src_set', 'label_set', 'tr_set']:
+                fd.write('var %s = ' % (v))
+                json.dump(locals()[v], fd)
+                fd.write(';')
+    if args.out_data:
+        print "Save into GNUplot data"
+        with open(args.out_data, 'w') as fd:
+            for d in ds:
+                cols = map(lambda x: "%f" % (x), d['pt']) \
+                        + [ str(d['l']), str(d['i']) ]
+                fd.write( (" ".join(cols)) + "\n")
