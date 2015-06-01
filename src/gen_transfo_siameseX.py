@@ -24,6 +24,7 @@ if __name__ == "__main__":
     parser.add_argument('--shuffle-seed', type=int, default=42)
     parser.add_argument('--grouped', type=int, default=None)
     parser.add_argument('--transfo-values', type=int, nargs='+')
+    parser.add_argument('--transfo-identity', type=int, default=0)
     parser.add_argument('--transfo-name', type=str, required=True)
     args = parser.parse_args()
 
@@ -38,10 +39,12 @@ if __name__ == "__main__":
     neighs = nss.shape[1]
 
     tr_f = globals().get('img_%s' % (args.transfo_name))
-    trs = args.transfo_values
+    trs_all = args.transfo_values
     #trs = [3, 6]
-    idx_orig = len(trs) # after 1x trs comes the original
-    trs_all = map(neg, trs[::-1]) + [0] + trs
+    idx_origs = filter(lambda (i,v): v == args.transfo_identity,
+            enumerate(trs_all))
+    assert len(idx_origs) == 1
+    idx_orig = idx_origs[0][0] # index of identity transfo value in trs_all
     print "Transformations: %s, [%s]" % (tr_f, ", ".join(map(repr, trs_all)))
 
     def process( (x, l, i) ):
