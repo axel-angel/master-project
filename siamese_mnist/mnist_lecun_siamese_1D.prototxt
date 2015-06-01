@@ -1,4 +1,4 @@
-name: "mnist_lecun_siamese"
+name: "mnist_lecun_siamese_1D_split"
 input: "data"
 input_dim: 1
 input_dim: 1
@@ -61,6 +61,6 @@ layer {
     lr_mult: 2
   }
   inner_product_param {
-    num_output: 2
+    num_output: 1
   }
 }

@@ -17,10 +17,10 @@ power: 0.75
 # Display every 100 iterations
 display: 100
 # The maximum number of iterations
-max_iter: 1000
+max_iter: 5000
 # snapshot intermediate results
 snapshot: 1000
-snapshot_prefix: "snapshots/lecun_siamese1Dc_split"
+snapshot_prefix: "snapshots/lecun_siamese1Dc_split_digit"
 # solver mode: CPU or GPU
 solver_mode: CPU
 # training is reproducible

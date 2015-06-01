@@ -1,4 +1,4 @@
-name: "mnist_lecun_siamese_train_test"
+name: "mnist_lecun_siamese_1D_train_test"
 layer {
   name: "pair_data"
   type: "Data"
@@ -119,7 +119,7 @@ layer {
     lr_mult: 2
   }
   inner_product_param {
-    num_output: 2
+    num_output: 1
     weight_filler {
       type: "xavier"
     }
