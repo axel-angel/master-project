@@ -5,18 +5,15 @@
  - need to reproduce lecun mnist!
  - compare with distances/angles (have a quantitative measure). for distances, compare same-distortion different-labels distances instead, makes more sense. We already know that; show that 6-6_+2 versus 6_+2-7_+2
 
- - compare with two different machines (1 for label 1D, 1 for same-translation 1D; merge embedding vector), argue it's more expensive to train, forward. see if better or not?
+ - compare with two different machines (1 for label 1D, 1 for same-translation 1D; merge embedding vector), argue it's more expensive to train, forward. see if better or not?  (compare 2D contrastive versus 2 models contrastive)
  - rotation, add up to 180°, see if it loops
  - for translation/rotation 2D contrastive:
     * use lecun (2D, for label)
     * use ours (3D: 2D for label, 1D for distortion)
  - to compare, use euclidian distances, ours projected on x
 
- - 2D contrastive rotation: fix bug with 90°, may be present in translation
  - NORB dataset, try plane, see if we can train faster/smaller dataset than lecun, get same shape, stuff
    * reproduce lecun: try larger margin, try longer
- - variant of contrastive: use logistic/non-zero loss instead of max, see if more spread and close are closer
- - compare 2D contrastive versus 2 models contrastive
 
  - write report: around 50-100 pages, introduction is big part containing all in summary
  - oral: dry run (to prepare against critics)
@@ -83,6 +80,8 @@ directions:
  - train embedding: F(x+t) = F(x) +t
  - use case: medical imaging, detect structures, need to detect for every angles, then easy to compute F(x) then apply R on F(x) (instead of refeeding for every rotation), then can put into last application-oriented angle-dependent layer.
  - try rotation on mnist (4/8 groups, large enough so we don't care about natural rotation)
+ - 2D contrastive rotation: fix bug with 90°, may be present in translation << FIXED: indeed
+ - variant of contrastive: use logistic/non-zero loss instead of max, see if more spread and close are closer << not working well (lose structures)
 
 
 ================================================================================

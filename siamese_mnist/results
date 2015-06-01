@@ -46,6 +46,8 @@ lecun_siamese2bv7_rotate
 > our result
 lecun_siamese2Dc3
 lecun_siamese2Dc3_rotate
+lecun_siamese2Dc3_split_{digit,transfo} (split digit/transfo into 2 models)
+lecun_siamese3Dc3: use 2D contrastive in 3D (2D=label, 1D=transfo)
 
 > models
 lecun_siamese2b: use lecun_siamese2, random seed 43
