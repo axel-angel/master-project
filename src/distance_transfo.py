@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
             image2 = f(image)
             image2_caffe = image2.reshape(1, *image.shape)
-            data = np.asarray([ image2_caffe ])
+            data = np.asarray([ image2_caffe/255. ]) # normalize
             out = net.forward_all(data=data, blobs=[ args.layer ])
             pt = utils.flat_shape(out[args.layer][0])
 
@@ -89,7 +89,7 @@ if __name__ == "__main__":
             dcenters = np.sqrt(np.sum( (center2 - center)**2 ))
             std = np.sqrt(np.sum(np.dot(x, x) for x in dsarr - center2)
                     / len(ds))
-            print "%s%s->%s%s %0.f %0.f" \
+            print "%s:%s->%s%s %0.f %0.f" \
                     % (label, name1, label2, name2, std, dcenters)
 
             std_avgs[(name1,name2)].append(std)
