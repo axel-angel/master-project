@@ -99,12 +99,19 @@ if __name__ == "__main__":
         print "t:%+i %f" % (v, std)
 
     print "\nInter-cluster distances"
+    ds = []
     for (l1, l2) in zip(label_set[0:], label_set[1:]):
         d = norm( np.average(center_label[l2]) - np.average(center_label[l1]) )
+        ds.append( d )
         print "l:%s->%s %f" % (l1, l2, d)
+    print "l:avg %f" % (np.average(ds))
+
+    ds = []
     for (v1, v2) in zip(trs_all[0:], trs_all[1:]):
         d = norm( np.average(center_transfo[v2]) - np.average(center_transfo[v1]) )
+        ds.append( d )
         print "t:%+i->%+i %f" % (v1, v2, d)
+    print "t:avg %f" % (np.average(ds))
 
     print "\nInter-sample predictability (label, transfo)"
     dss_avg_label = []
@@ -116,7 +123,6 @@ if __name__ == "__main__":
         dss_avg_label.append( ds_label )
         dss_avg_transfo.append( ds_transfo )
 
-    print "\nFinal score (label, transfo)"
     ds_label = np.average( dss_avg_label )
     ds_transfo = np.average( dss_avg_transfo )
-    print "avgs %f %f" % (ds_label, ds_transfo)
+    print "avg %f %f" % (ds_label, ds_transfo)
