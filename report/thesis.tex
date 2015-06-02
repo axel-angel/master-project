@@ -238,6 +238,18 @@ the contrastive loss function is based on energy models to attract similar pairs
 when the training is complete, a single instance of this network is used to feed an input for dimensionality reduction.
 
 \section{CNN for Predictable Reduction}
+the method above can learn an embedding which tries to pair the way it was intended, but there is still room for improvement.
+First, the structure of the resulting embedding is determined by the dataset and again we indirectly shape it by giving pairing information which helps to constraint local structures.
+However, there is no guarantee that this system will converge to an intended global structure, for example having certain deformations in a predictable ordering (\eg: from lowest to highest) or shape (\eg: a line, plane or circle).
+Secondly, the training required to make the embedding converge to a certain structure may happen after a long time, or multiple run with different seed can be tried, but there is again no such guarantees.
+The number of embedding dimensions, $n$, is higher than the dimension of the pairing, $1$, which is why such model is not predictable, because these dimensions gives more freedom to the model in the way to represent these pairs arbitrarily.
+
+In the intend to improve this solution, a possibility is to add more constraints directly into the optimisation process.
+We propose to give more informations for each pair which can be used in the loss function to create these enforcements.
+This method allows to control separately the usage of each dimension of the embedding to express different properties of our dataset.
+To achieve this goal, we generalize the contrastive loss to pairs having $m$ pairing labels represented into an $n$-dimensional embedding, where $m \leq n$ should hold by definition.
+The relation between a pairing label and its binds to certain dimensions, should be defined per a use-case basis, as the pair relation.
+
 introduce our loss function
 
 instead of being invariant, we can optimize the embedding to be predictable in certain way, for eg: quantifying one distortion per axis.
