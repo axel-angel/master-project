@@ -27,6 +27,12 @@
 \newcommand{\mysubtitle}{Report}
 \newcommand{\mydate}{\today}
 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+
 \lhead{\myname}
 \rhead{\mytitle{} - \mysubtitle{}}
 \chead{}
@@ -125,9 +131,22 @@ Kullback-leibler divergence.
 paper: Visualizing Data using t-SNE
 proposes a variation of Stochastic Neighbor Embedding, easier to optimize, produces better 2D map by spreading points more evenly and preserving topological structures
 
+% moved from dim red chapter
+take PCA, MDS as example, only linearity between points, goal is not to keep distances but variance (compute the linear projection that maximize original data variance, keep far point far).
+state of art showed other non-linear methods outperform pca easily for visalisuation.
+goal differs from ours.
+
+among non-linear dimensionality reduction methods, use an optimisation algorithm with a loss function.
+they preserve local structure/cluster like: isomap, LLE, SNE, (and more).
+most fail to keep global clusters and local details at once.
+SNE has presented a better optimisation problem to preserve locality\cite{SNE}.
+but SNE suffers from: center-crowdedness and difficult optimisation.
+t-SNE is introduced as a better optimisation formulation and preserve structure at multiple scale, and shown more convincing examples, for example on MNIST\cite{t-SNE} and similar datasets\cite{van2009new}.
+moreover other papers employed t-SNE as well to visualize nn embeddings \cite{donahue2013decaf}\cite{yu2014visualizing}\cite{yaotiny}.
+
 we can see how CNN are clustering samples depending on multiple factors.
 people add distorted samples to their dataset (data augmentation) so models can learn to be transfo invariant, but results shows the embedding cluster them into clusters per transfo instead of per label [XXX].
-altought it is not intuitive, this can be seen by inspecting the embedding.
+Although it is unintuitive, this can be seen by inspecting the embedding.
 we can add constraints against distortions directly over the embedding, to cluster them the way we meant.
 
 paper: Encoded Invariance in Convolutional Neural Networks
@@ -149,10 +168,13 @@ Results on 4s and 9s of MNIST shows that CNN can learn a mapping that separates 
 
 % ==============================================================================
 \chapter{Theory: Dimensionality reduction}
-Dimensionality reduction is an important method in machine learning that processes points which are in a high-dimensional space to represent them into a space with a lower number of dimensions, which we call embedding or map.
-We need representations suitable for human visualization, by keeping certain relations between points.
-In our experiments, we will use dimensionality reduction, mostly on the CNN features in the embedding space, to compare qualitatively relations between distorted inputs and its impact on the outputs, by looking at structures constrained by distances.
-Structures represented with great fidelity in maps are necessary to find useful and comparable properties exhibited by different models, and to make educated hypothesises for our researches.
+Dimensionality reduction is an important method in machine learning that maps points in a high-dimensional space into a space with a lower number of dimensions.
+We will call this lower subspace an {\em embedding}.
+Representations suitable for human visualization should keep important relations between points of the original space.
+In our experiments, we will apply dimensionality reduction especially on our neural networks' outputs.
+This allows us to compare qualitatively the impact of controlled distortions applied on images over networks' outputs.
+The structure inferred by distances between points such as clusters, intra-cluster neighbors and inter-cluster outsiders reveals important properties of neural network models.
+Thus we need accurate low-dimensional representations of embeddings that preserve local distances to compare different models.
 In the following sections, we will discuss dimensionality reduction methods that weren't fit for our uses, then we introduce the one we used, called t-SNE, in details.
 
 \section{Optimisation Problem}
@@ -162,28 +184,26 @@ First, our choice is guided by our primary need, which is to visualize our data.
 Thus the method should produce a 2D or 3D embedding, preferably in 2D for scatter plots easily interpretable.
 Secondly, we need a guarantee on the preservation of relations between points, especially the distances keeping them clustered or not.
 
-% FIXME: maybe better moved into related works
-take PCA, MDS as example, only linearity between points, goal is not to keep distances but variance (compute the linear projection that maximize original data variance, keep far point far).
-state of art showed other non-linear methods outperform pca easily for visalisuation.
-goal differs from ours.
-
-among non-linear dimensionality reduction methods, use an optimisation algorithm with a loss function.
-they preserve local structure/cluster like: isomap, LLE, SNE, (and more).
-most fail to keep global clusters and local details at once.
-SNE has presented a better optimisation problem to preserve locality\cite{SNE}.
-but SNE suffers from: center-crowdedness and difficult optimisation.
-t-SNE is introduced as a better optimisation formulation and preserve structure at multiple scale, and shown more convincing examples, for example on MNIST\cite{t-SNE} and similar datasets\cite{van2009new}.
-moreover other papers employed t-SNE as well to visualize nn embeddings \cite{donahue2013decaf}\cite{yu2014visualizing}\cite{yaotiny}.
-
 introduce theory of SNE, then t-SNE modification.
-let's define input space $X = \left\{ x_1, x_2, \dots, x_n \right\}$ then the goal is to map into a lower-space $Y = \left\{ y_1, y_2, \dots, y_m \right\}$, where $n$ is very high (around a few hundreds to thousands, \eg: mnist pixels dimensions: 784) and $m$ is $2$ or $3$.
-SNE models each point similarity by expressing the pair-wise distances into neighborhood probabilities.
-in a pair, the probability is the gaussian distribution modeling the first point electing the second as its neighbor.
-which means the more closer this pair is, the smaller the pair-wise distance will be, thus the higher the neighborhood probability will be.
-SNE models two distributions for each pair: a gaussian of the two points in the n-dim input space and a gaussian of their representations in the m-dim embedding.
-SNE uses the Kullback-Leibler divergence, which represents the mismatch of these two distribution for each pair, as its cost function for gradient descent optimisation.
+Let's define input space $X = \left\{ x_1, x_2, \dots, x_n \right\}$ then the goal is to map into a lower-space $Y = \left\{ y_1, y_2, \dots, y_m \right\}$, where $n$ is very high (around a few hundreds to thousands, \eg: mnist pixels dimensions: 784) and $m$ is $2$ or $3$.
+SNE uses two Gaussian distributions for each point expressing the neighbor distances in $X$ and its equivalent in $Y$ respectively.
+The Kullback-Leibler divergence is used to compute the objective function, which represents the mismatch of these two distribution for each pair:
+\begin{eqnarray}
+    L = \sum_i KL(P_i || Q_i) = \sum_i \sum_j p_{j|i} \log\left(\frac{p_{j|i}}{q_{j|i}}\right)
+\end{eqnarray}
+The probability for a pair of point $x_i$ electing $x_j$ in $X$ follows a Gaussian is as follow:
+\begin{eqnarray}
+    p_{j|i} = \frac{\exp(-|x_i - x_j|^2 / 2 \sigma_i^2)}{\sum_{k \not = i} \exp(-|x_i - x_k|^2 / 2 \sigma_i^2 )}
+    %&
+    %q_{j|i} = \frac{\exp(-|y_i - y_j|^2)}{\sum_{k \not = i} \exp(-|y_i - y_k|^2)}
+\end{eqnarray}
+The equivalent probability $q_{j|i}$ in $Y$ is the same but without $\sigma$ factors and $x$ is replaced by $y$.
+Therefore, a closer pair implies a higher neighbor-election probability because the distance is low.
 This cost function gives an asymmetrical importance to the distances: nearby points in $X$ are greatly penalized if they are far in $Y$; whereas a small cost is incurred for pairs far in $X$ but close in $Y$.
 %There is a simple physical interpretation of the SNE optimisation problem: pairs are modeled by asymmetrical springs in a mechanical system, the best solution is when the system is still.
+
+As we said SNE suffers from crowdedness problems in the middle of the embedding and the optimisation is harder due to the asymmetrical nature of the objective function.
+Both problems were addressed in t-SNE which give very good results in practice.
 The two major differences with t-SNE is the symmetrization of the cost function and replaces the distributions of the embedding by student variants.
 
 introduce equations here?
@@ -230,29 +250,41 @@ the most interesting constraint is to keep similar points together and dissimila
 fortunately, instead of the softmax loss function used for classification, we can use a special training architecture with a suitable loss that when optimized tries to satisfy these constraints.
 One solution is the siamese network with a contrastive loss which is used only for the optimisation phase.
 The siamese architectural idea is to create two weight-sharing instances of a network where a pair of two samples are fed at once, one per network.
-The distance between the two outputs is computed to compute the error against the label for the pair.
+The distance between the two outputs is used to compute the error against the label for the pair.
+when the training is complete, a single instance of this network is used to feed an input which gives the dimensionality-reduced point.
 % FIXME: figure.
-the labels now defines whether pairs should be close in the embedding or not, which looks similar to classification problems but the main difference is in the classification
-the contrastive loss function is based on energy models to attract similar pairs and repulse dissimilar pairs, where similarity it to be defined by the usage.
+In this architecture, a labels describes whether or not a pair should be close in the embedding.
 
-when the training is complete, a single instance of this network is used to feed an input for dimensionality reduction.
+The contrastive loss function is based on energy models but a single attractive term is not sufficient because it would allow degenerate solutions where all points squashed together; thus an opposing term to push dissimilar pairs should appear as well.
+The definition of the contrastive loss for a pair is as follow:
+\begin{eqnarray}
+    L = \frac{1}{2} Y (D_W)^2 + \frac{1}{2} (1-Y) \max(0, m - D_W)^2
+\end{eqnarray}
+where $Y \in \{0,1\}$ is the label: $1$ for similar pairs, $0$ otherwise; $D_W \in \R^N$ is the difference between the two network outputs and the parameter $m \in \R$ defines the minimal distance between dissimilar points.
+
+The definition of similarity is left open for the application at hand.
 
 \section{CNN for Predictable Reduction}
 the method above can learn an embedding which tries to pair the way it was intended, but there is still room for improvement.
 First, the structure of the resulting embedding is determined by the dataset and again we indirectly shape it by giving pairing information which helps to constraint local structures.
 However, there is no guarantee that this system will converge to an intended global structure, for example having certain deformations in a predictable ordering (\eg: from lowest to highest) or shape (\eg: a line, plane or circle).
-Secondly, the training required to make the embedding converge to a certain structure may happen after a long time, or multiple run with different seed can be tried, but there is again no such guarantees.
+Secondly, the training required to make the embedding may converge to a desirable structure after a long time or never even with multiple run using different seeds due to the lack of constraint.
 The number of embedding dimensions, $n$, is higher than the dimension of the pairing, $1$, which is why such model is not predictable, because these dimensions gives more freedom to the model in the way to represent these pairs arbitrarily.
 
 In the intend to improve this solution, a possibility is to add more constraints directly into the optimisation process.
 We propose to give more informations for each pair which can be used in the loss function to create these enforcements.
 This method allows to control separately the usage of each dimension of the embedding to express different properties of our dataset.
-To achieve this goal, we generalize the contrastive loss to pairs having $m$ pairing labels represented into an $n$-dimensional embedding, where $m \leq n$ should hold by definition.
+To achieve this goal, we generalize the contrastive loss to pairs having $n$ pairing labels represented into an $N$-dimensional embedding, where $n \leq N$ by definition.
 The relation between a pairing label and its binds to certain dimensions, should be defined per a use-case basis, as the pair relation.
 
-introduce our loss function
-
-instead of being invariant, we can optimize the embedding to be predictable in certain way, for eg: quantifying one distortion per axis.
+We now introduce our loss function with a formal definition.
+Let's define $N$ as the number of embedding dimensions, $n$ the dimensions of the labels, where $n \leq N$ as before.
+Let's define $D \in \N^n$ as the number of embedding dimension assigned per label, then we restrain ourself to: $\sum_i^n D_i = N$, which states each dimension should be assigned to a single label.
+The definition of the generalized $n$-dimensional contrastive loss for a pair is as follow:
+\begin{eqnarray}
+    L = \frac{1}{2} \sum_{i=0}^n \left( Y_i (D_{Wi})^2 + (1-Y_i) \max(0, m_i - D_{Wi})^2 \right)
+\end{eqnarray}
+where $Y \in \{0,1\}^n$ with $Y_i$ being the $i$th component of $Y$, $D_{Wi} \in \R^{D_i}$ is the difference between the two points in the sub-embedding for dimensions of the $i$th component, and $m_i \in \R$ is the minimal distance for dimension $i$.
 
 
 % ==============================================================================
