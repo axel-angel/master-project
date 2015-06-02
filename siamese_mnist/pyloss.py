@@ -1,5 +1,6 @@
 import caffe
 import numpy as np
+import os
 
 class OwnContrastiveLossLayer(caffe.Layer):
 
@@ -76,12 +77,18 @@ class OwnDoubleContrastiveLossLayer(caffe.Layer):
         self.diff2 = GW1g - GW2g
         self.dist_sq1 = self.diff1**2
         self.dist_sq2 = self.diff2**2
-        losses1 = Y * self.dist_sq1 \
-           + (1-Y) * np.max([self.zeros, self.m - self.dist_sq1], axis=0)
-        losses2 = Z * self.dist_sq2 \
-           + (1-Z) * np.max([self.zeros, self.n - self.dist_sq2], axis=0)
-        loss = np.sum(losses1) + self.C * np.sum(losses2)
-        top[0].data[0] = loss / 2.0 / bottom[0].num
+        losses1a = Y * self.dist_sq1
+        losses1b = (1-Y) * np.max([self.zeros, self.m - self.dist_sq1], axis=0)
+        losses2a = Z * self.dist_sq2
+        losses2b = (1-Z) * np.max([self.zeros, self.n - self.dist_sq2], axis=0)
+        loss1 = np.sum(losses1a + losses1b)
+        loss2 = np.sum(losses2a + losses2b) * self.C
+        if os.environ.get('contrastive_debug', ''):
+         print "Loss (%i): %s" % \
+                 (bottom[0].num, " ".join(
+                     map(lambda x: "%f" % (np.sum(x) / 2.0 / bottom[0].num),
+                     [losses1a, losses1b, losses2a, losses2b])))
+        top[0].data[0] = (loss1 + loss2) / 2.0 / bottom[0].num
 
     def backward(self, top, propagate_down, bottom):
         Y = np.right_shift(bottom[2].data.astype(int), 0) & 1 # digit label
@@ -132,12 +139,18 @@ class OwnDouble2DContrastiveLossLayer(caffe.Layer):
         self.diff2 = GW1g - GW2g
         self.dist_sq1 = np.sum(self.diff1**2, axis=1) # 2D -> 1D
         self.dist_sq2 = self.diff2**2
-        losses1 = Y * self.dist_sq1 \
-           + (1-Y) * np.max([self.zeros, self.m - self.dist_sq1], axis=0)
-        losses2 = Z * self.dist_sq2 \
-           + (1-Z) * np.max([self.zeros, self.n - self.dist_sq2], axis=0)
-        loss = np.sum(losses1) + self.C * np.sum(losses2)
-        top[0].data[0] = loss / 2.0 / bottom[0].num
+        losses1a = Y * self.dist_sq1
+        losses1b = (1-Y) * np.max([self.zeros, self.m - self.dist_sq1], axis=0)
+        losses2a = Z * self.dist_sq2
+        losses2b = (1-Z) * np.max([self.zeros, self.n - self.dist_sq2], axis=0)
+        loss1 = np.sum(losses1a + losses1b)
+        loss2 = np.sum(losses2a + losses2b) * self.C
+        if os.environ.get('contrastive_debug', ''):
+         print "Loss (%i): %s" % \
+                 (bottom[0].num, " ".join(
+                     map(lambda x: "%f" % (np.sum(x) / 2.0 / bottom[0].num),
+                     [losses1a, losses1b, losses2a, losses2b])))
+        top[0].data[0] = (loss1 + loss2) / 2.0 / bottom[0].num
 
     def backward(self, top, propagate_down, bottom):
         Y = np.right_shift(bottom[2].data.astype(int), 0) & 1 # digit label
