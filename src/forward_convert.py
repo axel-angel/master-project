@@ -26,6 +26,7 @@ if __name__ == "__main__":
     g = parser.add_mutually_exclusive_group(required=True)
     g.add_argument('--out-js', type=str, default=None)
     g.add_argument('--out-data', type=str, default=None)
+    g.add_argument('--out-npz', type=str, default=None)
     args = parser.parse_args()
 
     print "Load model"
@@ -68,7 +69,7 @@ if __name__ == "__main__":
             img_caffe = img2.reshape(1, *img2.shape)
             data = np.asarray([ img_caffe/255. ]) # normalize!
             out = net.forward_all(data=data, blobs=[ args.layer ])
-            pt = flat_shape(out[args.layer][0])
+            pt = flat_shape(out[args.layer][0]).reshape(-1)
             img64 = js_img_encode(img2) # encode64 for JS
             xs.append( (i, map(np.asscalar, pt), int(l), v, img64) )
         return xs
@@ -78,14 +79,11 @@ if __name__ == "__main__":
     num_cores = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(num_cores)
     itr = pool.imap_unordered(process, enumerate(Xls))
-    info = dict(tr='shift_x', src='dataset')
+    info = dict(tr=args.transfo_name, src='dataset')
     ds = []
     imgs = []
-    ax1 = args.axis1
-    ax2 = args.axis2
     for i, (j, pt, l, v, img64) in enumerate(chain.from_iterable(itr)):
-        ds.append(dict(x=pt[ax1], y=pt[ax2], i=i, l=l, v=v, sample=j,
-            pt=pt, **info))
+        ds.append(dict(i=i, l=l, v=v, sample=j, pt=pt, **info))
         imgs.append(img64)
         sys.stderr.write("\rForwarding: %.0f%%" % (i * 100. / samples))
     pool.terminate()
@@ -94,9 +92,12 @@ if __name__ == "__main__":
     if args.out_js:
         # convert to json-serialisable
         print "Converting into JS"
+        ax1 = args.axis1
+        ax2 = args.axis2
+        ds2 = [ dict(x=d['pt'][ax1], y=d['pt'][ax2], **d) for d in ds ]
         with open(args.out_js, 'wb') as fd:
             fd.write('var X = ')
-            json.dump(ds, fd)
+            json.dump(ds2, fd)
             fd.write(';')
 
             fd.write('var imgs = ')
@@ -107,6 +108,7 @@ if __name__ == "__main__":
                 fd.write('var %s = ' % (v))
                 json.dump(locals()[v], fd)
                 fd.write(';')
+
     if args.out_data:
         print "Save into GNUplot data"
         with open(args.out_data, 'w') as fd:
@@ -114,3 +116,10 @@ if __name__ == "__main__":
                 cols = map(lambda x: "%f" % (x), d['pt']) \
                         + [ str(d['l']), str(d['i']) ]
                 fd.write( (" ".join(cols)) + "\n")
+
+    if args.out_npz:
+        print "Save into NPZ"
+        pts = [ d['pt'] for d in ds ]
+        ls = [ d['l'] for d in ds ]
+        infos = [ { k:d[k] for k in ['sample', 'v', 'tr', 'src'] } for d in ds ]
+        np.savez_compressed(args.out_npz, pts, ls, infos=infos)
