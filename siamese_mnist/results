@@ -38,6 +38,7 @@ lecun_siamese2bv7: X b2, --pair-displaced --shuffle --grouped 32 --transfo-name 
 lecun_siamese2Dc3: X 2Dc --shuffle --grouped 32 --transfo-name shift_x --transfo-values 3 6
 lecun_siamese2Dc3_rotate: X 2Dc --shuffle --grouped 32 --transfo-name rotate --transfo-values 45 90
 lecun_siamese2bv7_rotate: X 2b --shuffle --grouped 32 --pair-displaced --transfo-name rotate --transfo-values 45 90
+lecun_siamese2Dc3_rotate180: --transfo-name rotate --transfo-values 180 135 90 45 0 -45 -90 -135
 
 
 > replication of lecun
@@ -46,8 +47,10 @@ lecun_siamese2bv7_rotate
 > our result
 lecun_siamese2Dc3
 lecun_siamese2Dc3_rotate
+lecun_siamese2Dc3_rotate180
 lecun_siamese2Dc3_split_{digit,transfo} (split digit/transfo into 2 models)
 lecun_siamese3Dc3: use 2D contrastive in 3D (2D=label, 1D=transfo)
+lecun_siamese3Dc3b: use 2D contrastive in 3D (2D=label, 1D=transfo) n=2
 
 > compare two contrastive models (against double contrastive)
 lecun_siamese2Dc3_digit << TODO
