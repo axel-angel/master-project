@@ -23,7 +23,7 @@
 \fancyfoot{}
 
 \newcommand{\myname}{Axel Angel}
-\newcommand{\mytitle}{Properties of Convolutional Neural Networks}
+\newcommand{\mytitle}{Towards Predictable Embedding of Convolutional Neural Networks}
 \newcommand{\mysubtitle}{Report}
 \newcommand{\mydate}{\today}
 
@@ -101,35 +101,34 @@ use case (medical imaging)
 \chapter{Related Work}
 % explain each paper, group them and discuss result adv/drawbacks
 
-research found NN are good to classify lots of problems.
-CNN are naturally more inclined for computer vision (accuracy and speed).
+More than 20 years ago, researchers discovered that {\em Neural Networks} (NN) is a highly flexible model architecture to solve many classification problems.
+Many important state-of-the-art models use NN in computer vision, including famous datasets like MNIST \cite{mnist_web} and ImageNet dataset \cite{krizhevsky2012imagenet}, categories like face detection as well \cite{rowley1998neural} and many more \cite{prechelt1994proben1}.
 
-deeper architectures improves accuracy on more complex tasks, people found optimisations to make them fast.
+Most of these models are using a specialized variant for image processing called {\em Convolutional Neural Network} (CNN).
+This architecture is more efficient for computer vision problems because it constrains the NN first layers to extract visual cues by using image convolutions.
 
-paper: Flexible, high performance convolutional neural networks for image classification
+Current researches is mainly focused on new and more complex classification tasks using Deep Learning whose goal is to improve classification tasks by adding more layers, in order to learn more high-level features.
+Such researches found how to speed up the computations for training and classification which we greatly benefit for our experiments\cite{ciresan2011flexible}.
+%paper: Flexible, high performance convolutional neural networks for image classification
+Researchers and programmers developed various frameworks to train and use NN with different mindset goals.
+The most popular are: Theano\cite{bastien2012theano}, Caffe\cite{jia2014caffe}, Torch7\cite{collobert2011torch7}, Pylearn2\cite{goodfellow2013pylearn2}.
+We decided to leverage the efficiency and modularity of Caffe for our NN platform for several reasons described later.
+%deeper architectures improves accuracy on more complex tasks, people found optimisations to make them fast.
 
-Even though they give impressive results and are widely used in computer vision, we still lack important formal understanding why they work so well.
+Even though CNN models are widely used in computer vision and give impressive results, researches still lack important understanding of their behavior in certain conditions\cite{szegedy2013intriguing} or why do they work so well in practice. % FIXME: citation needed?
+%paper: Intriguing properties of neural networks
+We know CNN and NN interaction with inputs are complex due do their non-linear nature, this problem is stressed by distortions present in the inputs as well.
+Which means the relation between inputs and outputs, especially when inputs are deformed, is usually not predictable.
 
-paper: Intriguing properties of neural networks
-
-CNN are complex and strange results were found.
-Research found multiple hypothesises.
+%CNN are complex and strange results were found.
+%Research found multiple hypothesises.
 
 % adversial attacks, linearity of networks.
 % Towards Deep Neural Network Architectures Robust To Adversarial Examples
 % Analysis of classifiers' robustness to adversarial perturbations
 
-It is not possible to directly look into the embedding, due to high dim space.
-however people uses dim reduction to create a human viewable representation of this space.
-lots of dim reduction exists
-
-paper: Stochastic Neighbor Embedding
-
-proposes a maximization problem that compute from a high-dim dataset a 2D embedding preserving neighborhood distances.
-Kullback-leibler divergence.
-
-paper: Visualizing Data using t-SNE
-proposes a variation of Stochastic Neighbor Embedding, easier to optimize, produces better 2D map by spreading points more evenly and preserving topological structures
+It is not directly possible look into the output embedding because we cannot comprehend such a high dimensional space ourself.
+moreover other papers employed t-SNE as well to visualize nn embeddings.
 
 % moved from dim red chapter
 take PCA, MDS as example, only linearity between points, goal is not to keep distances but variance (compute the linear projection that maximize original data variance, keep far point far).
@@ -139,31 +138,33 @@ goal differs from ours.
 among non-linear dimensionality reduction methods, use an optimisation algorithm with a loss function.
 they preserve local structure/cluster like: isomap, LLE, SNE, (and more).
 most fail to keep global clusters and local details at once.
+
+paper: Stochastic Neighbor Embedding
+
+proposes a maximization problem that compute from a high-dim dataset a 2D embedding preserving neighborhood distances.
+Kullback-leibler divergence.
+
 SNE has presented a better optimisation problem to preserve locality\cite{SNE}.
 but SNE suffers from: center-crowdedness and difficult optimisation.
 t-SNE is introduced as a better optimisation formulation and preserve structure at multiple scale, and shown more convincing examples, for example on MNIST\cite{t-SNE} and similar datasets\cite{van2009new}.
-moreover other papers employed t-SNE as well to visualize nn embeddings \cite{donahue2013decaf}\cite{yu2014visualizing}\cite{yaotiny}.
 
 we can see how CNN are clustering samples depending on multiple factors.
-people add distorted samples to their dataset (data augmentation) so models can learn to be transfo invariant, but results shows the embedding cluster them into clusters per transfo instead of per label [XXX].
 Although it is unintuitive, this can be seen by inspecting the embedding.
 we can add constraints against distortions directly over the embedding, to cluster them the way we meant.
 
-paper: Encoded Invariance in Convolutional Neural Networks
-
-encoding invariance in the learnt embedding which preserves the signal.
-Formal analysis of impact of rigid motions versus deformations on classification.
-Proposing wavelet networks.
-
-paper: Deep Symmetry Networks
-
-proposes an alternative network, symmetry networks, to extend invariance beyond translation by using feature map over arbitrary symmetry groups by use of kernel-based interpolation.
-
-paper: Dimensionality Reduction by Learning an Invariant Mapping
-
-proposes to creates a dimensionality reducing mapping by training a CNN using a new loss function, the contrastive loss, based on energy models.
-The results on NORB is a mapping from image space to a 3D cylinder where two axes describes the 2D orientation and the third axe describes the azimuth angle, the mapping is invariant to illumination.
-Results on 4s and 9s of MNIST shows that CNN can learn a mapping that separates labels and make similar digits close despite translations.
+Many papers use dimensionality reduction to create a human viewable representation of the output embedding \cite{donahue2013decaf}\cite{yu2014visualizing}\cite{yaotiny}.
+Only a few papers actually try to formalize the input-output relations\cite{goodfellow2009measuring}.
+Some papers proposes to learn transformation-invariant embeddings, by means of modelling distortions directly into model\cite{gens2014deep} or using data-augmentation\cite{hadsell2006dimensionality}. %where distortions are nullified instead of being quantified in a predictable way.
+%paper: Encoded Invariance in Convolutional Neural Networks
+%paper: Deep Symmetry Networks
+%proposes an alternative network, symmetry networks, to extend invariance beyond translation by using feature map over arbitrary symmetry groups by use of kernel-based interpolation.
+%paper: Dimensionality Reduction by Learning an Invariant Mapping
+The latter proposes to creates a dimensionality reducing mapping by training a CNN using a new loss function based on energy models, called the {\em contrastive loss}.
+Their results using MINST shows that CNN can learn a mapping that separates labels and group alike digits even with translations.
+Moreover they experimented with NORB as well: each image is mapped onto a 3D cylinder whose axises describe the orientation in 2D and the azimuth angle in 1D.
+They trained the mapping to be invariant to a very non-linear distortion as well (illumination).
+They use an interesting siamese architecture to train pairs of similar sample to be as close as possible.
+There are several advantages of such method: the cost penalty is very low and only present in training, the usage of standard CNN allow more freedom for experiments with different architectures and the proposed loss function is effective and simple.
 
 
 % ==============================================================================
@@ -311,6 +312,8 @@ tables and graphs: loss of training (for major models), add accuracy for compari
 \section{t-SNE on LeNet}
 explain what we found using t-SNE on last layer of lenet, on mnist.
 
+people add distorted samples to their dataset (data augmentation) so models can learn to be transfo invariant, but results shows the embedding cluster them into clusters per transfo instead of per label [XXX].
+
 \section{Contrastive LeNet}
 explain what we found using double-contrastive loss with lenet, on mnist.
 
@@ -324,13 +327,7 @@ can add norb, when finished.
 \bibliography{thesis}{}
 \bibliographystyle{plain}
 
-Caffe: Convolutional Architecture for Fast Feature Embedding
-proposes a deep-learning framework focusing on CNN, easy experiment, easily modifiable source, reference models (lenet, imagenet), scalable, GPU, active community.
-
-DIY Deep Learning for Vision: a Hands-On Tutorial with Caffe
-caffe tutorial
-
 % required by NORB dataset
-Learning Methods for Generic Object Recognition with Invariance to Pose and Lighting. IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR) 2004
+\nocite{lecun2004learning}
 
 \end{document}
