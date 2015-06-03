@@ -13,6 +13,7 @@ if __name__ == "__main__":
     parser.add_argument('--layer', type=str, nargs='+')
     parser.add_argument('--in-npz', type=str, required=True)
     parser.add_argument('--out-npz', type=str, required=True)
+    parser.add_argument('--scale', type=float, default=1.0)
     args = parser.parse_args()
 
     print "Load network"
@@ -26,7 +27,8 @@ if __name__ == "__main__":
 
     print "Forward output"
     dims = xs.shape[-2:]
-    res = net.forward_all(data=xs.reshape(-1, 1, *dims), blobs=args.layer)
+    xs_caffe = xs.reshape(-1, 1, *dims) * args.scale
+    res = net.forward_all(data=xs_caffe, blobs=args.layer)
     out = {}
     for k in res:
         out[k] = flat_shape(res[k])
