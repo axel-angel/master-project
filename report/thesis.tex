@@ -148,13 +148,13 @@ However SNE suffers from: center-crowdedness and difficult optimisation.
 That's why papers are reducing CNN embeddings into a 2D human-friendly manifold using t-SNE, which is a slight modification of SNE. % FIXME: more cite?
 t-SNE is introduced as a better optimisation formulation and preserve structure at multiple scale, and shown more convincing examples, for example on MNIST\cite{t-SNE} and similar datasets\cite{van2009new}.
 
-we can see how CNN are clustering samples depending on multiple factors.
-Although it is unintuitive, this can be seen by inspecting the embedding.
-we can add constraints against distortions directly over the embedding, to cluster them the way we meant.
+Using t-SNE, it becomes possible to see in details how CNN clusters samples depending on multiple factors: essentially based on similarity of the digits (strokes, thickness and shapes).
+%Although it is unintuitive, this can be seen by inspecting the embedding.
+%we can add constraints against distortions directly over the embedding, to cluster them the way we meant.
 
 Many papers use dimensionality reduction to create a human viewable representation of the output embedding \cite{donahue2013decaf}\cite{yu2014visualizing}\cite{yaotiny}.
 Only a few papers actually try to formalize the input-output relations\cite{goodfellow2009measuring}.
-Some papers proposes to learn transformation-invariant embeddings, by means of modelling distortions directly into model\cite{gens2014deep} or using data-augmentation\cite{hadsell2006dimensionality}. %where distortions are nullified instead of being quantified in a predictable way.
+Some papers proposes to learn transformation-invariant embeddings, by means of modelling distortions directly into model\cite{gens2014deep} or using data-augmentation\cite{hadsell2006dimensionality}.
 %paper: Encoded Invariance in Convolutional Neural Networks
 %paper: Deep Symmetry Networks
 %proposes an alternative network, symmetry networks, to extend invariance beyond translation by using feature map over arbitrary symmetry groups by use of kernel-based interpolation.
@@ -166,51 +166,15 @@ They trained the mapping to be invariant to a very non-linear distortion as well
 They use an interesting siamese architecture to train pairs of similar sample to be as close as possible.
 There are several advantages of such method: the cost penalty is very low and only present in training, the usage of standard CNN allow more freedom for experiments with different architectures and the proposed loss function is effective and simple.
 
+However distortions are damped instead of being quantified in a predictable way.
+Moreover they describe qualitatively the coherence of the embedding but doesn't provide nor propose a formal way to measure and compare its quality.
+
 
 % ==============================================================================
-\chapter{Theory: Dimensionality reduction}
-Dimensionality reduction is an important method in machine learning that maps points in a high-dimensional space into a space with a lower number of dimensions.
-We will call this lower subspace an {\em embedding}.
-Representations suitable for human visualization should keep important relations between points of the original space.
-In our experiments, we will apply dimensionality reduction especially on our neural networks' outputs.
-This allows us to compare qualitatively the impact of controlled distortions applied on images over networks' outputs.
-The structure inferred by distances between points such as clusters, intra-cluster neighbors and inter-cluster outsiders reveals important properties of neural network models.
-Thus we need accurate low-dimensional representations of embeddings that preserve local distances to compare different models.
-In the following sections, we will discuss dimensionality reduction methods that weren't fit for our uses, then we introduce the one we used, called t-SNE, in details.
-
-\section{Optimisation Problem}
-Various algorithms differentiate themselves by several properties: their goal (\eg: interpolation, compression, visualization), by what they preserve (\eg: variance, distances), how they model point correlation (\eg: linearly or not) or whether they can model new points (\eg: a representation or a mapping).
-
-First, our choice is guided by our primary need, which is to visualize our data.
-Thus the method should produce a 2D or 3D embedding, preferably in 2D for scatter plots easily interpretable.
-Secondly, we need a guarantee on the preservation of relations between points, especially the distances keeping them clustered or not.
-
-introduce theory of SNE, then t-SNE modification.
-Let's define input space $X = \left\{ x_1, x_2, \dots, x_n \right\}$ then the goal is to map into a lower-space $Y = \left\{ y_1, y_2, \dots, y_m \right\}$, where $n$ is very high (around a few hundreds to thousands, \eg: mnist pixels dimensions: 784) and $m$ is $2$ or $3$.
-SNE uses two Gaussian distributions for each point expressing the neighbor distances in $X$ and its equivalent in $Y$ respectively.
-The Kullback-Leibler divergence is used to compute the objective function, which represents the mismatch of these two distribution for each pair:
-\begin{eqnarray}
-    L = \sum_i KL(P_i || Q_i) = \sum_i \sum_j p_{j|i} \log\left(\frac{p_{j|i}}{q_{j|i}}\right)
-\end{eqnarray}
-The probability for a pair of point $x_i$ electing $x_j$ in $X$ follows a Gaussian is as follow:
-\begin{eqnarray}
-    p_{j|i} = \frac{\exp(-|x_i - x_j|^2 / 2 \sigma_i^2)}{\sum_{k \not = i} \exp(-|x_i - x_k|^2 / 2 \sigma_i^2 )}
-    %&
-    %q_{j|i} = \frac{\exp(-|y_i - y_j|^2)}{\sum_{k \not = i} \exp(-|y_i - y_k|^2)}
-\end{eqnarray}
-The equivalent probability $q_{j|i}$ in $Y$ is the same but without $\sigma$ factors and $x$ is replaced by $y$.
-Therefore, a closer pair implies a higher neighbor-election probability because the distance is low.
-This cost function gives an asymmetrical importance to the distances: nearby points in $X$ are greatly penalized if they are far in $Y$; whereas a small cost is incurred for pairs far in $X$ but close in $Y$.
-%There is a simple physical interpretation of the SNE optimisation problem: pairs are modeled by asymmetrical springs in a mechanical system, the best solution is when the system is still.
-
-As we said SNE suffers from crowdedness problems in the middle of the embedding and the optimisation is harder due to the asymmetrical nature of the objective function.
-Both problems were addressed in t-SNE which give very good results in practice.
-The two major differences with t-SNE is the symmetrization of the cost function and replaces the distributions of the embedding by student variants.
-
-introduce equations here?
+\chapter{Theory: Neural Networks}
 
 \section{NN and CNN Classifier}
-introduce CNN and embeddings
+%introduce CNN and embeddings
 
 nn and cnn are composed of inter-connected layers of units, or neurons.
 to classify an input we fed the first layer of the network.
@@ -242,13 +206,82 @@ it is important to note that t-SNE plays an important role in the quality of thi
 Because t-SNE has no knowledge of the labels, it is the classifier who improves the quality of the structures of the final embedding, because it learned specialized filters to distinguish the classes.
 This justifies why we combined CNN classifiers with t-SNE to create a 2D embedding for our visualisations.
 
+
+% ==============================================================================
+\chapter{Theory: Dimensionality reduction}
+Dimensionality reduction is an important method in machine learning that maps points in a high-dimensional space into a space with a lower number of dimensions.
+We will call this lower subspace an {\em embedding}.
+Representations suitable for human visualization should keep important relations between points of the original space.
+In our experiments, we will apply dimensionality reduction especially on our neural networks' outputs.
+This allows us to quickly compare (qualitatively) the impact of controlled distortions applied on images over networks' outputs.
+The structure inferred by distances between points such as clusters, intra-cluster neighbors and inter-cluster outsiders reveals important properties of neural network models.
+Thus we need accurate low-dimensional representations of embeddings that preserve local distances to compare different models.
+In the following sections, we will discuss dimensionality reduction methods that weren't fit for our uses, then we introduce the one we used, called t-SNE, in details.
+
+\section{Optimisation Problem}
+Various algorithms differentiate themselves by several properties: their goal (\eg: interpolation, compression, visualization), by what they preserve (\eg: variance, distances), how they model point correlation (\eg: linearly or not) or whether they can model new points (\eg: a representation or a mapping).
+
+First, our choice is guided by our primary need, which is to visualize our data.
+Thus the method should produce a 2D or 3D embedding, preferably in 2D for scatter plots easily interpretable.
+Secondly, we need a guarantee on the preservation of relations between points, especially the distances keeping them clustered or not.
+Considering the previous works we discussed above, t-SNE is the best candidate in the current state-of-the-art.
+We now define the method objective functions, probabilities and explain intuitive properties.
+
+%introduce theory of SNE, then t-SNE modification.
+Let's define input space $X = \left\{ x_1, x_2, \dots, x_n \right\}$ then the goal is to map into a lower-space $Y = \left\{ y_1, y_2, \dots, y_m \right\}$, where $n$ is very high (around a few hundreds to thousands, \eg: mnist pixels dimensions: 784) and $m$ is $2$ or $3$.
+SNE uses two Gaussian distributions for each point expressing the neighbor distances in $X$ and its equivalent in $Y$.
+The Kullback-Leibler divergence is used to compute the objective function, which represents the mismatch of these two distribution for each pair:
+\begin{eqnarray}
+    L = \sum_i KL(P_i || Q_i) = \sum_i \sum_j p_{j|i} \log\left(\frac{p_{j|i}}{q_{j|i}}\right)
+\end{eqnarray}
+The probability for a pair of point $x_i$ electing $x_j$ in $X$ follows a Gaussian is as follow:
+\begin{eqnarray}
+    p_{j|i} = \frac{\exp(-|x_i - x_j|^2 / 2 \sigma_i^2)}{\sum_{k \not = i} \exp(-|x_i - x_k|^2 / 2 \sigma_i^2 )}
+    %&
+    %q_{j|i} = \frac{\exp(-|y_i - y_j|^2)}{\sum_{k \not = i} \exp(-|y_i - y_k|^2)}
+\end{eqnarray}
+The equivalent probability $q_{j|i}$ in $Y$ is the same except that $\sigma = 0$ and $x$ is replaced by $y$.
+Therefore, a closer pair implies a higher neighbor-election probability because the distance is low.
+This cost function gives an asymmetrical importance to the distances: nearby points in $X$ are greatly penalized if they are far in $Y$; whereas a small cost is incurred for pairs far in $X$ but close in $Y$.
+%There is a simple physical interpretation of the SNE optimisation problem: pairs are modeled by asymmetrical springs in a mechanical system, the best solution is when the system is still.
+
+As we said SNE suffers from crowdedness problems in the middle of the embedding and the optimisation is harder due to the asymmetrical nature of the objective function.
+Both problems were addressed in t-SNE which give very good results in practice.
+The two major differences with t-SNE is the symmetrization of the cost function and replaces the distributions of the embedding by student variants.
+In t-SNE, a single objective function is minimized:
+\begin{eqnarray}
+    L = \sum_i KL(P || Q) = \sum_i \sum_j p_{ij} \log\left(\frac{p_{ij}}{q_{ij}}\right)
+\end{eqnarray}
+where:
+\begin{eqnarray}
+    p_{ij} = \frac{p_{j|i} + p_{i|j}}{2 n}
+\end{eqnarray}
+which forces outliers points to contribute more to the loss.
+And:
+\begin{eqnarray}
+    q_{ij} = \frac{1 / (1 + |y_i - y_j|^2)}{\sum_{k \not = l} 1/(1 + |y_k - y_l|^2)}
+\end{eqnarray}
+which replaces the $q$ distribution in SNE by a Student with a heavier tail: distances in high dimensional spaces spread across more dimensions; in low dimensional space, the accurate equivalent distance needs to be much higher per dimension (thus more points end up farer in $Y$, a heavier tail than in $X$).
+
+As before, a point cannot elect itself: $p_{ii} = q_{ii} = 0$ and probabilities are symmetric for both distributions: $p_{ij} = p_{ji}$ and $q_{ij} = q_{ji}$.
+As stated previously the input space $X$ has much more dimensions were distances can be expressed than the 2 dimensions of $Y$.
+In summary, t-SNE uses Kullback-Leibler divergence to minimize the mismatch of these two spaces by means of probabilities, therefore the chance of important local structures (frequent patterns) being preserved is higher than with other methods (mosts don't express this goal through an objective function).
+Global structures is encouraged by the coherence of the local structures as the divergence decreases and the system stabilizes.
+
 \section{CNN for Dimensionality Reduction}
-because the method above has important drawbacks due to t-SNE, among them is the computational cost, the lack of mapping to visualize new points and the impossibility of controlling the embedding directly.
-there is a direct way to learn an embedding with CNN without t-SNE.
-instead of using cnn for classification, we can train it to create an embedding with chosen properties directly from the last layer.
-t-sne ideas can be reused with cnn.
-the most interesting constraint is to keep similar points together and dissimilar far.
-fortunately, instead of the softmax loss function used for classification, we can use a special training architecture with a suitable loss that when optimized tries to satisfy these constraints.
+Usual dimensionality reductions like t-SNE are helpful for many visualizing tasks but it has important drawbacks as well.
+We think the most important ones are: the computational cost, the incapacity of mapping new points and the indirect control over the resulting embedding.
+Current implementations of t-SNE are still rare, unpolished and require tricks to make them tractable in practice (\eg: reducing first with PCA).
+Fortunately there are new promising alternatives emerging directly harnessing the power of NN.
+We introduce such models in the following section.
+
+%there is a direct way to learn an embedding with CNN without t-SNE.
+CNN are mostly used for classification but we can optimize them for other purposes as well.
+Instead of the softmax loss function used for classification, we can use a special training architecture with a suitable loss that when optimized tries to satisfy some constraints.
+For example to create an embedding with chosen properties directly found into the output layer.
+Moreover the ideas presented by reduction methods like t-SNE can be formulated in different terms to be applicable to NN.
+In our case the most important idea is to keep similar points together and dissimilar far.
+
 One solution is the siamese network with a contrastive loss which is used only for the optimisation phase.
 The siamese architectural idea is to create two weight-sharing instances of a network where a pair of two samples are fed at once, one per network.
 The distance between the two outputs is used to compute the error against the label for the pair.
@@ -291,15 +324,33 @@ where $Y \in \{0,1\}^n$ with $Y_i$ being the $i$th component of $Y$, $D_{Wi} \in
 % ==============================================================================
 \chapter{Methodology}
 
-explain our models
+explain our models.
+lenet archi.
+layers, parameters.
+add figure.
+we cut the last layer, give same archi as paper.
 
-use of Caffe
+use of Caffe.
+give arguments why.
+how we used caffe: built-in solver.
+use python to feed-forward, test.
+
+developed own web plotter for interactive.
+display sample images, filtering/highlights capabilities, zoom, move.
+good insight and feedback of results.
 
 introduce datasets: mnist and norb.
+mnist use lenet archi.
 
 how we create our train/test dataset
+python script, predictable.
+pairing method.
+reproduce lecun mnist and norb.
+we use 3d for mnist, compare with lecun project 2d.
 
-how are models trained in caffe
+how are models trained in caffe.
+guideline to reproduce, parameters and stuff.
+give for mnist and norb.
 
 contribution: how we can compute our energy-distance for comparisons.
 
