@@ -19,8 +19,8 @@ if __name__ == "__main__":
     parser.add_argument('--model', type=str, required=True)
     parser.add_argument('--transfo-name', type=str, required=True)
     parser.add_argument('--transfo-values', type=int, nargs='+')
-    parser.add_argument('--axis-label', type=int, default=None)
-    parser.add_argument('--axis-transfo', type=int, default=None)
+    parser.add_argument('--axis-label', type=int, nargs='*', default=None)
+    parser.add_argument('--axis-transfo', type=int, nargs='*', default=None)
     parser.add_argument('--npz', type=str, default=None)
     parser.add_argument('--layer', type=str, default='ip1')
     args = parser.parse_args()
@@ -48,6 +48,7 @@ if __name__ == "__main__":
 
         return (i, label, res)
 
+    print "axises", args.axis_label, args.axis_transfo
     if args.axis_label != None:
         project_label = lambda pt: pt[args.axis_label]
     else:
