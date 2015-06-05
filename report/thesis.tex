@@ -104,22 +104,24 @@ use case (medical imaging)
 More than 20 years ago, researchers discovered that {\em Neural Networks} (NN) is a highly flexible model architecture to solve many classification problems.
 Today, many state-of-the-art models use improved NN for computer vision tasks like MNIST \cite{mnist_web} and ImageNet \cite{krizhevsky2012imagenet}, face detection as well \cite{rowley1998neural} and many more \cite{prechelt1994proben1}.
 
-Most of today models are using a {\em Convolutional Neural Network} (CNN) which is a specialized variant for image processing.
-This architecture is more efficient for computer vision problems because it constrains the first layers to extract visual cues by using weight-sharing convolutions.
+Most of today models are using {\em Convolutional Neural Networks} (CNN) which are a specialized variant working well for visual tasks.
+This architecture is more efficient for computer vision problems, partly because the convolutions share their weights in the first layers to extract spatial cues.
 
-Current researches is mainly focused on more complex classification problems using Deep Learning which suggests to add more layers that can express higher-level features to improve the current results.
-The addition of more layers unfortunately require more computations than before but this challenge didn't remained unsolved.
+Current researches is mainly focused on advancing into more complex classification problems using Deep Learning.
+This field suggests to improve the current results by deepening the architecture in terms of number of layers to express more abstract and higher-level concepts.
+Unfortunately, more layers require more computations than before but researchers started to overcome this challenge.
 Ways to speed up the training and the classification appeared and were greatly beneficial for the development of this field in recent years\cite{ciresan2011flexible}.
 %paper: Flexible, high performance convolutional neural networks for image classification
-Researchers and programmers developed various frameworks to train and use NN with different objectives: performance, accessibility or composability.
+Both researchers and professional programmers built various frameworks to train and to use NN with many different targets, like: performance, accessibility or composability.
 The most popular are: Theano\cite{bastien2012theano}, Caffe\cite{jia2014caffe}, Torch7\cite{collobert2011torch7}, Pylearn2\cite{goodfellow2013pylearn2}.
 We decided to leverage the efficiency and modularity proposed by Caffe for several reasons described later.
 %deeper architectures improves accuracy on more complex tasks, people found optimisations to make them fast.
 
-Even though CNN models are now widely used in computer vision and give impressive results, current research exposed the lack of understanding of their behaviors which sometimes leads to unintuitive attacks\cite{szegedy2013intriguing}.
-Most of publications doesn't give more formal justifications of their good results because it just works. % FIXME: citation needed?
+Even though CNN models are now widely used in computer vision with great success thanks to these frameworks, current research exposed our ignorance of these networks behaviors.
+Some papers work on reliable ways to fool networks using adverserial attacks which exploits their unintuitive properties\cite{szegedy2013intriguing}.
+Most publications don't try to formally justify their good results because it just works. % FIXME: citation needed?
 %paper: Intriguing properties of neural networks
-We know that relations between units are complex due do their non-linear nature, this problem is stressed by distortions present in the inputs as well.
+Indeed, relations between units are complex due do their non-linear nature, this problem is stressed by distortions present in the inputs as well.
 Moreover the input-output relation, when inputs are kept distorted on purpose, is usually either killing the signal (invariance) or not in a predictable manner (controlled preservation).
 
 %CNN are complex and strange results were found.
@@ -130,43 +132,43 @@ Moreover the input-output relation, when inputs are kept distorted on purpose, i
 % Analysis of classifiers' robustness to adversarial perturbations
 
 The manifestation of this relation can be looked visually using methods to process the output into an other form.
-Because we cannot comprehend such a high dimensional space ourself, it is not directly possible look into the output embedding.
-Dimensionality reduction methods perfectly fit this description and several methods were applied with different success.
+It is not possible to directly look at the high-dimensional embedding, because we cannot easily plot nor interpret so many dimensions.
+Dimensionality reduction methods is a popular tool in such case and several methods exist that are specialized for visualization.
 
 % moved from dim red chapter
-Usual methods like PCA, MDS for example, are only modelling linearity between points.
-Their primary characteristic is to maximize the variance of the original data which is important for reconstruction but not for visualization.
+Standard methods like PCA, MDS for example, are used for reducing dimensions usually as a preprocessing step and they are limited to linearities of the data.
+Their primary characteristic is to maximize the variance of the original data which is important for reconstruction but not necessarily for visualization.
 Other non-linear dimensionality reduction methods, use an optimisation algorithm with a loss function which improve their flexibility for other purpose like visualization.
 They preserve local structure/cluster like: isomap, LLE, SNE, (and more).
-But the State-of-art discovered SNE has a better potential to keep global structures as well\cite{SNE}.
-Most of the methods fails to keep global clusters and local details at the same time\cite{t-SNE}.
+Most of the methods fails to keep global clusters and local details at the same time where as the latest papers show SNE a better potential\cite{SNE}.
 %paper: Stochastic Neighbor Embedding
 
 SNE has introduced a better maximization problem to preserve point neighborhood and general clusters with an important emphasis on distances\cite{SNE}.
 %Kullback-leibler divergence.
-However SNE suffers from: center-crowdedness and difficult optimisation.
-That's why papers are reducing CNN embeddings into a 2D human-friendly manifold using t-SNE, which is a slight modification of SNE. % FIXME: more cite?
-t-SNE is introduced as a better optimisation formulation and preserve structure at multiple scale, and shown more convincing examples, for example on MNIST\cite{t-SNE} and similar datasets\cite{van2009new}.
+However it suffers from ``center-crowdedness'' and has difficulties in optimisation\cite{t-SNE}.
+That's why papers are using t-SNE, a variant of SNE, to reduce CNN embeddings into a 2D human-friendly manifold. % FIXME: more cite?
+This method exhibits an easier optimisation formulation and it preserve more structures at diverse scales.
+More convincing examples were created with t-SNE directly from raw popular datasets like MNIST\cite{t-SNE} and more\cite{van2009new}.
 
-Using t-SNE, it becomes possible to see in details how CNN clusters samples depending on multiple factors: essentially based on similarity of the digits (strokes, thickness and shapes).
+It has become possible to easily see many more details in CNN embeddings: how samples are grouped depending on multiple factors: essentially based on similarity of the digits (strokes, thickness and shapes) and natural variance (rotation).
 %Although it is unintuitive, this can be seen by inspecting the embedding.
 %we can add constraints against distortions directly over the embedding, to cluster them the way we meant.
-
 Many papers use dimensionality reduction to create a human viewable representation of the output embedding \cite{donahue2013decaf}\cite{yu2014visualizing}\cite{yaotiny}.
 Only a few papers actually try to formalize the input-output relations\cite{goodfellow2009measuring}.
-Some papers proposes to learn transformation-invariant embeddings, by means of modelling distortions directly into model\cite{gens2014deep} or using data-augmentation\cite{hadsell2006dimensionality}.
+Some papers proposes to learn transformation-invariant embeddings, by means of modelling distortions directly into their models\cite{gens2014deep} or using data-augmentation\cite{hadsell2006dimensionality}.
 %paper: Encoded Invariance in Convolutional Neural Networks
 %paper: Deep Symmetry Networks
 %proposes an alternative network, symmetry networks, to extend invariance beyond translation by using feature map over arbitrary symmetry groups by use of kernel-based interpolation.
 %paper: Dimensionality Reduction by Learning an Invariant Mapping
+
 The latter proposes to creates a dimensionality reducing mapping by training a CNN using a new loss function based on energy models, called the {\em contrastive loss}.
-Their results using MINST shows that CNN can learn a mapping that separates labels and group alike digits even with translations.
-Moreover they experimented with NORB as well: each image is mapped onto a 3D cylinder whose axises describe the orientation in 2D and the azimuth angle in 1D.
-They trained the mapping to be invariant to a very non-linear distortion as well (illumination).
-They use an interesting siamese architecture to train pairs of similar sample to be as close as possible.
+Their results using MINST shows that CNN can learn a mapping that distinguish labels, and group alike digits even when they are translated artificially.
+They experimented with NORB as well with intriguing results: each sample is mapped on a 3D cylinder whose axises quantify the orientation in 2D and the azimuth angle in 1D.
+The network was successfully trained to ignore lighting conditions, which is a strong non-linear distortions.
+They use the Siamese training architecture to present image pairs which are optimized to be close if similar or far otherwise.
 There are several advantages of such method: the cost penalty is very low and only present in training, the usage of standard CNN allow more freedom for experiments with different architectures and the proposed loss function is effective and simple.
 
-However distortions are damped instead of being quantified in a predictable way.
+However distortions are damped instead of being quantified in a predictable way where we think the distortion information is valuable later on.
 Moreover they describe qualitatively the coherence of the embedding but doesn't provide nor propose a formal way to measure and compare its quality.
 
 
@@ -265,7 +267,6 @@ And:
     q_{ij} = \frac{1 / (1 + |y_i - y_j|^2)}{\sum_{k \not = l} 1/(1 + |y_k - y_l|^2)}
 \end{eqnarray}
 which replaces the $q$ distribution in SNE by a Student with a heavier tail: distances in high dimensional spaces spread across more dimensions; in low dimensional space, the accurate equivalent distance needs to be much higher per dimension (thus more points end up farer in $Y$, a heavier tail than in $X$).
-
 As before, a point cannot elect itself: $p_{ii} = q_{ii} = 0$ and probabilities are symmetric for both distributions: $p_{ij} = p_{ji}$ and $q_{ij} = q_{ji}$.
 As stated previously the input space $X$ has much more dimensions were distances can be expressed than the 2 dimensions of $Y$.
 In summary, t-SNE uses Kullback-Leibler divergence to minimize the mismatch of these two spaces by means of probabilities, therefore the chance of important local structures (frequent patterns) being preserved is higher than with other methods (mosts don't express this goal through an objective function).
@@ -302,14 +303,14 @@ where $Y \in \{0,1\}$ is the label: $1$ for similar pairs, $0$ otherwise; $D_W \
 The definition of similarity is left open for the application at hand.
 
 \section{CNN for Predictable Reduction}
-the method above can learn an embedding which tries to pair the way it was intended, but there is still room for improvement.
+The method above can learn an embedding which tries to pair the way it was intended, but there is still room for improvement.
 First, the structure of the resulting embedding is determined by the dataset and again we indirectly shape it by giving pairing information which helps to constraint local structures.
 However, there is no guarantee that this system will converge to an intended global structure, for example having certain deformations in a predictable ordering (\eg: from lowest to highest) or shape (\eg: a line, plane or circle).
 Secondly, the training required to make the embedding may converge to a desirable structure after a long time or never even with multiple run using different seeds due to the lack of constraint.
 The number of embedding dimensions, $n$, is higher than the dimension of the pairing, $1$, which is why such model is not predictable, because these dimensions gives more freedom to the model in the way to represent these pairs arbitrarily.
 
 In the intend to improve this solution, a possibility is to add more constraints directly into the optimisation process.
-We propose to give more informations for each pair which can be used in the loss function to create these enforcements.
+We propose to give more informations for each pair which can be used in the loss function to create shape and ordering enforcements.
 This method allows to control separately the usage of each dimension of the embedding to express different properties of our dataset.
 To achieve this goal, we generalize the contrastive loss to pairs having $n$ pairing labels represented into an $N$-dimensional embedding, where $n \leq N$ by definition.
 The relation between a pairing label and its binds to certain dimensions, should be defined per a use-case basis, as the pair relation.
@@ -327,6 +328,14 @@ where $Y \in \{0,1\}^n$ with $Y_i$ being the $i$th component of $Y$, $D_{Wi} \in
 % ==============================================================================
 \chapter{Methodology}
 
+In this chapter, we will describe the general environment we used to produce our experiments and the settings to reproduce them.
+The different models we used are first introduced in details with their architecture.
+Followed by the explanation of our implementation using Caffe and Python.
+We quickly discuss how our datasets based on MNIST and NORB are generated and how they relate to the prior works.
+Finally, we discuss what quantitative measures we used for comparisons.
+
+\section{Implementation}
+
 explain our models.
 lenet archi.
 layers, parameters.
@@ -338,9 +347,12 @@ give arguments why.
 how we used caffe: built-in solver.
 use python to feed-forward, test.
 
+
 developed own web plotter for interactive.
 display sample images, filtering/highlights capabilities, zoom, move.
 good insight and feedback of results.
+
+\section{Training and testing}
 
 introduce datasets: mnist and norb.
 mnist use lenet archi.
@@ -379,6 +391,10 @@ can add norb, when finished.
 
 % ==============================================================================
 \chapter{Conclusion}
+
+summarize work.
+
+future works.
 
 % bibliography
 \bibliography{thesis}{}
