@@ -172,6 +172,9 @@ Moreover they describe qualitatively the coherence of the embedding but doesn't 
 
 % ==============================================================================
 \chapter{Theory: Neural Networks}
+We introduce the general layout of neural networks and their mathematical foundations.
+The important differences between NN and CNN is discussed and we briefly justify why CNN is so predominant in computer vision tasks.
+An intuitive explanation of embeddings is given and will be used later for dimensionality reduction.
 
 \section{NN and CNN Classifier}
 %introduce CNN and embeddings
@@ -203,7 +206,7 @@ the choice of the layer is justified by the fact that: deeper layers extract mor
 that's why this last layer tend to cluster samples of the same class together while separating the rest\cite{donahue2013decaf}\cite{yu2014visualizing}.
 thus it is reasonable to evaluate the quality of this embedding as a dimensionality reduction method with great potential to capture more information compared to PCA which captures linear correlations.
 it is important to note that t-SNE plays an important role in the quality of this 2D embedding by preserving structures but it should be said also that t-sne cannot separate the original dataset as well as with the help of the classifier features.
-Because t-SNE has no knowledge of the labels, it is the classifier who improves the quality of the structures of the final embedding, because it learned specialized filters to distinguish the classes.
+Because t-SNE has no knowledge of the labels, it is the classifier who improves the quality of the structures of the final embedding as we'll show later, because it learned specialized filters to distinguish the classes.
 This justifies why we combined CNN classifiers with t-SNE to create a 2D embedding for our visualisations.
 
 
@@ -359,6 +362,9 @@ contribution: how we can compute our energy-distance for comparisons.
 \chapter{Results and Discussion}
 
 tables and graphs: loss of training (for major models), add accuracy for comparison, compare lecun with ours (energy-distance).
+
+show t-sne on mnist
+compare to t-sne on classifier embedding.
 
 \section{t-SNE on LeNet}
 explain what we found using t-SNE on last layer of lenet, on mnist.
