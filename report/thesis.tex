@@ -165,11 +165,12 @@ The latter proposes to creates a dimensionality reducing mapping by training a C
 Their results using MINST shows that CNN can learn a mapping that distinguish labels, and group alike digits even when they are translated artificially.
 They experimented with NORB as well with intriguing results: each sample is mapped on a 3D cylinder whose axises quantify the orientation in 2D and the azimuth angle in 1D.
 The network was successfully trained to ignore lighting conditions, which is a strong non-linear distortions.
-They use the Siamese training architecture to present image pairs which are optimized to be close if similar or far otherwise.
+They use the Siamese training architecture to present image pairs which are optimized to be close if similar or far otherwise\cite{bromley1993signature}\cite{chopra2005learning}.
 There are several advantages of such method: the cost penalty is very low and only present in training, the usage of standard CNN allow more freedom for experiments with different architectures and the proposed loss function is effective and simple.
 
 However distortions are damped instead of being quantified in a predictable way where we think the distortion information is valuable later on.
 Moreover they describe qualitatively the coherence of the embedding but doesn't provide nor propose a formal way to measure and compare its quality.
+We used this paper as our primary reference for experiments to continue improving their ideas in this work.
 
 
 % ==============================================================================
@@ -287,12 +288,14 @@ For example to create an embedding with chosen properties directly found into th
 Moreover the ideas presented by reduction methods like t-SNE can be formulated in different terms to be applicable to NN.
 In our case the most important idea is to keep similar points together and dissimilar far.
 
-One solution is the siamese network with a contrastive loss which is used only for the optimisation phase.
-The siamese architectural idea is to create two weight-sharing instances of a network where a pair of two samples are fed at once, one per network.
-The distance between the two outputs is used to compute the error against the label for the pair.
-when the training is complete, a single instance of this network is used to feed an input which gives the dimensionality-reduced point.
+The Siamese network combined with a contrastive loss is a good practical solution to train such networks.
+Let us define $G_W$, the function that computes the network output, with parameters $W$.
+Then the Siamese network put two weight-sharing instances of $G_W$ side by side, each having their own separate input.
+This architectural idea is to create two instances of $G_W$ where their weights $W$ are shared.
+On top of this Siamese network is placed the ``cost module'', the contrastive loss, which will compute a loss proportional to the difference between the two output.
+The complete network takes a pair of images as input, each image fed into a single $G_W$ instance, and the output is computed over their outputs.
+When the network is used, only a single instance $G_W$ is required to feed an input which gives the dimensionality-reduced point.
 % FIXME: figure.
-In this architecture, a labels describes whether or not a pair should be close in the embedding.
 
 The contrastive loss function is based on energy models but a single attractive term is not sufficient because it would allow degenerate solutions where all points squashed together; thus an opposing term to push dissimilar pairs should appear as well.
 The definition of the contrastive loss for a pair is as follow:
@@ -301,6 +304,7 @@ The definition of the contrastive loss for a pair is as follow:
 \end{eqnarray}
 where $Y \in \{0,1\}$ is the label: $1$ for similar pairs, $0$ otherwise; $D_W \in \R^N$ is the difference between the two network outputs and the parameter $m \in \R$ defines the minimal distance between dissimilar points.
 
+With this cost function, a label describes whether or not a pair should be close in the embedding.
 The definition of similarity is left open for the application at hand.
 
 \section{CNN for Predictable Reduction}
@@ -327,26 +331,54 @@ where $Y \in \{0,1\}^n$ with $Y_i$ being the $i$th component of $Y$, $D_{Wi} \in
 
 
 % ==============================================================================
-\chapter{Methodology}
+\chapter{Methodology and Results}
 
-In this chapter, we will describe the general environment we used to produce our experiments and the settings to reproduce them.
+In this chapter, we will describe the general environment we used to produce our experiments, the settings to reproduce them and their results.
 The different models we used are first introduced in details with their architecture.
 Followed by the explanation of our implementation using Caffe and Python.
-We quickly discuss how our datasets based on MNIST and NORB are generated and how they relate to the prior works.
-Finally, we discuss what quantitative measures we used for comparisons.
+We quickly discuss how our datasets are generated based on MNIST and NORB.
+We present what we use to quantitatively measure our results that we use later for comparisons with prior art.
 
-\section{Implementation}
+\section{Models and parameters}
 
-explain our models.
+%explain our models.
+As previously said, we are closely following the work of our reference paper \cite{hadsell2006dimensionality}.
+Therefore, We employed the two different models they choose to experiment with the two popular datasets MNIST and NORB, one model per dataset.
+The first model is {\bf LeNet 5}, a multi-layer neural networks that features an architecture specialized for handwritten characters.
+It is with no surprise that they are using it for MNIST, which is a handwritten digit dataset.
+We are using a very close fine-tuned variant with minor changes.
+This network architecture is comprised of a total of 7 layers with trainable parameters.
 
-lenet archi.
+The first part of this network is comprised of two pairs of convolution-pooling layers, where convolution kernels share their weights.
+As explained earlier, each convolution is applied to the entire image to create a single feature map.
+The first convolutional layer has 20 different trainable $5 \times 5$ kernels, which is followed by a trainable $2 \times 2$ max-pooling layer (with a stride of $2$).
+The second convolutional layer has 50 trainable $5 \times 5$ kernels, followed again by a $2 \times 2$ max-pool layer (stride $2$).
+The convolutional network ({\em convnet}) part, made by these two pairs of layers, are {\em feature extractors} for this network, it will extract features related to high-level cues to detect digits (\eg: straight or curved strokes).
 
-layers, parameters.
+The second part of this network is composed of two fully-connected layers where only the first one is followed by a non-linear layer.
+The first layer has 500 trainable units computing an inner-product, followed by a non-trainable Rectified Linear Unit (ReLU) activations\cite{nair2010rectified}, followed by 10 trainable output units computing an inner-product which gives the digit class (1 versus rest).
+
+The second model is composed of only two fully-connected inner-product layers.
+This network is much simpler than the one above because it is trained on a subset of the NORB dataset, which exhibits very few variability (compared to MNIST).
+The two layers are made of 20 and 3 trainable units respectively, without non-linearity between them. % FIXME: non-linearity, really?
+
+In the following experiments, we will train our variant of LeNet in two different ways: for digit classification to analyze the ``natural'' embedding and with a Siamese training architecture with the contrastive loss function to analyze a ``constrained'' embedding.
+For our second model, we will only train a ``constrained'' embedding with the Siamese architecture for NORB, like in our reference paper.
+It is important to note that in the LeNet ``constrained'' experiment we keep only a single fully-connected layer with the number of trainable units equals to the embedding dimensions (\eg: $2$ or $3$).
+The motivation is that the classification task is built on top of the network stack generating this embedding but in our second experiment we need this output rawly, like in our reference paper.
+
+In the case of digit classification, the model is trained using Stochastic Gradient Descend (SGD) with a learning rate of 0.01 optimizing a SoftMax loss function.
+Siamese models are trained with SGD with a learning rate between 0.01 and 0.001 optimizing the contrastive loss.
+
+how are models trained in caffe.
+
+guideline to reproduce, parameters and stuff.
+
+give for mnist and norb.
 
 add figure.
 
 we cut the last layer, give same archi as paper.
-
 
 use of Caffe.
 
@@ -356,19 +388,16 @@ how we used caffe: built-in solver.
 
 use python to feed-forward, test.
 
-
 developed own web plotter for interactive.
 
 display sample images, filtering/highlights capabilities, zoom, move.
 
 good insight and feedback of results.
 
-\section{Training and testing}
-
+\subsection{Datasets}
 introduce datasets: mnist and norb.
 
 mnist use lenet archi.
-
 
 how we create our train/test dataset
 
@@ -380,26 +409,17 @@ reproduce lecun mnist and norb.
 
 we use 3d for mnist, compare with lecun project 2d.
 
-
-how are models trained in caffe.
-
-guideline to reproduce, parameters and stuff.
-
-give for mnist and norb.
-
-
+\section{Evaluation Metrics}
 contribution: how we can compute our energy-distance for comparisons.
 
-
-% ==============================================================================
-\chapter{Results and Discussion}
+\section{Results and Discussion}
 
 tables and graphs: loss of training (for major models), add accuracy for comparison, compare lecun with ours (energy-distance).
 
+\subsection{t-SNE on LeNet}
 show t-sne on mnist
 compare to t-sne on classifier embedding.
 
-\section{t-SNE on LeNet}
 explain what we found using t-SNE on last layer of lenet, on mnist.
 
 people add distorted samples to their dataset (data augmentation) so models can learn to be transfo invariant, but results shows the embedding cluster them into clusters per transfo instead of per label [XXX].
@@ -408,6 +428,8 @@ people add distorted samples to their dataset (data augmentation) so models can 
 explain what we found using double-contrastive loss with lenet, on mnist.
 
 can add norb, when finished.
+
+usecase of predictable disto
 
 
 % ==============================================================================
