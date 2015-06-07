@@ -370,25 +370,30 @@ The motivation is that the classification task is built on top of the network st
 In the case of digit classification, the model is trained using Stochastic Gradient Descend (SGD) with a learning rate of 0.01 optimizing a SoftMax loss function.
 Siamese models are trained with SGD with a learning rate between 0.01 and 0.001 optimizing the contrastive loss.
 
-how are models trained in caffe.
+For this project we chose the {\bf Caffe} deep-learning framework to train our models.
+There are several reasons among them: the simplicity to express networks, train or manipulate them; Caffe includes several network implementations for MNIST with LeNet and Siamese networks, for ImageNet with AlexNet, GoogLeNet where pre-trained versions are available; Moreover Caffe is well optimized C++ with CUDA GPU parallelism, it is flexible including official Python and MatLab bindings and its community is very active and helpful.
 
-guideline to reproduce, parameters and stuff.
+For our experiments on MNIST we could easily adapt the provided LeNet to match the architecture design discussed above.
+For the second non-convolutional network, we wrote the network definition ourself due to the triviality of this task.
+The training stage need many special parameters related to the solver (SGD): learning rate, batch size, momentum, weight decay (gamma and power) and number of epoch.
+They were kept unchanged because the Caffe community already fine-tuned them.
+We limited all our experiments to $10'000$ iterations, with a batch size of $64$.
+All our networks were trained using the Caffe built-in solver provided with the binary using {\tt caffe train}.
 
-give for mnist and norb.
+% FIXME: add figures
 
-add figure.
-
-we cut the last layer, give same archi as paper.
-
-use of Caffe.
-
-give arguments why.
-
-how we used caffe: built-in solver.
+Most of our experiments were implemented using the Python scripting language: to generate our transformed datasets, to compute quantitative measures and visualization projections.
+We created our own set of tools to generate distorted training sets for our t-SNE experiments and to generate the distorted pairs training sets for our two Siamese experiments.
+The scikit-learn Python library ({\em sklearn}) now implements most of the standard algorithms for machine learning including the one we used: PCA and t-SNE\cite{pedregosa2011scikit}.
+The performance of t-SNE depends heavily on the number of input dimensions and in our experiments we had to apply PCA on our datasets first like other papers suggest\cite{t-SNE} (to compute t-SNE in a reasonable amount of time).
+We followed sklearn suggesting to always reduce to $50$ dimensions with PCA before applying t-SNE\footnote{t-SNE documentation page: \url{http://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html}}.
+% FIXME: make source available?
 
 use python to feed-forward, test.
 
-developed own web plotter for interactive.
+For the visualization of our resulting embeddings, we also implemented our own solution based on the web library {\em CanvasJS}.
+We use it to make an interactive scatter plots directly from the output of t-SNE or the neural networks.
+Several features were already provided: coloring points, fast plotting for interactivity; But some were implemented ourself: zooming and moving the viewport, display the image of any sample and filtering capabilities to our own application.
 
 display sample images, filtering/highlights capabilities, zoom, move.
 
