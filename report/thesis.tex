@@ -102,17 +102,16 @@ use case (medical imaging)
 % explain each paper, group them and discuss result adv/drawbacks
 
 More than 20 years ago, researchers discovered that {\em Neural Networks} (NN) is a highly flexible model architecture to solve many classification problems.
-Today, many state-of-the-art models use improved NN for computer vision tasks like MNIST \cite{mnist_web} and ImageNet \cite{krizhevsky2012imagenet}, face detection as well \cite{rowley1998neural} and many more \cite{prechelt1994proben1}.
-
-Most of today models are using {\em Convolutional Neural Networks} (CNN) which are a specialized variant working well for visual tasks.
+Most of today models are using {\em Convolutional Neural Networks} (CNN) which are a specialized variant working well for visual tasks like MNIST \cite{mnist_web} and ImageNet \cite{krizhevsky2012imagenet}, face detection as well \cite{rowley1998neural} and many more \cite{prechelt1994proben1}.
 This architecture is more efficient for computer vision problems, partly because the convolutions share their weights in the first layers to extract spatial cues.
 
 Current researches is mainly focused on advancing into more complex classification problems using Deep Learning.
 This field suggests to improve the current results by deepening the architecture in terms of number of layers to express more abstract and higher-level concepts.
-Unfortunately, more layers require more computations than before but researchers started to overcome this challenge.
-Ways to speed up the training and the classification appeared and were greatly beneficial for the development of this field in recent years\cite{ciresan2011flexible}.
+Unfortunately, more layers require more computations than before due to the increase of parameters but researchers started to overcome this challenge.
+Ways to speed up the training and the classification appeared and were greatly beneficial for the development of this field in recent years\cite{ciresan2011flexible}\cite{schmidhuber2015deep}\cite{nasse2009face}. % FIXME: more citations
+The use of GPUs parallelism and cloud computing allowed scaling up to much deeper architecture (with much more parameters) than before\cite{coates2013deep}.
 %paper: Flexible, high performance convolutional neural networks for image classification
-Both researchers and professional programmers built various frameworks to train and to use NN with many different targets, like: performance, accessibility or composability.
+Both researchers and professional programmers built various frameworks to train and to use NN with many different goals, like: performance, accessibility or composability.
 The most popular are: Theano\cite{bastien2012theano}, Caffe\cite{jia2014caffe}, Torch7\cite{collobert2011torch7}, Pylearn2\cite{goodfellow2013pylearn2}.
 We decided to leverage the efficiency and modularity proposed by Caffe for several reasons described later.
 %deeper architectures improves accuracy on more complex tasks, people found optimisations to make them fast.
@@ -122,24 +121,16 @@ Some papers work on reliable ways to fool networks using adverserial attacks whi
 Most publications don't try to formally justify their good results because it just works. % FIXME: citation needed?
 %paper: Intriguing properties of neural networks
 Indeed, relations between units are complex due do their non-linear nature, this problem is stressed by distortions present in the inputs as well.
-Moreover the input-output relation, when inputs are kept distorted on purpose, is usually either killing the signal (invariance) or not in a predictable manner (controlled preservation).
-
-%CNN are complex and strange results were found.
-%Research found multiple hypothesises.
-
-% adversial attacks, linearity of networks.
-% Towards Deep Neural Network Architectures Robust To Adversarial Examples
-% Analysis of classifiers' robustness to adversarial perturbations
-
-The manifestation of this relation can be looked visually using methods to process the output into an other form.
+%Moreover the input-output relation, when inputs are kept distorted on purpose, is usually either killing the signal (invariance) or not in a predictable manner (controlled preservation). % FIXME: keep this sentence for later?
 It is not possible to directly look at the high-dimensional embedding, because we cannot easily plot nor interpret so many dimensions.
-Dimensionality reduction methods is a popular tool in such case and several methods exist that are specialized for visualization.
+The manifestation of this relation can be looked visually using methods to produce an alternative human-friendly representation.
 
 % moved from dim red chapter
-Standard methods like PCA, MDS for example, are used for reducing dimensions usually as a preprocessing step and they are limited to linearities of the data.
+Dimensionality reduction methods is a popular tool in such case\cite{dai2014document}\cite{taylor2011learning} and several methods exist that are specialized for visualization.
+Standard methods like PCA, MDS\cite{cox2000multidimensional} for example, are used for reducing dimensions usually as a preprocessing step and they are limited to linearities of the data.
 Their primary characteristic is to maximize the variance of the original data which is important for reconstruction but not necessarily for visualization.
 Other non-linear dimensionality reduction methods, use an optimisation algorithm with a loss function which improve their flexibility for other purpose like visualization.
-They preserve local structure/cluster like: isomap, LLE, SNE, (and more).
+They preserve local structure/cluster like: Isomap{tenenbaum2000global}, LLE\cite{roweis2000nonlinear} and SNE\cite{SNE}.
 Most of the methods fails to keep global clusters and local details at the same time where as the latest papers show SNE a better potential\cite{SNE}.
 %paper: Stochastic Neighbor Embedding
 
@@ -148,7 +139,7 @@ SNE has introduced a better maximization problem to preserve point neighborhood 
 However it suffers from ``center-crowdedness'' and has difficulties in optimisation\cite{t-SNE}.
 That's why papers are using t-SNE, a variant of SNE, to reduce CNN embeddings into a 2D human-friendly manifold. % FIXME: more cite?
 This method exhibits an easier optimisation formulation and it preserve more structures at diverse scales.
-More convincing examples were created with t-SNE directly from raw popular datasets like MNIST\cite{t-SNE} and more\cite{van2009new}.
+More convincing examples were created with t-SNE directly from raw popular datasets\cite{van2009new} like MNIST\cite{t-SNE}.
 
 It has become possible to easily see many more details in CNN embeddings: how samples are grouped depending on multiple factors: essentially based on similarity of the digits (strokes, thickness and shapes) and natural variance (rotation).
 %Although it is unintuitive, this can be seen by inspecting the embedding.
@@ -162,21 +153,25 @@ Some papers proposes to learn transformation-invariant embeddings, by means of m
 %paper: Dimensionality Reduction by Learning an Invariant Mapping
 
 The latter proposes to creates a dimensionality reducing mapping by training a CNN using a new loss function based on energy models, called the {\em contrastive loss}.
-Their results using MINST shows that CNN can learn a mapping that distinguish labels, and group alike digits even when they are translated artificially.
-They experimented with NORB as well with intriguing results: each sample is mapped on a 3D cylinder whose axises quantify the orientation in 2D and the azimuth angle in 1D.
+Their results using on the MINST dataset\cite{lecun1998mnist} shows that CNN can learn a mapping that distinguish labels, and group alike digits even when they are translated artificially.
+They experimented with the NORB dataset\cite{lecun2004learning} as well with intriguing results: each sample is mapped on a 3D cylinder whose axises quantify the orientation in 2D and the azimuth angle in 1D.
 The network was successfully trained to ignore lighting conditions, which is a strong non-linear distortions.
 They use the Siamese training architecture to present image pairs which are optimized to be close if similar or far otherwise\cite{bromley1993signature}\cite{chopra2005learning}.
 There are several advantages of such method: the cost penalty is very low and only present in training, the usage of standard CNN allow more freedom for experiments with different architectures and the proposed loss function is effective and simple.
 
-However distortions are damped instead of being quantified in a predictable way where we think the distortion information is valuable later on.
-Moreover they describe qualitatively the coherence of the embedding but doesn't provide nor propose a formal way to measure and compare its quality.
+%Moreover the input-output relation, when inputs are kept distorted on purpose, is usually either killing the signal (invariance) or not in a predictable manner (controlled preservation). % FIXME: keep this sentence for later?
+However the input-output relations of distorted images is usually damped instead of being quantified in a predictable way.
+We think the distortion information should be kept because they are valuable later on.
+Besides, the reference paper provides subjective comments of the embedding coherence (description and figure) but they don't offer nor propose a formal way to measure and compare its quality objectively.
 We used this paper as our primary reference for experiments to continue improving their ideas in this work.
+
+In this work, we will present a practical solution towards predictable embedding with respect to distortion and offer a qualitative measure to compare similar methods. % FIXME: review
 
 
 % ==============================================================================
 \chapter{Theory: Neural Networks}
 We introduce the general layout of neural networks and their mathematical foundations.
-The important differences between NN and CNN is discussed and we briefly justify why CNN is so predominant in computer vision tasks.
+The important differences between {\em Neural Networks} (NN) and {\em Convolutional Neural Networks} (CNN) are discussed and we briefly justify why CNN is so predominant in computer vision tasks.
 An intuitive explanation of embeddings is given and will be used later for dimensionality reduction.
 
 \section{NN and CNN Classifier}
@@ -223,7 +218,7 @@ In our experiments, we will apply dimensionality reduction especially on our neu
 This allows us to quickly compare (qualitatively) the impact of controlled distortions applied on images over networks' outputs.
 The structure inferred by distances between points such as clusters, intra-cluster neighbors and inter-cluster outsiders reveals important properties of neural network models.
 Thus we need accurate low-dimensional representations of embeddings that preserve local distances to compare different models.
-In the following sections, we will discuss dimensionality reduction methods that weren't fit for our uses, then we introduce the one we used, called t-SNE, in details.
+In the following sections, we will discuss dimensionality reduction methods that weren't fit for our uses, then we introduce in details the one we used, called t-SNE.
 
 \section{Optimisation Problem}
 Various algorithms differentiate themselves by several properties: their goal (\eg: interpolation, compression, visualization), by what they preserve (\eg: variance, distances), how they model point correlation (\eg: linearly or not) or whether they can model new points (\eg: a representation or a mapping).
@@ -235,11 +230,12 @@ Considering the previous works we discussed above, t-SNE is the best candidate i
 We now define the method objective functions, probabilities and explain intuitive properties.
 
 %introduce theory of SNE, then t-SNE modification.
-Let's define input space $X = \left\{ x_1, x_2, \dots, x_n \right\}$ then the goal is to map into a lower-space $Y = \left\{ y_1, y_2, \dots, y_m \right\}$, where $n$ is very high (around a few hundreds to thousands, \eg: mnist pixels dimensions: 784) and $m$ is $2$ or $3$.
+Let us define our dataset $D$ formed by points in the input-space $X$ of dimension $N$: $D = \left\{ x_1, x_2, \dots, x_n \right\}$, each $x_i \in \R^N$, and one representation $D^\ast$ in the output-space $Y$ of dimension $M$: $D^\ast = \left\{ y_1, y_2, \dots, y_n \right\}$, each $y_i \in \R^M$.
+The process of dimensionality reduction is to find the best representation $D^\ast$ that best preserves the most ``important'' information between $x_i$ and $y_i$ for each point.
 SNE uses two Gaussian distributions for each point expressing the neighbor distances in $X$ and its equivalent in $Y$.
 The Kullback-Leibler divergence is used to compute the objective function, which represents the mismatch of these two distribution for each pair:
 \begin{eqnarray}
-    L = \sum_i KL(P_i || Q_i) = \sum_i \sum_j p_{j|i} \log\left(\frac{p_{j|i}}{q_{j|i}}\right)
+    L = \sum_{i=1}^n KL(P_i || Q_i) = \sum_{i=1}^n \sum_{j=1}^n p_{j|i} \log\left(\frac{p_{j|i}}{q_{j|i}}\right)
 \end{eqnarray}
 The probability for a pair of point $x_i$ electing $x_j$ in $X$ follows a Gaussian is as follow:
 \begin{eqnarray}
@@ -257,7 +253,7 @@ Both problems were addressed in t-SNE which give very good results in practice.
 The two major differences with t-SNE is the symmetrization of the cost function and replaces the distributions of the embedding by student variants.
 In t-SNE, a single objective function is minimized:
 \begin{eqnarray}
-    L = \sum_i KL(P || Q) = \sum_i \sum_j p_{ij} \log\left(\frac{p_{ij}}{q_{ij}}\right)
+    L = \sum_{i=1}^n KL(P || Q) = \sum_{i=1}^n \sum_{j=1}^n p_{ij} \log\left(\frac{p_{ij}}{q_{ij}}\right)
 \end{eqnarray}
 where:
 \begin{eqnarray}
@@ -278,6 +274,8 @@ Global structures is encouraged by the coherence of the local structures as the 
 Usual dimensionality reductions like t-SNE are helpful for many visualizing tasks but it has important drawbacks as well.
 We think the most important ones are: the computational cost, the incapacity of mapping new points and the indirect control over the resulting embedding.
 Current implementations of t-SNE are still rare, unpolished and require tricks to make them tractable in practice (\eg: reducing first with PCA).
+Moreover, there is currently no way with t-SNE to map new points (not in $D$) without optimizing the whole system from scratch.
+Besides, t-SNE parameters like perplexity and learning rate are not simple to chose.
 Fortunately there are new promising alternatives emerging directly harnessing the power of NN.
 We introduce such models in the following section.
 
@@ -321,8 +319,8 @@ To achieve this goal, we generalize the contrastive loss to pairs having $n$ pai
 The relation between a pairing label and its binds to certain dimensions, should be defined per a use-case basis, as the pair relation.
 
 We now introduce our loss function with a formal definition.
-Let's define $N$ as the number of embedding dimensions, $n$ the dimensions of the labels, where $n \leq N$ as before.
-Let's define $D \in \N^n$ as the number of embedding dimension assigned per label, then we restrain ourself to: $\sum_i^n D_i = N$, which states each dimension should be assigned to a single label.
+Let us define $N$ as the number of embedding dimensions, $n$ the dimensions of the labels, where $n \leq N$ as before.
+We define $D \in \N^n$ as the number of embedding dimension assigned per label, then we restrain ourself to: $\sum_i^n D_i = N$, which states each dimension should be assigned to a single label.
 The definition of the generalized $n$-dimensional contrastive loss for a pair is as follow:
 \begin{eqnarray}
     L = \frac{1}{2} \sum_{i=0}^n \left( Y_i (D_{Wi})^2 + (1-Y_i) \max(0, m_i - D_{Wi})^2 \right)
@@ -389,18 +387,36 @@ The performance of t-SNE depends heavily on the number of input dimensions and i
 We followed sklearn suggesting to always reduce to $50$ dimensions with PCA before applying t-SNE\footnote{t-SNE documentation page: \url{http://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html}}.
 % FIXME: make source available?
 
-use python to feed-forward, test.
-
-For the visualization of our resulting embeddings, we also implemented our own solution based on the web library {\em CanvasJS}.
-We use it to make an interactive scatter plots directly from the output of t-SNE or the neural networks.
-Several features were already provided: coloring points, fast plotting for interactivity; But some were implemented ourself: zooming and moving the viewport, display the image of any sample and filtering capabilities to our own application.
-
-display sample images, filtering/highlights capabilities, zoom, move.
-
-good insight and feedback of results.
+For the visualization of our resulting embeddings, we developed our own solution based on the web library {\em CanvasJS}.
+Its main advantage is to allow to interactively visualize with scatter plots directly from the output of t-SNE or the neural networks.
+Several features were already provided: coloring points, fast plotting for interactivity; But some were implemented ourself: zooming and moving the viewport, display the image of any sample and filtering/highlighting capabilities to our own application.
+All this functionalities give us the necessary tools to inspect qualitatively the results so that at the end we possess the insights we needed.
 
 \subsection{Datasets}
-introduce datasets: mnist and norb.
+%introduce datasets: mnist and norb.
+To perform our experiments, we used two different datasets: {\bf MNIST}\cite{lecun1998mnist} (popular handwritten digit dataset) and {\bf NORB}\cite{lecun2004learning} (popular figures photography dataset).
+We briefly present each dataset with some sample images, we give a few insights about their variability and their usual usage in computer vision.
+
+The {\bf MNIST} dataset ({\em modified National Institute of Standards and Technology}) is a gathering of multiple databases of handwritten digits.
+One of the goal of MNIST is to provide a unified benchmark for digit recognition and it is widely used in Computer Vision for many years.
+It is composed of $60'000$ training and $10'000$ testing images of digits between $0$ and $9$.
+The samples are heavily post-processed: uniform black background, white-shaded digits with bold strokes.
+The digits are centered such that the gravity center is in the middle and size-normalized so one digit lies inside a restrained sub-region of the $28 \times 28$ bitmap.
+The variability of this dataset lies in the different strokes, different writer styles, natural rotations, thickness, curve roundedness and such.
+The MNIST dataset is considered nowadays extremely simple, like a toy example due to the lack of natural variability and because state-of-the-art achieved extremely good results.
+However it is still a good subject of experiments to try and validate new ideas easily as it is in our case.
+% FIXME: sample figure
+
+The {\bf NORB} dataset ({\em NYU Object Recognition Benchmark}) is a collection of photos of toy figures taken from a variety of contiguous poses.
+This dataset has two variants where we picked the normalized-uniform set.
+Its usage is also intended for benchmark, in ``large-scale invariant object categorization''.
+It is composed of $48'600$ processed photos of toy figures.
+The dataset is made by combining: $9$ elevation views, $18$ azimuth views, $6$ illumination conditions and $5$ toys categories, each containing $10$ toys.
+The categories are: humans, animals, airplanes, trucks and cars.
+The usual training task is to recognize the toy category whatever viewpoint or illumination is used.
+However the reference paper uses only the images of a single plane toy, to infer a representation of the distortions in 3D.
+As we are doing comparisons with their methods, we will use the same toy to make our results as well.
+% FIXME: sample figure
 
 mnist use lenet archi.
 
