@@ -1,6 +1,7 @@
 import caffe
 import numpy as np
 import os
+import sys
 
 class OwnContrastiveLossLayer(caffe.Layer):
 
@@ -84,10 +85,10 @@ class OwnDoubleContrastiveLossLayer(caffe.Layer):
         loss1 = np.sum(losses1a + losses1b)
         loss2 = np.sum(losses2a + losses2b) * self.C
         if os.environ.get('contrastive_debug', ''):
-         print "Loss (%i): %s" % \
+         sys.stderr.write("Loss (%i): %s\n" % \
                  (bottom[0].num, " ".join(
                      map(lambda x: "%f" % (np.sum(x) / 2.0 / bottom[0].num),
-                     [losses1a, losses1b, losses2a, losses2b])))
+                     [losses1a, losses1b, losses2a, losses2b]))))
         top[0].data[0] = (loss1 + loss2) / 2.0 / bottom[0].num
 
     def backward(self, top, propagate_down, bottom):
@@ -146,10 +147,10 @@ class OwnDouble2DContrastiveLossLayer(caffe.Layer):
         loss1 = np.sum(losses1a + losses1b)
         loss2 = np.sum(losses2a + losses2b) * self.C
         if os.environ.get('contrastive_debug', ''):
-         print "Loss (%i): %s" % \
+         sys.stderr.write("Loss (%i): %s\n" % \
                  (bottom[0].num, " ".join(
                      map(lambda x: "%f" % (np.sum(x) / 2.0 / bottom[0].num),
-                     [losses1a, losses1b, losses2a, losses2b])))
+                     [losses1a, losses1b, losses2a, losses2b]))))
         top[0].data[0] = (loss1 + loss2) / 2.0 / bottom[0].num
 
     def backward(self, top, propagate_down, bottom):
