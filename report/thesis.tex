@@ -23,8 +23,8 @@
 \fancyfoot{}
 
 \newcommand{\myname}{Axel Angel}
-\newcommand{\mytitle}{Towards Predictable Embedding of Convolutional Neural Networks}
-\newcommand{\mysubtitle}{Report}
+\newcommand{\mytitle}{Towards Distortion-Predictable Embedding of Neural Networks}
+\newcommand{\mysubtitle}{Thesis}
 \newcommand{\mydate}{\today}
 
 \newcommand{\N}{\mathbb{N}}
@@ -237,7 +237,7 @@ The Kullback-Leibler divergence is used to compute the objective function, which
 \begin{eqnarray}
     L = \sum_{i=1}^n KL(P_i || Q_i) = \sum_{i=1}^n \sum_{j=1}^n p_{j|i} \log\left(\frac{p_{j|i}}{q_{j|i}}\right)
 \end{eqnarray}
-The probability for a pair of point $x_i$ electing $x_j$ in $X$ follows a Gaussian is as follow:
+The probability for a pair of point $x_i$ electing $x_j$ in $X$ follows a Gaussian is as follows:
 \begin{eqnarray}
     p_{j|i} = \frac{\exp(-|x_i - x_j|^2 / 2 \sigma_i^2)}{\sum_{k \not = i} \exp(-|x_i - x_k|^2 / 2 \sigma_i^2 )}
     %&
@@ -296,7 +296,7 @@ When the network is used, only a single instance $G_W$ is required to feed an in
 % FIXME: figure.
 
 The contrastive loss function is based on energy models but a single attractive term is not sufficient because it would allow degenerate solutions where all points squashed together; thus an opposing term to push dissimilar pairs should appear as well.
-The definition of the contrastive loss for a pair is as follow:
+The definition of the contrastive loss for a pair is as follows:
 \begin{eqnarray}
     L = \frac{1}{2} Y (D_W)^2 + \frac{1}{2} (1-Y) \max(0, m - D_W)^2
 \end{eqnarray}
@@ -310,22 +310,23 @@ The method above can learn an embedding which tries to pair the way it was inten
 First, the structure of the resulting embedding is determined by the dataset and again we indirectly shape it by giving pairing information which helps to constraint local structures.
 However, there is no guarantee that this system will converge to an intended global structure, for example having certain deformations in a predictable ordering (\eg: from lowest to highest) or shape (\eg: a line, plane or circle).
 Secondly, the training required to make the embedding may converge to a desirable structure after a long time or never even with multiple run using different seeds due to the lack of constraint.
-The number of embedding dimensions, $n$, is higher than the dimension of the pairing, $1$, which is why such model is not predictable, because these dimensions gives more freedom to the model in the way to represent these pairs arbitrarily.
+The number of embedding dimensions, $M$, is higher than the dimension of the pairing, $1$, which is why such model is not predictable, because these dimensions gives more freedom to the model in the way to represent these pairs arbitrarily.
 
 In the intend to improve this solution, a possibility is to add more constraints directly into the optimisation process.
 We propose to give more informations for each pair which can be used in the loss function to create shape and ordering enforcements.
 This method allows to control separately the usage of each dimension of the embedding to express different properties of our dataset.
-To achieve this goal, we generalize the contrastive loss to pairs having $n$ pairing labels represented into an $N$-dimensional embedding, where $n \leq N$ by definition.
+To achieve this goal, we generalize the contrastive loss to pairs having $p$ pairing labels represented into an $M$-dimensional embedding, where $p \leq N$ by definition.
 The relation between a pairing label and its binds to certain dimensions, should be defined per a use-case basis, as the pair relation.
 
 We now introduce our loss function with a formal definition.
-Let us define $N$ as the number of embedding dimensions, $n$ the dimensions of the labels, where $n \leq N$ as before.
-We define $D \in \N^n$ as the number of embedding dimension assigned per label, then we restrain ourself to: $\sum_i^n D_i = N$, which states each dimension should be assigned to a single label.
-The definition of the generalized $n$-dimensional contrastive loss for a pair is as follow:
+Let us define $M$ as the number of embedding dimensions, $p$ the dimensions of the labels, where $p \leq M$ as before.
+We define $D \in \N_+^p$ as the number of embedding dimensions assigned for each label.
+We restrain ourself to problems where each dimension is assigned to a single label and no dimension is unconstrained: $\sum_i^p D_i = M$.
+The definition of the generalized $p$-dimensional contrastive loss for a pair is as follows:
 \begin{eqnarray}
-    L = \frac{1}{2} \sum_{i=0}^n \left( Y_i (D_{Wi})^2 + (1-Y_i) \max(0, m_i - D_{Wi})^2 \right)
+    L = \frac{1}{2} \sum_{i=1}^p \left( Y_i (D_{Wi})^2 + (1-Y_i) \max(0, m_i - D_{Wi})^2 \right)
 \end{eqnarray}
-where $Y \in \{0,1\}^n$ with $Y_i$ being the $i$th component of $Y$, $D_{Wi} \in \R^{D_i}$ is the difference between the two points in the sub-embedding for dimensions of the $i$th component, and $m_i \in \R$ is the minimal distance for dimension $i$.
+where $Y \in \{0,1\}^p$ with $Y_i$ being the $i$th component of $Y$, $D_{Wi} \in \R^{D_i}$ is the difference between the two points in the sub-embedding for dimensions of the $i$th component, and $m_i \in \R$ is the minimal distance for dimension $i$.
 
 
 % ==============================================================================
@@ -423,23 +424,32 @@ Our experiments require to process the images in a systematic and coherent way.
 We are using Python scripts to automatically derive our training and testing set in a predictable way based on the original dataset (MNIST and NORB).
 The training architecture apply sequentially SGD over the samples in batch as they appear and it loops over the whole dataset if the number of iterations hasn't reached zero.
 The generation of our datasets depends on multiple parameters related to the experiment.
-In the case of the t-SNE visualization, we create a distorted dataset containing each sample as is plus its distortions varying in strength but using one transformation at a time.
-Each distortions is applied with increasing strength: translations and shearing using pixel displacement, rotations using positive and negative angles and blurring with averaging radius.
-In the case of Siamese training, we create paired datasets: containing pairs of distorted images with their similarity.
-Images in a pair can have different distortions and different class (digit for MNIST, elevation/azimuth for NORB) and still be paired (label 1), depending on the experiment.
+In the case of the t-SNE visualization, we create a distorted dataset containing each sample plus its distorted versions varying in strength, where each image has only a single transformation at a time.
+The samples are all distorted using the same set of intensities, quantified as follows: translations and shearing using pixel displacement, rotations using positive and negative angles and blurring with averaging radius.
+In the case of Siamese training, we create paired datasets: containing two distorted images with their similarity (1 or 0).
+Images in a pair can have different distortions and different classes (digit for MNIST, elevation/azimuth for NORB) and still be paired (label 1), depending on the experiment.
 % FIXME: add figure example of distortions, etc
 % FIXME: add figure example of pairs
 
 % FIXME: continue explain mnist with t-sne
 
 % for siamese
-In order to compare our results to our reference paper, we trained two Siamese models using their settings on MNIST and NORB.
+In order to compare our results to our reference paper, we trained two Siamese models replicating their settings on MNIST and NORB.
 One of the most important factor for training a Siamese network comes from the pairing method: which samples are considered a pair, which are not.
-The results are extremely sensitive to minor change in a pairing with regard to distortions and neighborhood samples.
-The pairing strategy of our reference is as follows: For each sample, they pick the 5 most similar digits using the euclidean distance in pixel space and pair as follows.
-The sample and its translations are all paired to its 5 neighbors and all its translations.
-Their goal is to learn a model where points are close together if they are similar without considering translations.
+The goal of our reference paper is to train a model where points are close together if they are ``visually'' similar without considering translations.
+The results are extremely sensitive to minor changes with regard to pairing distortions, neighborhood samples together and the ordering which can end with important overlapping or incoherent neighborhood.
+The implementation of their pairing strategy is as follows.
+First they group each sample into a common ``neighborhood'' relation the 5 most similar ones using the euclidean distance in pixel space.
+The sample and its $n$ translations are all paired with both its 5 neighbors and all its $n$ translations (this sums up to $n \times 5n$ pairs per sample).
+All other pairs are considered dissimilar: when the two samples are not part of the same common translated neighborhood.
+This strategy uses the regular contrastive loss function in 1D with a single similarity per pair.
 
+Our objective is similar in the sense that we want to stay invariant but only in certain dimensions of our choice.
+Our implementation can still quantify distortions by expression them in the other dimensions.
+One important advantage is to allow a more control, especially in how dimensions are used. using a single model.
+%invariance to distortion but our implementation allow to keep a predictable quantification
+Our contribution is an extension of the contrastive loss function with $p$ labels for each pair.
+As previously said, the dimensions of $p$ and the set $D$ needs to be defined considering our goal.
 
 python script, predictable.
 
