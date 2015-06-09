@@ -305,7 +305,6 @@ if __name__ == "__main__":
         rand = Random(i)
         xs = res[i]
         ns = nss[i]
-        (l0, i0, v0) = xs[idx_orig]
         (l1, i1, v1) = xs[idx_orig]
         # pick pairs, only neighbors
         for n in ns:
@@ -325,10 +324,10 @@ if __name__ == "__main__":
 
     out_imgs = []
     out_labels = []
-    #pool = multiprocessing.Pool(num_cores)
+    pool = multiprocessing.Pool(num_cores)
     pairingf = locals().get('pairing_'+ args.method)
-    #itr = pool.imap_unordered(pairingf, xrange(count))
-    itr = imap(pairingf, xrange(count))
+    itr = pool.imap_unordered(pairingf, xrange(count))
+    #itr = imap(pairingf, xrange(count))
     for it, (i, imgs, labels) in enumerate(itr):
         out_imgs.extend(imgs)
         out_labels.extend(labels)
