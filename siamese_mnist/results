@@ -42,8 +42,9 @@ lecun_siamese2Dc3_rotate180: --transfo-name rotate --transfo-values 180 135 90 4
 
 
 > replication of lecun
-lecun_siamese0c
-lecun_siamese2bv7_rotate
+lecun_siamese0c (no disto)
+lecun_siamese2bv7 (trans)
+lecun_siamese2bv7_rotate (rotate)
 > our result
 lecun_siamese2Dc3
 lecun_siamese2Dc3_rotate
@@ -55,6 +56,9 @@ lecun_siamese3Dc3b: use 2D contrastive in 3D (2D=label, 1D=transfo) n=2
 > compare two contrastive models (against double contrastive)
 lecun_siamese2Dc3_digit << TODO
 lecun_siamese2Dc3_transfo << TODO
+
+> common loss dataset (lecun X 0)
+lecun_siamese0c_test: --shuffle --transfo-name shift_x --transfo-values -6 -3 0 3 6
 
 > models
 lecun_siamese2b: use lecun_siamese2, random seed 43
