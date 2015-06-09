@@ -286,7 +286,7 @@ For example to create an embedding with chosen properties directly found into th
 Moreover the ideas presented by reduction methods like t-SNE can be formulated in different terms to be applicable to NN.
 In our case the most important idea is to keep similar points together and dissimilar far.
 
-The Siamese network combined with a contrastive loss is a good practical solution to train such networks.
+The Siamese network combined with a contrastive loss is a good practical solution to train such networks\cite{bromley1993signature}\cite{chopra2005learning}.
 Let us define $G_W$, the function that computes the network output, with parameters $W$.
 Then the Siamese network put two weight-sharing instances of $G_W$ side by side, each having their own separate input.
 This architectural idea is to create two instances of $G_W$ where their weights $W$ are shared.
@@ -418,9 +418,28 @@ However the reference paper uses only the images of a single plane toy, to infer
 As we are doing comparisons with their methods, we will use the same toy to make our results as well.
 % FIXME: sample figure
 
-mnist use lenet archi.
+%how we create our train/test dataset
+Our experiments require to process the images in a systematic and coherent way.
+We are using Python scripts to automatically derive our training and testing set in a predictable way based on the original dataset (MNIST and NORB).
+The training architecture apply sequentially SGD over the samples in batch as they appear and it loops over the whole dataset if the number of iterations hasn't reached zero.
+The generation of our datasets depends on multiple parameters related to the experiment.
+In the case of the t-SNE visualization, we create a distorted dataset containing each sample as is plus its distortions varying in strength but using one transformation at a time.
+Each distortions is applied with increasing strength: translations and shearing using pixel displacement, rotations using positive and negative angles and blurring with averaging radius.
+In the case of Siamese training, we create paired datasets: containing pairs of distorted images with their similarity.
+Images in a pair can have different distortions and different class (digit for MNIST, elevation/azimuth for NORB) and still be paired (label 1), depending on the experiment.
+% FIXME: add figure example of distortions, etc
+% FIXME: add figure example of pairs
 
-how we create our train/test dataset
+% FIXME: continue explain mnist with t-sne
+
+% for siamese
+In order to compare our results to our reference paper, we trained two Siamese models using their settings on MNIST and NORB.
+One of the most important factor for training a Siamese network comes from the pairing method: which samples are considered a pair, which are not.
+The results are extremely sensitive to minor change in a pairing with regard to distortions and neighborhood samples.
+The pairing strategy of our reference is as follows: For each sample, they pick the 5 most similar digits using the euclidean distance in pixel space and pair as follows.
+The sample and its translations are all paired to its 5 neighbors and all its translations.
+Their goal is to learn a model where points are close together if they are similar without considering translations.
+
 
 python script, predictable.
 
