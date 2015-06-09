@@ -24,8 +24,8 @@ layer {
 layer {
   name: "relu1"
   type: "ReLU"
-  bottom: "conv1"
-  top: "conv1"
+  bottom: "prod1"
+  top: "prod1"
 }
 layer {
   name: "prod2"
