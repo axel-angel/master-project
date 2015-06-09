@@ -14,12 +14,14 @@ if __name__ == "__main__":
     parser.add_argument('--model', type=str, required=True)
     parser.add_argument('--in-npz', type=str, required=True)
     parser.add_argument('--layer', type=str, default='loss')
+    parser.add_argument('--quiet', action='store_true', default=False)
     args = parser.parse_args()
 
     net = caffe.Net(args.proto, args.model, caffe.TEST)
     caffe.set_mode_cpu()
 
-    print "Load dataset"
+    if not args.quiet:
+        print "Load dataset"
     npz = np.load(args.in_npz)
     X = npz['arr_0']
     ls = npz['arr_1']
@@ -27,10 +29,11 @@ if __name__ == "__main__":
     def process( (x, l) ):
         x_caffe = np.array([ x ]) / 255. # normalize
         l_caffe = np.array([[[[ l ]]]])
-        res = net.forward(pair_data=x_caffe, sim=l_caffe)
+        res = net.forward(pair_data=x_caffe, sim=l_caffe, blobs=[args.layer])
         return res[args.layer]
 
-    print "Forward"
+    if not args.quiet:
+        print "Forward"
     losses = []
     try:
         #num_cores = multiprocessing.cpu_count()
@@ -39,12 +42,14 @@ if __name__ == "__main__":
         itr = imap(process, izip(X, ls))
         for it, res in enumerate(itr):
             losses.append( res )
-            sys.stderr.write("\rRunning: %i" % (it))
+            if not args.quiet:
+                sys.stderr.write("\rRunning: %i" % (it))
     except KeyboardInterrupt:
         print "\nStopping as requested"
     finally:
         #pool.terminate()
         pass
-    print ""
+    if not args.quiet:
+        print ""
 
     print "Loss: %f ± %f" % (np.average(losses), np.std(losses))
