@@ -71,6 +71,8 @@ First page (make guard, epfl logo, prof names, title, etc)
 
 % ==============================================================================
 \chapter{Introduction}
+% FIXME: to write
+
 common use of high-dim data, like images
 
 dim reduction (LLE, isomap, t-SNE), why, drawbacks
@@ -178,7 +180,6 @@ An intuitive explanation of embeddings is given and will be used later for dimen
 \section{NN and CNN Classifier}
 %introduce CNN and embeddings
 
-% FIXME: add figures and formulas
 Let us quickly recall the definition of a Neural Network and its workings for classification.
 Basically, NN are composed of $L$ layers which are made of inter-connected neurons.
 A connection $l_{i \rightarrow j}$ in the $k$th layer is weighted by a parameter $w^k_{i,j}$ which is learned.
@@ -339,7 +340,6 @@ This architectural idea is to create two instances of $G_W$ where their weights 
 On top of this Siamese network is placed the ``cost module'', the contrastive loss, which will compute a loss proportional to the difference between the two output.
 The complete network takes a pair of images as input, each image fed into a single $G_W$ instance, and the output is computed over their outputs.
 When the network is used, only a single instance $G_W$ is required to feed an input which gives the dimensionality-reduced point.
-% FIXME: figure.
 
 \begin{figure}[h]
     \begin{center}
@@ -358,11 +358,11 @@ where $Y \in \{0,1\}$ is the label: $1$ for similar pairs, $0$ otherwise; $D_W \
 
 \begin{figure}[h]
     \begin{center}
-        \includegraphics{thesis_figures/contrastive_spring.jpg}
+        \includegraphics[width=0.5\textwidth]{thesis_figures/contrastive_spring.jpg}
     \end{center}
-    \caption{A schematic representation using physical springs of the contrastive loss -- Source \cite{hadsell2006dimensionality}}
+    \caption{A schematic representation of the contrastive loss using physical springs: (a) Shows the points connected to similar points with {\em attract-only} springs. (b) The loss function and its gardient associated with similar pairs. (c) The point connected only with dissimilar points inside the circle of radius $m$ with {\em m-repulse-only} springs. (d) Shows the loss function and its gradient associated with dissimilar pairs. (e) Shows the situation where a point is pulled by other points in different directions, creating equilibrium -- Source \cite{hadsell2006dimensionality}}
     \label{fig:contrastive_spring}
-\end{figure}<++>
+\end{figure}
 
 With this cost function, a label describes whether or not a pair should be close in the embedding.
 The definition of similarity is left open for the application at hand.
@@ -476,7 +476,6 @@ The digits are centered such that the gravity center is in the middle and size-n
 The variability of this dataset lies in the different strokes, different writer styles, natural rotations, thickness, curve roundedness and such.
 The MNIST dataset is considered nowadays extremely simple, like a toy example due to the lack of natural variability and because state-of-the-art achieved extremely good results.
 However it is still a good subject of experiments to try and validate new ideas easily as it is in our case.
-% FIXME: sample figure
 
 \begin{figure}[h]
     \begin{center}
@@ -495,7 +494,6 @@ The categories are: humans, animals, airplanes, trucks and cars.
 The usual training task is to recognize the toy category whatever viewpoint or illumination is used.
 However the reference paper uses only the images of a single plane toy, to infer a representation of the distortions in 3D.
 As we are doing comparisons with their methods, we will use the same toy to make our results as well.
-% FIXME: sample figure
 
 \begin{figure}[h]
     \begin{center}
@@ -514,10 +512,15 @@ In the case of the t-SNE visualization, we create a distorted dataset containing
 The samples are all distorted using the same set of intensities, quantified as follows: translations and shearing using pixel displacement, rotations using positive and negative angles and blurring with averaging radius.
 In the case of Siamese training, we create paired datasets: containing two distorted images with their similarity (1 or 0).
 Images in a pair can have different distortions and different classes (digit for MNIST, elevation/azimuth for NORB) and still be paired (label 1), depending on the experiment.
-% FIXME: add figure example of distortions, etc
-% FIXME: add figure example of pairs
 
-% FIXME: continue explain mnist with t-sne
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics{thesis_figures/mnist_transfo_tsne.jpg}
+    \end{center}
+    \caption{Some examples of distortions in our data-augmented dataset used in our t-SNE visualization experiment}
+    \label{fig:mnist_transfo_tsne}
+\end{figure}
+
 In the experiments with t-SNE, we are generating a classification task where the training dataset contains untouched and translated digits with their digit class.
 This process is called {\em data augmentation}: the dataset is grown artificially by reusing samples but distorted by translations to train invariant models.
 Each sample is present with several combinations of increasing translations.
@@ -528,6 +531,8 @@ In the Siamese experiments, in order to compare our results to our reference pap
 The goal of our reference paper is to train a model where points are close together if they are ``visually'' similar without considering translations.
 The implementation of their pairing strategy is as follows.
 First they group each sample into a common ``neighborhood'' relation the 5 most similar ones using the euclidean distance in pixel space.
+However in practice, neighbors with different digit class would appear and LeCun's didn't mention if they considered legit or not.
+In our case we decided to only consider neighborhood with the same class after a visual inspection (we found such pairs enough dissimilar).
 The sample and its $n$ translations are all paired with both its 5 neighbors and all its $n$ translations (this sums up to $n \times 5n$ pairs per sample).
 All other pairs are considered dissimilar: when the two samples are not part of the same common translated neighborhood.
 This strategy uses the regular contrastive loss function in 1D with a single similarity per pair.
@@ -537,14 +542,28 @@ Our implementation can still quantify distortions by expression them in the othe
 One important advantage is to allow more control, especially in how dimensions are used.
 As we said, we are training a single model which is less expensive and allow to learn reusable features for multiple pairings.
 %invariance to distortion but our implementation allow to keep a predictable quantification
-Our contribution is an extension of the contrastive loss function with $p$ labels for each pair.
-The definitions of $p$ and $D$ are now described and justified in the following for the two Siamese experiments.
+We can use our extension of the contrastive loss function with $p$ labels for each pair.
+The definitions of $p$ and $D$ for the two Siamese experiments are now described and justified in the following.
 
 In the case of MNIST, we are using a 3-dimensional embedding space: where the first two dimensions express neighborhood similarity and the last dimension expresses the distortion similarity.
 It is true 2D suffices in this case but to be comparable to LeCun's 2D embedding, we will use a 2D neighborhood space as well and separate distortions into its own space.
 Making comparisons between LeCun's 2D space and our model with 1D neighborhood would be unfair due to distances increasing very quickly as the number of dimensions increases.
-That means we can make a fair comparison between LeCun's results and ours.
 In this settings, we have: $M=3$ (embedding dimensions), $p = 2$ (two labels) and $D = \left\{ 2, 1 \right\}$ (2D + 1D).
+We train our network using a similar pair strategy to LeCun's but with important differences.
+Our first label considers similar: a sample and its translations; the sample and its neighbors if they have the same translations; and considers dissimilar: the sample and any non-neighbor sample.
+That's why we name it the ``neighborhood'' label.
+Our second label considers similar: a sample and any other sample with the same translation; and considers dissimilar any pair without the same translation.
+We name it the ``transformation'' label.
+Pairs not mentioned in our descriptions above are not included in our datasets.
+Moreover we reduce the size and the time for training by randomly taking a subset of dissimilar pairs to balance the label ratio instead of including all of them.
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics{thesis_figures/mnist_pairs.jpg}
+    \end{center}
+    \caption{Examples of pairs in our Siamese training dataset}
+    \label{fig:mnist_pairs}
+\end{figure}
 
 In the case of NORB, we are using a 3D embedding as well: where the first 2D are used for the cyclic azimuth (horizontal angle of the viewpoint) and the last 1D for the non-cyclic elevation (vertical angle).
 LeCun's work defined similar pairs when the two images are from contiguous elevation or azimuth and we will do the same.
@@ -553,23 +572,70 @@ The azimuth viewpoint is cyclic and the shape to represent such structure, witho
 The elevation viewpoint is not cyclic because NORB has only a smaller subset of values, thus only a single dimension is allocated.
 In this case we can directly compare LeCun's embedding and ours as they work on the same problem.
 Thus again we have: $M=3$ (embedding dimensions), $p = 2$ (two labels) and $D = \left\{ 2, 1 \right\}$ (2D + 1D).
+We train our network based on LeCun's pairing strategy where we separate the azimuth and elevation into two labels (instead of having them merged).
 
 \section{Evaluation Metrics}
+% FIXME: to write
 contribution: how we can compute our energy-distance for comparisons.
 
 \section{Results and Discussion}
 
-tables and graphs: loss of training (for major models), add accuracy for comparison, compare lecun with ours (energy-distance).
+We conclude this chapter by presenting our results and insights, including the plots and quantitative measures.
+Our first experiment is the visualization of the LeNet embedding on the MNIST classification task.
+We compare the structural differences between models trained with and without data-augmentation.
+However the resulting vector space has a very different structures than one could expect.
+Then, we move on with the results of our direct methodology with models using the contrastive loss.
+
+%tables and graphs: loss of training (for major models), add accuracy for comparison, compare lecun with ours (energy-distance).
 
 \subsection{t-SNE on LeNet}
-show t-sne on mnist
-compare to t-sne on classifier embedding.
+show t-sne on raw mnist to compare?
 
-explain what we found using t-SNE on last layer of lenet, on mnist.
+train lenet on digit classification task train set.
+no data augmentation at this point
+give accuracy.
+we apply pca followed by t-sne on test set.
+digits clearly separated, one cluster per digit.
+clusters are coherent, similarity.
+most distortions are part of clusters but extremes are outside.
+
+we can compare to data-augmented model for translation.
+give accuracy, show it is translation invariant.
+digits are heavily overlapping, not cluster.
+clusters are now per translation.
+inside each cluster, visible digit separation.
+this shows unexpected clustering.
+lack of control.
+recall tsne is for visualization.
+
+discussion.
+give insights: about t-sne, models, clustering, etc.
+
 
 people add distorted samples to their dataset (data augmentation) so models can learn to be transfo invariant, but results shows the embedding cluster them into clusters per transfo instead of per label [XXX].
 
 \section{Contrastive LeNet}
+
+train siamese network with contrastive on subset train mnist.
+show plot embedding on test set.
+give loss function, graph?
+describe clusters, well separated.
+coherent embedding inside clusters.
+converge faster?
+compare lecun and ours.
+give quantitative results.
+
+train siamese network with contrastive on subset norb with plane.
+show plot embedding on test set.
+give loss function, graph?
+describe coherence, continuity, cycle of structure.
+converge faster?
+compare lecun and ours.
+give quantitative results.
+
+general discussion.
+with difficulties?
+
 explain what we found using double-contrastive loss with lenet, on mnist.
 
 One of the most important factor for training a Siamese network comes from the pairing method: which samples are considered a pair, which are not.
