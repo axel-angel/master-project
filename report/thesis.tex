@@ -46,7 +46,7 @@
     }
 
 \newcommand{\eg}{e.g.}
-
+\setkeys{Gin}{width=0.75\textwidth}
 
 \begin{document}
 \thispagestyle{empty}
@@ -121,7 +121,7 @@ Some papers work on reliable ways to fool networks using adverserial attacks whi
 Most publications don't try to formally justify their good results because it just works. % FIXME: citation needed?
 %paper: Intriguing properties of neural networks
 Indeed, relations between units are complex due do their non-linear nature, this problem is stressed by distortions present in the inputs as well.
-%Moreover the input-output relation, when inputs are kept distorted on purpose, is usually either killing the signal (invariance) or not in a predictable manner (controlled preservation). % FIXME: keep this sentence for later?
+%Moreover the input-output relation, when inputs are kept distorted on purpose, is usually either killing the signal (invariance) or not in a predictable manner (controlled preservation).
 It is not possible to directly look at the high-dimensional embedding, because we cannot easily plot nor interpret so many dimensions.
 The manifestation of this relation can be looked visually using methods to produce an alternative human-friendly representation.
 
@@ -160,7 +160,7 @@ The network was successfully trained to ignore lighting conditions, which is a s
 They use the Siamese training architecture to present image pairs which are optimized to be close if similar or far otherwise\cite{bromley1993signature}\cite{chopra2005learning}.
 There are several advantages of such method: the cost penalty is very low and only present in training, the usage of standard CNN allow more freedom for experiments with different architectures and the proposed loss function is effective and simple.
 
-%Moreover the input-output relation, when inputs are kept distorted on purpose, is usually either killing the signal (invariance) or not in a predictable manner (controlled preservation). % FIXME: keep this sentence for later?
+%Moreover the input-output relation, when inputs are kept distorted on purpose, is usually either killing the signal (invariance) or not in a predictable manner (controlled preservation).
 However the input-output relations of distorted images is usually damped instead of being quantified in a predictable way.
 We think the distortion information should be kept because they are valuable later on.
 Besides, the reference paper provides subjective comments of the embedding coherence (description and figure) but they don't offer nor propose a formal way to measure and compare its quality objectively.
@@ -179,34 +179,61 @@ An intuitive explanation of embeddings is given and will be used later for dimen
 %introduce CNN and embeddings
 
 % FIXME: add figures and formulas
-nn and cnn are composed of inter-connected layers of units, or neurons.
-to classify an input we fed the first layer of the network.
-one layer does a single particular computation over its input, usually by adding a bias then followed by a non-linear function, which is then propagated through its connections to the next layer.
-the feedforwarding continues until we reach the last layer which is the output of the network.
-usual nn are characterized by: neuron computation is a simple inner product between its input and its own weight followed by a sigmoid; each unit is fully connected to all units in the next layer.
-training the weights of such network generally involve gradient descent which minimizes the loss function of the network.
-This loss function gives the error between the prediction of the network, its output versus the expected output, which is in classification the class label.
-To train, the input is first forwarded into the network to compute the error, then this latter is back-propagated up to the first layer, while each unit weights is adjusted to minimize the unit error.
+Let us quickly recall the definition of a Neural Network and its workings for classification.
+Basically, NN are composed of $L$ layers which are made of inter-connected neurons.
+A connection $l_{i \rightarrow j}$ in the $k$th layer is weighted by a parameter $w^k_{i,j}$ which is learned.
+Classification is done by feed-feeding the input onto the first layer whose output is propagated layers by layers through the network.
+The output of one layer is feed-forwarded onto the next through their neuronal connections.
+This process is repeated until the last layer whose output is considered as the network output.
+Each layer does a single particular computation over its input.
+Usual NN have a repetition of the following pattern: one layer computing inner-products with their neuronal weights then adding biases, followed by a non-linear layer using an activation function.
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics{thesis_figures/1024px-ArtificialNeuronModel_english.png}
+    \end{center}
+    \caption{An inner-product neuron with the connection to its activation neuron -- Source: Wikipedia}
+    \label{fig:artificial_neurons}
+\end{figure}
+The figure \ref{fig:artificial_neurons} presents the computation involving a particular neuron and its activation.
+Let us define the $j$th neuron in the $k$th layer for the inner-product case, then its output $z^k_j$ is defined:
+\begin{eqnarray}
+    z^k_j = \sum_{i=1}^{U^{k-1}} w^k_{i,j} z^{k-1}_i + b^k_j
+\end{eqnarray}
+where $U^k$ is the number of neurons in layer $k$.
+Then the $j$th neuron in the $k$th layer for the activation case:
+\begin{eqnarray}
+    z^k_j = g(z^{k-1}_j, w^k_{j})
+\end{eqnarray}
+where $g$ is the activation function with its parameter.
+Most of them use the sigmoid activation function and connect each neuron to all the next layer neurons.
+Training the weights of such network generally involve gradient descent which minimizes the loss function of the network.
+This loss represents the error between the prediction of the network (its output) versus the expected output (in classification: the class label).
+The training involves an iterative process where: the input is first feed-forwarded into the network to compute the error, then this latter is back-propagated up to the first layer, while each unit weights is adjusted to minimize the unit error.
 This process should be repeated until the error on the validation set has converged to a local optimum.
 
-cnn is a special case of nn by adding certain restrictions, working well experimentally with computer vision problems such as image classification.
-Three main ideas differentiate them: local receptive fields, weight sharing and subsampling.
-in cnn, a convolutional layer can model receptive fields by computing multiple trainable 2D kernels which is convoluted with its entire input whose result is called its feature maps.
+One particular architecture is the CNN, a special case of NN with certain restrictions.
+CNN models are working well practically for many computer vision problems in image classification.
+We briefly describe below three main ideas: local receptive fields, weight sharing and subsampling.
+In CNN, a convolutional layer can model receptive fields by computing multiple trainable 2D kernels which is convoluted with its entire input whose result is called its feature maps.
 We can see a kernel convolution as the replication of a single unit along the dimensions of the input (a 2D grid for images), thus all weights are constrained to be equal by definition.
-a convolutional layer contains multiple units where each has its own kernel, thus there are different kernels applied to the image, where a single kernel convolution is called a feature map.
+A convolutional layer contains multiple units where each has its own kernel.
+Therefore different kernels are applied to the image where a single kernel convolution is called a feature map.
 Such layer naturally computes filters which can be seen like feature extractors driven by data.
-the benefit of weight sharing in convolutional layers is to reduce the number of global parameters to improve generalization.
-usual cnn add a subsampling layer right after a convolutional layer to reduce the dimensionality of the feature maps.
-moreover most cnn architectures connects convolutional-subsampling layers to the input which extract features, which is then feed into a regular nn.
-Thus we can see a cnn as two parts: a trainable feature extractor which is fed into a processing nn.
-meanwhile cnn have more constrained, it has been shown they generally outperforms nn with more invariance in multiple computer vision problems \cite{simard2003best}\cite{mnist_web}\cite{lawrence1997face}\cite{krizhevsky2012imagenet}.
+The benefit of weight sharing in convolutional layers is to reduce the number of global parameters to learn general purpose filters which can increase generalization.
+Usually, CNN have subsampling layers right after convolutional layers to reduce the dimensionality of the feature maps so that more concise and high-level information are extracted.
+Most CNN architectures puts multiple convolutional layers connected to the input to extract visual features after which they have regular inner-product layers.
+CNNs can be seen as two parts: a trainable feature extractor made by the convolutional network followed by a neural network classifier.
+Meanwhile CNN have more constrained, it has been shown they generally outperforms NN with more invariance in multiple computer vision problems \cite{simard2003best}\cite{mnist_web}\cite{lawrence1997face}\cite{krizhevsky2012imagenet}.
 
-as previously said, researches have shown with t-sne that nn trained for classification have interesting structures in their last-layer embedding.
-the choice of the layer is justified by the fact that: deeper layers extract more high-level informations, which is necessary to separate classes, moreover the prediction is a direct product with the last layer, which encourage the network to have a simple structure directly clustered by classes.
-that's why this last layer tend to cluster samples of the same class together while separating the rest\cite{donahue2013decaf}\cite{yu2014visualizing}.
-thus it is reasonable to evaluate the quality of this embedding as a dimensionality reduction method with great potential to capture more information compared to PCA which captures linear correlations.
-it is important to note that t-SNE plays an important role in the quality of this 2D embedding by preserving structures but it should be said also that t-sne cannot separate the original dataset as well as with the help of the classifier features.
-Because t-SNE has no knowledge of the labels, it is the classifier who improves the quality of the structures of the final embedding as we'll show later, because it learned specialized filters to distinguish the classes.
+Moreover, researches found interesting structures in the last-layer embedding of classification NN using t-SNE.
+The last layer tends to cluster samples of the same class together while separating the rest\cite{donahue2013decaf}\cite{yu2014visualizing}.
+This is justified by the fact that deeper layers extract more high-level informations, which is necessary to separate classes, moreover the prediction is a direct product with the last layer, which encourage the network to have a simple structure directly clustered by classes.
+Thus it looks reasonable to evaluate the quality of this embedding as a dimensionality reduction method with great potential to capture more information compared to PCA which captures linear correlations.
+It is important to note that t-SNE plays an important role in the quality of this 2D embedding: that is why it can already honorably separates MNIST directly.
+However, it is important to remember it is not the sole responsible of the better separation using the NN embedding because it has no knowledge of the labels.
+The classifier seems to provide better informations to t-SNE which is improving the quality of the structures of the final embedding as we will show later.
+%because it learned specialized filters to distinguish the classes.
+%Therefore as well as with the help of the classifier features.
 This justifies why we combined CNN classifiers with t-SNE to create a 2D embedding for our visualisations.
 
 
