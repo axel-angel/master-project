@@ -187,13 +187,15 @@ The output of one layer is feed-forwarded onto the next through their neuronal c
 This process is repeated until the last layer whose output is considered as the network output.
 Each layer does a single particular computation over its input.
 Usual NN have a repetition of the following pattern: one layer computing inner-products with their neuronal weights then adding biases, followed by a non-linear layer using an activation function.
+
 \begin{figure}[h]
     \begin{center}
-        \includegraphics{thesis_figures/1024px-ArtificialNeuronModel_english.png}
+        \includegraphics{thesis_figures/NN.jpg}
     \end{center}
-    \caption{An inner-product neuron with the connection to its activation neuron -- Source: Wikipedia}
-    \label{fig:artificial_neurons}
+    \caption{A Neural Network with two layers -- Source: mechanicalforex.com}
+    \label{fig:neural_network}
 \end{figure}
+
 The figure \ref{fig:artificial_neurons} presents the computation involving a particular neuron and its activation.
 Let us define the $j$th neuron in the $k$th layer for the inner-product case, then its output $z^k_j$ is defined:
 \begin{eqnarray}
@@ -211,6 +213,14 @@ This loss represents the error between the prediction of the network (its output
 The training involves an iterative process where: the input is first feed-forwarded into the network to compute the error, then this latter is back-propagated up to the first layer, while each unit weights is adjusted to minimize the unit error.
 This process should be repeated until the error on the validation set has converged to a local optimum.
 
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics{thesis_figures/800px-ArtificialNeuronModel_english.jpg}
+    \end{center}
+    \caption{An inner-product neuron with the connection to its activation neuron -- Source: Wikipedia}
+    \label{fig:artificial_neurons}
+\end{figure}
+
 One particular architecture is the CNN, a special case of NN with certain restrictions.
 CNN models are working well practically for many computer vision problems in image classification.
 We briefly describe below three main ideas: local receptive fields, weight sharing and subsampling.
@@ -224,6 +234,14 @@ Usually, CNN have subsampling layers right after convolutional layers to reduce 
 Most CNN architectures puts multiple convolutional layers connected to the input to extract visual features after which they have regular inner-product layers.
 CNNs can be seen as two parts: a trainable feature extractor made by the convolutional network followed by a neural network classifier.
 Meanwhile CNN have more constrained, it has been shown they generally outperforms NN with more invariance in multiple computer vision problems \cite{simard2003best}\cite{mnist_web}\cite{lawrence1997face}\cite{krizhevsky2012imagenet}.
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[width=\textwidth]{thesis_figures/conv-net2.jpg}
+    \end{center}
+    \caption{Architecture of a CNN -- Source: code.flickr.net}
+    \label{fig:convnet}
+\end{figure}
 
 Moreover, researches found interesting structures in the last-layer embedding of classification NN using t-SNE.
 The last layer tends to cluster samples of the same class together while separating the rest\cite{donahue2013decaf}\cite{yu2014visualizing}.
@@ -323,12 +341,28 @@ The complete network takes a pair of images as input, each image fed into a sing
 When the network is used, only a single instance $G_W$ is required to feed an input which gives the dimensionality-reduced point.
 % FIXME: figure.
 
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{thesis_figures/siamese_network.jpg}
+    \end{center}
+    \caption{Schematic representation of a Siamese network -- Source: cs.nyu.edu}
+    \label{fig:siamese_network}
+\end{figure}
+
 The contrastive loss function is based on energy models but a single attractive term is not sufficient because it would allow degenerate solutions where all points squashed together; thus an opposing term to push dissimilar pairs should appear as well.
 The definition of the contrastive loss for a pair is as follows:
 \begin{eqnarray}
     L = \frac{1}{2} Y (D_W)^2 + \frac{1}{2} (1-Y) \max(0, m - D_W)^2
 \end{eqnarray}
 where $Y \in \{0,1\}$ is the label: $1$ for similar pairs, $0$ otherwise; $D_W \in \R^N$ is the difference between the two network outputs and the parameter $m \in \R$ defines the minimal distance between dissimilar points.
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics{thesis_figures/contrastive_spring.jpg}
+    \end{center}
+    \caption{A schematic representation using physical springs of the contrastive loss -- Source \cite{hadsell2006dimensionality}}
+    \label{fig:contrastive_spring}
+\end{figure}<++>
 
 With this cost function, a label describes whether or not a pair should be close in the embedding.
 The definition of similarity is left open for the application at hand.
@@ -375,6 +409,14 @@ The first model is {\bf LeNet 5}, a multi-layer neural networks that features an
 It is with no surprise that they are using it for MNIST, which is a handwritten digit dataset.
 We are using a very close fine-tuned variant with minor changes.
 This network architecture is comprised of a total of 7 layers with trainable parameters.
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics{thesis_figures/siamese_cnn.jpg}
+    \end{center}
+    \caption{Architecture of the CNN (based on LeNet 5) -- Source: \cite{hadsell2006dimensionality}}
+    \label{fig:siamese_cnn}
+\end{figure}
 
 The first part of this network is comprised of two pairs of convolution-pooling layers, where convolution kernels share their weights.
 As explained earlier, each convolution is applied to the entire image to create a single feature map.
