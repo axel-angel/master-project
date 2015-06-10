@@ -60,9 +60,9 @@ First page (make guard, epfl logo, prof names, title, etc)
     The embedding of CNNs, which is the internal representation produced by the last layer, can indirectly learn interesting topological and relational properties.
     By using a suitable loss function, these models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
     In this work, we give useful insights about CNNs embeddings and we propose a new loss function, derived from the contrastive loss, whose mapping under particular distortions is more predictable.
-    Given an input image, only a single forward pass is necessary to generate the outputs of all possible distortions, whereas standard models would require computing all combinations of distortions which is too expensive in practice or invariant models would lose the distortion information.
+    Our contribution makes a step towards the derivation of features for varying distortions given the features of a single feed-forward pass which is distortion-predictable where usual methods require to feed-forward images under every distortions.
     % ^ TODO: careful about this last statement, too strong!
-    Moreover we introduce a simple method to fairly compare quantitatively embeddings whose purpose is to capture topological structures of particular distortions.
+    We introduce a simple method to fairly compare quantitatively embeddings whose purpose is to capture topological structures of particular distortions.
 \end{abstract}
 
 % ==============================================================================
@@ -108,7 +108,7 @@ This architecture is more efficient for computer vision problems, partly because
 Current researches is mainly focused on advancing into more complex classification problems using Deep Learning.
 This field suggests to improve the current results by deepening the architecture in terms of number of layers to express more abstract and higher-level concepts.
 Unfortunately, more layers require more computations than before due to the increase of parameters but researchers started to overcome this challenge.
-Ways to speed up the training and the classification appeared and were greatly beneficial for the development of this field in recent years\cite{ciresan2011flexible}\cite{schmidhuber2015deep}\cite{nasse2009face}. % FIXME: more citations
+Ways to speed up the training and the classification appeared and were greatly beneficial for the development of this field in recent years\cite{ciresan2011flexible}\cite{schmidhuber2015deep}\cite{nasse2009face}.
 The use of GPUs parallelism and cloud computing allowed scaling up to much deeper architecture (with much more parameters) than before\cite{coates2013deep}.
 %paper: Flexible, high performance convolutional neural networks for image classification
 Both researchers and professional programmers built various frameworks to train and to use NN with many different goals, like: performance, accessibility or composability.
@@ -130,7 +130,7 @@ Dimensionality reduction methods is a popular tool in such case\cite{dai2014docu
 Standard methods like PCA, MDS\cite{cox2000multidimensional} for example, are used for reducing dimensions usually as a preprocessing step and they are limited to linearities of the data.
 Their primary characteristic is to maximize the variance of the original data which is important for reconstruction but not necessarily for visualization.
 Other non-linear dimensionality reduction methods, use an optimisation algorithm with a loss function which improve their flexibility for other purpose like visualization.
-They preserve local structure/cluster like: Isomap{tenenbaum2000global}, LLE\cite{roweis2000nonlinear} and SNE\cite{SNE}.
+They preserve local structure/cluster like: Isomap\cite{tenenbaum2000global}, LLE\cite{roweis2000nonlinear} and SNE\cite{SNE}.
 Most of the methods fails to keep global clusters and local details at the same time where as the latest papers show SNE a better potential\cite{SNE}.
 %paper: Stochastic Neighbor Embedding
 
@@ -152,7 +152,8 @@ Some papers proposes to learn transformation-invariant embeddings, by means of m
 %proposes an alternative network, symmetry networks, to extend invariance beyond translation by using feature map over arbitrary symmetry groups by use of kernel-based interpolation.
 %paper: Dimensionality Reduction by Learning an Invariant Mapping
 
-The latter proposes to creates a dimensionality reducing mapping by training a CNN using a new loss function based on energy models, called the {\em contrastive loss}.
+The latter will be used in our current work as the {\em reference paper} or {\em LeCun}'s works.
+It proposes to creates a dimensionality reducing mapping by training a CNN using a new loss function based on energy models, called the {\em contrastive loss}.
 Their results using on the MINST dataset\cite{lecun1998mnist} shows that CNN can learn a mapping that distinguish labels, and group alike digits even when they are translated artificially.
 They experimented with the NORB dataset\cite{lecun2004learning} as well with intriguing results: each sample is mapped on a 3D cylinder whose axises quantify the orientation in 2D and the azimuth angle in 1D.
 The network was successfully trained to ignore lighting conditions, which is a strong non-linear distortions.
@@ -432,12 +433,14 @@ Images in a pair can have different distortions and different classes (digit for
 % FIXME: add figure example of pairs
 
 % FIXME: continue explain mnist with t-sne
+In the experiments with t-SNE, we are generating a classification task where the training dataset contains untouched and translated digits with their digit class.
+This process is called {\em data augmentation}: the dataset is grown artificially by reusing samples but distorted by translations to train invariant models.
+Each sample is present with several combinations of increasing translations.
+The objective is to train an invariant network and inspect the underlying embedding by using t-SNE.
 
 % for siamese
-In order to compare our results to our reference paper, we trained two Siamese models replicating their settings on MNIST and NORB.
-One of the most important factor for training a Siamese network comes from the pairing method: which samples are considered a pair, which are not.
+In the Siamese experiments, in order to compare our results to our reference paper, we trained two models based on their settings on MNIST and NORB.
 The goal of our reference paper is to train a model where points are close together if they are ``visually'' similar without considering translations.
-The results are extremely sensitive to minor changes with regard to pairing distortions, neighborhood samples together and the ordering which can end with important overlapping or incoherent neighborhood.
 The implementation of their pairing strategy is as follows.
 First they group each sample into a common ``neighborhood'' relation the 5 most similar ones using the euclidean distance in pixel space.
 The sample and its $n$ translations are all paired with both its 5 neighbors and all its $n$ translations (this sums up to $n \times 5n$ pairs per sample).
@@ -446,18 +449,25 @@ This strategy uses the regular contrastive loss function in 1D with a single sim
 
 Our objective is similar in the sense that we want to stay invariant but only in certain dimensions of our choice.
 Our implementation can still quantify distortions by expression them in the other dimensions.
-One important advantage is to allow a more control, especially in how dimensions are used. using a single model.
+One important advantage is to allow more control, especially in how dimensions are used.
+As we said, we are training a single model which is less expensive and allow to learn reusable features for multiple pairings.
 %invariance to distortion but our implementation allow to keep a predictable quantification
 Our contribution is an extension of the contrastive loss function with $p$ labels for each pair.
-As previously said, the dimensions of $p$ and the set $D$ needs to be defined considering our goal.
+The definitions of $p$ and $D$ are now described and justified in the following for the two Siamese experiments.
 
-python script, predictable.
+In the case of MNIST, we are using a 3-dimensional embedding space: where the first two dimensions express neighborhood similarity and the last dimension expresses the distortion similarity.
+It is true 2D suffices in this case but to be comparable to LeCun's 2D embedding, we will use a 2D neighborhood space as well and separate distortions into its own space.
+Making comparisons between LeCun's 2D space and our model with 1D neighborhood would be unfair due to distances increasing very quickly as the number of dimensions increases.
+That means we can make a fair comparison between LeCun's results and ours.
+In this settings, we have: $M=3$ (embedding dimensions), $p = 2$ (two labels) and $D = \left\{ 2, 1 \right\}$ (2D + 1D).
 
-pairing method.
-
-reproduce lecun mnist and norb.
-
-we use 3d for mnist, compare with lecun project 2d.
+In the case of NORB, we are using a 3D embedding as well: where the first 2D are used for the cyclic azimuth (horizontal angle of the viewpoint) and the last 1D for the non-cyclic elevation (vertical angle).
+LeCun's work defined similar pairs when the two images are from contiguous elevation or azimuth and we will do the same.
+The justification of LeCun's dimension allocation is as follows.
+The azimuth viewpoint is cyclic and the shape to represent such structure, without overlapping for different values, is an ellipsis which requires at least 2D.
+The elevation viewpoint is not cyclic because NORB has only a smaller subset of values, thus only a single dimension is allocated.
+In this case we can directly compare LeCun's embedding and ours as they work on the same problem.
+Thus again we have: $M=3$ (embedding dimensions), $p = 2$ (two labels) and $D = \left\{ 2, 1 \right\}$ (2D + 1D).
 
 \section{Evaluation Metrics}
 contribution: how we can compute our energy-distance for comparisons.
@@ -477,6 +487,9 @@ people add distorted samples to their dataset (data augmentation) so models can 
 \section{Contrastive LeNet}
 explain what we found using double-contrastive loss with lenet, on mnist.
 
+One of the most important factor for training a Siamese network comes from the pairing method: which samples are considered a pair, which are not.
+The results are extremely sensitive to minor changes with regard to pairing distortions, neighborhood samples together and the ordering which can end with important overlapping or incoherent neighborhood.
+
 can add norb, when finished.
 
 usecase of predictable disto
@@ -486,6 +499,8 @@ usecase of predictable disto
 \chapter{Conclusion}
 
 summarize work.
+
+compare to regression, ours easier.
 
 future works.
 
