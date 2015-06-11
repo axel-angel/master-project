@@ -324,10 +324,10 @@ if __name__ == "__main__":
 
     out_imgs = []
     out_labels = []
-    pool = multiprocessing.Pool(num_cores)
+    #pool = multiprocessing.Pool(num_cores)
     pairingf = locals().get('pairing_'+ args.method)
-    itr = pool.imap_unordered(pairingf, xrange(count))
-    #itr = imap(pairingf, xrange(count))
+    #itr = pool.imap_unordered(pairingf, xrange(count))
+    itr = imap(pairingf, xrange(count))
     for it, (i, imgs, labels) in enumerate(itr):
         out_imgs.extend(imgs)
         out_labels.extend(labels)
