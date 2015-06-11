@@ -56,13 +56,13 @@ First page (make guard, epfl logo, prof names, title, etc)
 \newpage
 \begin{abstract}
     % TODO: rewrite
-    Current research in Computer Vision has shown that Convolutional Neural Networks (CNNs) give state-of-the-art performance in many classification tasks and Computer Vision problems.
-    The embedding of CNNs, which is the internal representation produced by the last layer, can indirectly learn interesting topological and relational properties.
+    Current research in Computer Vision has shown that {\em Convolutional Neural Networks} (CNN) give state-of-the-art performance in many classification tasks and Computer Vision problems\cite{mnist_web}\cite{krizhevsky2012imagenet}\cite{rowley1998neural}\cite{prechelt1994proben1}.
+    The embedding of CNN, which is the internal representation produced by the last layer, can indirectly learn topological and relational properties.
     By using a suitable loss function, these models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
-    In this work, we give useful insights about CNNs embeddings and we propose a new loss function, derived from the contrastive loss, whose mapping under particular distortions is more predictable.
-    Our contribution makes a step towards the derivation of features for varying distortions given the features of a single feed-forward pass which is distortion-predictable where usual methods require to feed-forward images under every distortions.
+    In this work, we provide insights about CNN embeddings and propose a new loss function, derived from the contrastive loss, whose mapping under particular distortions is more predictable.
+    Our contribution makes a step towards the derivation of features for varying distortions, given the features of a single feed-forward pass which is distortion-predictable, where usual methods require to feed-forward images under every distortions.
     % ^ TODO: careful about this last statement, too strong!
-    We introduce a simple method to fairly compare quantitatively embeddings whose purpose is to capture topological structures of particular distortions.
+    We also introduce a simple method to compare quantitatively embeddings whose purpose is to capture topological structures of particular distortions.
 \end{abstract}
 
 % ==============================================================================
@@ -104,41 +104,40 @@ use case (medical imaging)
 % explain each paper, group them and discuss result adv/drawbacks
 
 More than 20 years ago, researchers discovered that {\em Neural Networks} (NN) is a highly flexible model architecture to solve many classification problems.
-Most of today models are using {\em Convolutional Neural Networks} (CNN) which are a specialized variant working well for visual tasks like MNIST \cite{mnist_web} and ImageNet \cite{krizhevsky2012imagenet}, face detection as well \cite{rowley1998neural} and many more \cite{prechelt1994proben1}.
-This architecture is more efficient for computer vision problems, partly because the convolutions share their weights in the first layers to extract spatial cues.
+Most of today models are using {\em Convolutional Neural Networks} (CNN) which are a powerful and specialized variant for visual tasks like MNIST \cite{mnist_web} and ImageNet \cite{krizhevsky2012imagenet}, face detection as well \cite{rowley1998neural} and many more \cite{prechelt1994proben1}.
+This architecture is more efficient for Computer Vision problems, partly because the convolutions share their weights in the first layers to extract spatial cues.
 
 Current researches is mainly focused on advancing into more complex classification problems using Deep Learning.
-This field suggests to improve the current results by deepening the architecture in terms of number of layers to express more abstract and higher-level concepts.
+This field suggests improving the current results by deepening the architecture in terms of number of layers to express more abstract and higher-level concepts.
 Unfortunately, more layers require more computations than before due to the increase of parameters but researchers started to overcome this challenge.
 Ways to speed up the training and the classification appeared and were greatly beneficial for the development of this field in recent years\cite{ciresan2011flexible}\cite{schmidhuber2015deep}\cite{nasse2009face}.
-The use of GPUs parallelism and cloud computing allowed scaling up to much deeper architecture (with much more parameters) than before\cite{coates2013deep}.
+The use of GPUs parallelism and cloud computing allowed scaling up to much deeper architecture (with many more parameters) than before\cite{coates2013deep}.
 %paper: Flexible, high performance convolutional neural networks for image classification
-Both researchers and professional programmers built various frameworks to train and to use NN with many different goals, like: performance, accessibility or composability.
+Both researchers and professional programmers built various frameworks to train and to use NN with many different goals such as: performance, accessibility or composability.
 The most popular are: Theano\cite{bastien2012theano}, Caffe\cite{jia2014caffe}, Torch7\cite{collobert2011torch7}, Pylearn2\cite{goodfellow2013pylearn2}.
 We decided to leverage the efficiency and modularity proposed by Caffe for several reasons described later.
 %deeper architectures improves accuracy on more complex tasks, people found optimisations to make them fast.
 
-Even though CNN models are now widely used in computer vision with great success thanks to these frameworks, current research exposed our ignorance of these networks behaviors.
+Even though CNN models are now widely used in Computer Vision with great success thanks to these frameworks, current research exposed our ignorance of these networks behaviors.
 Some papers work on reliable ways to fool networks using adverserial attacks which exploits their unintuitive properties\cite{szegedy2013intriguing}.
-Most publications don't try to formally justify their good results because it just works. % FIXME: citation needed?
+Most publications don't try to formally justify their good results because of the non-linear and complex relations between units. % FIXME: citation needed?
 %paper: Intriguing properties of neural networks
-Indeed, relations between units are complex due do their non-linear nature, this problem is stressed by distortions present in the inputs as well.
+Moreover, this problem is stressed by distortions present in the inputs as well.
 %Moreover the input-output relation, when inputs are kept distorted on purpose, is usually either killing the signal (invariance) or not in a predictable manner (controlled preservation).
 It is not possible to directly look at the high-dimensional embedding, because we cannot easily plot nor interpret so many dimensions.
 The manifestation of this relation can be looked visually using methods to produce an alternative human-friendly representation.
 
 % moved from dim red chapter
 Dimensionality reduction methods is a popular tool in such case\cite{dai2014document}\cite{taylor2011learning} and several methods exist that are specialized for visualization.
-Standard methods like PCA, MDS\cite{cox2000multidimensional} for example, are used for reducing dimensions usually as a preprocessing step and they are limited to linearities of the data.
+Standard methods, like PCA and MDS\cite{cox2000multidimensional}, are used for reducing dimensions usually as a preprocessing step and they are limited to linearity in the data.
 Their primary characteristic is to maximize the variance of the original data which is important for reconstruction but not necessarily for visualization.
-Other non-linear dimensionality reduction methods, use an optimisation algorithm with a loss function which improve their flexibility for other purpose like visualization.
-They preserve local structure/cluster like: Isomap\cite{tenenbaum2000global}, LLE\cite{roweis2000nonlinear} and SNE\cite{SNE}.
-Most of the methods fails to keep global clusters and local details at the same time where as the latest papers show SNE a better potential\cite{SNE}.
+Other non-linear dimensionality reduction methods, for instance: Isomap\cite{tenenbaum2000global}, LLE\cite{roweis2000nonlinear} and SNE\cite{SNE}, solve an optimisation problem with a loss function which improve their flexibility for purposes like visualization and preserve local structure/cluster.
+However, recent papers show that SNE has better potential to keep global clusters and local details at the same time unlike the other previously cited methods\cite{SNE}.
 %paper: Stochastic Neighbor Embedding
 
 SNE has introduced a better maximization problem to preserve point neighborhood and general clusters with an important emphasis on distances\cite{SNE}.
 %Kullback-leibler divergence.
-However it suffers from ``center-crowdedness'' and has difficulties in optimisation\cite{t-SNE}.
+However it suffers from ``center-crowdedness'' and faces difficulties in optimisation\cite{t-SNE}.
 That's why papers are using t-SNE, a variant of SNE, to reduce CNN embeddings into a 2D human-friendly manifold. % FIXME: more cite?
 This method exhibits an easier optimisation formulation and it preserve more structures at diverse scales.
 More convincing examples were created with t-SNE directly from raw popular datasets\cite{van2009new} like MNIST\cite{t-SNE}.
@@ -154,17 +153,17 @@ Some papers proposes to learn transformation-invariant embeddings, by means of m
 %proposes an alternative network, symmetry networks, to extend invariance beyond translation by using feature map over arbitrary symmetry groups by use of kernel-based interpolation.
 %paper: Dimensionality Reduction by Learning an Invariant Mapping
 
-The latter will be used in our current work as the {\em reference paper} or {\em LeCun}'s works.
-It proposes to creates a dimensionality reducing mapping by training a CNN using a new loss function based on energy models, called the {\em contrastive loss}.
+The latter will be mentioned in the following as the {\em reference paper} or {\em LeCun}'s works.
+This paper proposes to create a dimensionality reducing mapping by training a CNN using a new loss function based on energy models, called the {\em contrastive loss}.
 Their results using on the MINST dataset\cite{lecun1998mnist} shows that CNN can learn a mapping that distinguish labels, and group alike digits even when they are translated artificially.
-They experimented with the NORB dataset\cite{lecun2004learning} as well with intriguing results: each sample is mapped on a 3D cylinder whose axises quantify the orientation in 2D and the azimuth angle in 1D.
-The network was successfully trained to ignore lighting conditions, which is a strong non-linear distortions.
+They experimented with the NORB dataset\cite{lecun2004learning} as well with intriguing results: each sample is mapped on a 3D cylinder whose axes quantify the orientation in 2D and the azimuth angle in 1D.
+The network was successfully trained to ignore lighting conditions, which is a strongly non-linear distortion.
 They use the Siamese training architecture to present image pairs which are optimized to be close if similar or far otherwise\cite{bromley1993signature}\cite{chopra2005learning}.
-There are several advantages of such method: the cost penalty is very low and only present in training, the usage of standard CNN allow more freedom for experiments with different architectures and the proposed loss function is effective and simple.
+There are several advantages of such method: the cost penalty is very low and present only during training, the usage of standard CNN allows more freedom for experimenting with different architectures and the proposed loss function is effective while simple.
 
 %Moreover the input-output relation, when inputs are kept distorted on purpose, is usually either killing the signal (invariance) or not in a predictable manner (controlled preservation).
 However the input-output relations of distorted images is usually damped instead of being quantified in a predictable way.
-We think the distortion information should be kept because they are valuable later on.
+We think that the distortion information should be kept because they are valuable later on.
 Besides, the reference paper provides subjective comments of the embedding coherence (description and figure) but they don't offer nor propose a formal way to measure and compare its quality objectively.
 We used this paper as our primary reference for experiments to continue improving their ideas in this work.
 
@@ -174,7 +173,7 @@ In this work, we will present a practical solution towards predictable embedding
 % ==============================================================================
 \chapter{Theory: Neural Networks}
 We introduce the general layout of neural networks and their mathematical foundations.
-The important differences between {\em Neural Networks} (NN) and {\em Convolutional Neural Networks} (CNN) are discussed and we briefly justify why CNN is so predominant in computer vision tasks.
+The important differences between {\em Neural Networks} (NN) and {\em Convolutional Neural Networks} (CNN) are discussed and we briefly justify why CNN is so predominant in Computer Vision tasks.
 An intuitive explanation of embeddings is given and will be used later for dimensionality reduction.
 
 \section{NN and CNN Classifier}
@@ -183,9 +182,9 @@ An intuitive explanation of embeddings is given and will be used later for dimen
 Let us quickly recall the definition of a Neural Network and its workings for classification.
 Basically, NN are composed of $L$ layers which are made of inter-connected neurons (see figure \ref{fig:neural_network} for an example).
 A connection $l_{i \rightarrow j}$ in the $k$th layer is weighted by a parameter $w^k_{i,j}$ which is learned.
-Classification is done by feed-feeding the input onto the first layer whose output is propagated layers by layers through the network.
-The output of one layer is feed-forwarded onto the next through their neuronal connections.
-This process is repeated until the last layer whose output is considered as the network output.
+Classification is done by feed-forwarding the input onto the first layer whose output is propagated layers by layers through the network.
+The output of one layer is forwarded onto the next through their neuronal connections.
+This process is repeated until the last layer, whose output is considered as the network output.
 Each layer does a single particular computation over its input.
 Usual NN have a repetition of the following pattern: one layer computing inner-products with their neuronal weights then adding biases, followed by a non-linear layer using an activation function.
 
@@ -203,13 +202,13 @@ Let us define the $j$th neuron in the $k$th layer for the inner-product case, th
     z^k_j = \sum_{i=1}^{U^{k-1}} w^k_{i,j} z^{k-1}_i + b^k_j
 \end{eqnarray}
 where $U^k$ is the number of neurons in layer $k$.
-Then the $j$th neuron in the $k$th layer for the activation case:
+Then we define the $j$th neuron in the $k$th layer for the activation case:
 \begin{eqnarray}
     z^k_j = g(z^{k-1}_j, w^k_{j})
 \end{eqnarray}
 where $g$ is the activation function with its parameter.
 Most of them use the sigmoid activation function and connect each neuron to all the next layer neurons.
-Training the weights of such network generally involve gradient descent which minimizes the loss function of the network.
+Training the weights generally involves gradient descent to minimize the loss function of such networks.
 This loss represents the error between the prediction of the network (its output) versus the expected output (in classification: the class label).
 The training involves an iterative process where: the input is first feed-forwarded into the network to compute the error, then this latter is back-propagated up to the first layer, while each unit weights is adjusted to minimize the unit error.
 This process should be repeated until the error on the validation set has converged to a local optimum.
@@ -223,18 +222,18 @@ This process should be repeated until the error on the validation set has conver
 \end{figure}
 
 One particular architecture is the CNN, a special case of NN with certain restrictions.
-CNN models are working well practically for many computer vision problems in image classification.
+CNN models learn very effective solutions for many Computer Vision problems in image classification.
 We briefly describe below three main ideas: local receptive fields, weight sharing and subsampling.
 In CNN, a convolutional layer can model receptive fields by computing multiple trainable 2D kernels which is convoluted with its entire input whose result is called its feature maps.
 We can see a kernel convolution as the replication of a single unit along the dimensions of the input (a 2D grid for images), thus all weights are constrained to be equal by definition.
 A convolutional layer contains multiple units where each has its own kernel.
 Therefore different kernels are applied to the image where a single kernel convolution is called a feature map.
-Such layer naturally computes filters which can be seen like feature extractors driven by data.
+Such layer naturally computes filters which can be seen like data-driven feature extractors.
 The benefit of weight sharing in convolutional layers is to reduce the number of global parameters to learn general purpose filters which can increase generalization.
-Usually, CNN have subsampling layers right after convolutional layers to reduce the dimensionality of the feature maps so that more concise and high-level information are extracted.
+Usually, CNNs have subsampling layers right after convolutional layers to reduce the dimensionality of the feature maps so that more concise and high-level information are extracted.
 Most CNN architectures puts multiple convolutional layers connected to the input to extract visual features after which they have regular inner-product layers (see figure \ref{fig:convnet}).
-CNNs can be seen as two parts: a trainable feature extractor made by the convolutional network followed by a neural network classifier.
-Meanwhile CNN have more constrained, it has been shown they generally outperforms NN with more invariance in multiple computer vision problems \cite{simard2003best}\cite{mnist_web}\cite{lawrence1997face}\cite{krizhevsky2012imagenet}.
+CNN can be seen as two parts: a trainable feature extractor made by the convolutional network followed by a neural network classifier.
+Although CNNs have more constraints, it has been shown they generally outperform NN in multiple Computer Vision problems because they learn more invariance\cite{simard2003best}\cite{mnist_web}\cite{lawrence1997face}\cite{krizhevsky2012imagenet}.
 
 \begin{figure}[h]
     \begin{center}
@@ -244,11 +243,11 @@ Meanwhile CNN have more constrained, it has been shown they generally outperform
     \label{fig:convnet}
 \end{figure}
 
-Moreover, researches found interesting structures in the last-layer embedding of classification NN using t-SNE.
+Moreover, research found interesting structures in the last-layer embedding of classification NN using t-SNE.
 The last layer tends to cluster samples of the same class together while separating the rest\cite{donahue2013decaf}\cite{yu2014visualizing}.
-This is justified by the fact that deeper layers extract more high-level informations, which is necessary to separate classes, moreover the prediction is a direct product with the last layer, which encourage the network to have a simple structure directly clustered by classes.
-Thus it looks reasonable to evaluate the quality of this embedding as a dimensionality reduction method with great potential to capture more information compared to PCA which captures linear correlations.
-It is important to note that t-SNE plays an important role in the quality of this 2D embedding: that is why it can already honorably separates MNIST directly.
+This is explained by the fact that deeper layers extract more high-level information, which is necessary to separate classes. Moreover the prediction is a direct product with the last layer, which encourage the network to have a simple structure directly clustered by classes.
+Thus it is reasonable to evaluate the quality of this embedding as a dimensionality reduction method with great potential to capture more information compared to PCA which captures linear correlations.
+It is important to note that t-SNE plays an important role in the quality of this 2D embedding: that is why it can reasonably separates MNIST without any prior treatment.
 However, it is important to remember it is not the sole responsible of the better separation using the NN embedding because it has no knowledge of the labels.
 The classifier seems to provide better informations to t-SNE which is improving the quality of the structures of the final embedding as we will show later.
 %because it learned specialized filters to distinguish the classes.
@@ -261,8 +260,8 @@ This justifies why we combined CNN classifiers with t-SNE to create a 2D embeddi
 Dimensionality reduction is an important method in machine learning that maps points in a high-dimensional space into a space with a lower number of dimensions.
 We will call this lower subspace an {\em embedding}.
 Representations suitable for human visualization should keep important relations between points of the original space.
-In our experiments, we will apply dimensionality reduction especially on our neural networks' outputs.
-This allows us to quickly compare (qualitatively) the impact of controlled distortions applied on images over networks' outputs.
+In our experiments, we will apply dimensionality reduction on our neural networks' outputs.
+This allows us to quickly compare qualitatively the impact of controlled distortions applied on images over the networks' outputs.
 The structure inferred by distances between points such as clusters, intra-cluster neighbors and inter-cluster outsiders reveals important properties of neural network models.
 Thus we need accurate low-dimensional representations of embeddings that preserve local distances to compare different models.
 In the following sections, we will discuss dimensionality reduction methods that weren't fit for our uses, then we introduce in details the one we used, called t-SNE.
@@ -271,8 +270,9 @@ In the following sections, we will discuss dimensionality reduction methods that
 Various algorithms differentiate themselves by several properties: their goal (\eg: interpolation, compression, visualization), by what they preserve (\eg: variance, distances), how they model point correlation (\eg: linearly or not) or whether they can model new points (\eg: a representation or a mapping).
 
 First, our choice is guided by our primary need, which is to visualize our data.
-Thus the method should produce a 2D or 3D embedding, preferably in 2D for scatter plots easily interpretable.
-Secondly, we need a guarantee on the preservation of relations between points, especially the distances keeping them clustered or not.
+Thus the method should produce a 2D or 3D embedding, preferably in 2D, for easily interpretable scatter plots.
+Secondly, we need an optimization problem that keeping certain relations between points such that clusters are equivalently represented.
+This can be implemented by preserving relative distances to close neighborhood.
 Considering the previous works we discussed above, t-SNE is the best candidate in the current state-of-the-art.
 We now define the method objective functions, probabilities and explain intuitive properties.
 
@@ -311,7 +311,7 @@ And:
 \begin{eqnarray}
     q_{ij} = \frac{1 / (1 + |y_i - y_j|^2)}{\sum_{k \not = l} 1/(1 + |y_k - y_l|^2)}
 \end{eqnarray}
-which replaces the $q$ distribution in SNE by a Student with a heavier tail: distances in high dimensional spaces spread across more dimensions; in low dimensional space, the accurate equivalent distance needs to be much higher per dimension (thus more points end up farer in $Y$, a heavier tail than in $X$).
+which replaces the $q$ distribution in SNE by a Student with a heavier tail: distances in high dimensional spaces spread across more dimensions; in low dimensional space, the accurate equivalent distance needs to be much higher per dimension (thus more points end up further in $Y$, a heavier tail than in $X$).
 As before, a point cannot elect itself: $p_{ii} = q_{ii} = 0$ and probabilities are symmetric for both distributions: $p_{ij} = p_{ji}$ and $q_{ij} = q_{ji}$.
 As stated previously the input space $X$ has much more dimensions were distances can be expressed than the 2 dimensions of $Y$.
 In summary, t-SNE uses Kullback-Leibler divergence to minimize the mismatch of these two spaces by means of probabilities, therefore the chance of important local structures (frequent patterns) being preserved is higher than with other methods (mosts don't express this goal through an objective function).
@@ -323,15 +323,15 @@ We think the most important ones are: the computational cost, the incapacity of 
 Current implementations of t-SNE are still rare, unpolished and require tricks to make them tractable in practice (\eg: reducing first with PCA).
 Moreover, there is currently no way with t-SNE to map new points (not in $D$) without optimizing the whole system from scratch.
 Besides, t-SNE parameters like perplexity and learning rate are not simple to chose.
-Fortunately there are new promising alternatives emerging directly harnessing the power of NN.
+Fortunately there are new promising alternatives directly harnessing the power of NN.
 We introduce such models in the following section.
 
 %there is a direct way to learn an embedding with CNN without t-SNE.
 CNN are mostly used for classification but we can optimize them for other purposes as well.
-Instead of the softmax loss function used for classification, we can use a special training architecture with a suitable loss that when optimized tries to satisfy some constraints.
+Instead of the SoftMax loss function used for classification, we can use a special training architecture with a suitable loss that when optimized tries to satisfy some constraints.
 For example to create an embedding with chosen properties directly found into the output layer.
 Moreover the ideas presented by reduction methods like t-SNE can be formulated in different terms to be applicable to NN.
-In our case the most important idea is to keep similar points together and dissimilar far.
+In our case the most important idea is to keep similar points together and dissimilar far away from each other.
 
 The Siamese network combined with a contrastive loss is a good practical solution to train such networks\cite{bromley1993signature}\cite{chopra2005learning}.
 Let us define $G_W$, the function that computes the network output, with parameters $W$ (see figure \ref{fig:siamese_network}).
@@ -466,7 +466,7 @@ All this functionalities give us the necessary tools to inspect qualitatively th
 \subsection{Datasets}
 %introduce datasets: mnist and norb.
 To perform our experiments, we used two different datasets: {\bf MNIST}\cite{lecun1998mnist} (popular handwritten digit dataset) and {\bf NORB}\cite{lecun2004learning} (popular figures photography dataset).
-We briefly present each dataset with some sample images, we give a few insights about their variability and their usual usage in computer vision.
+We briefly present each dataset with some sample images, we give a few insights about their variability and their usual usage in Computer Vision.
 
 The {\bf MNIST} dataset ({\em modified National Institute of Standards and Technology}) is a gathering of multiple databases of handwritten digits.
 One of the goal of MNIST is to provide a unified benchmark for digit recognition and it is widely used in Computer Vision for many years.
@@ -619,7 +619,7 @@ show t-sne on raw mnist to compare?
 train lenet on digit classification task training set.
 no data augmentation, no invariance at this point.
 give accuracy, in the expected results \cite{mnist_web} (LeNet-5 is 0.95 error rate).
-take model, remove layers for classification (removing softmax): softmax and last inner-product layer (10 outputs).
+take model, remove layers for classification (removing SoftMax): SoftMax and last inner-product layer (10 outputs).
 last remaining layer is ReLU after inner-product, 500 dimensions.
 hypothesis: this last layer should contains a high-level fingerprint of digits useful for classification.
 we apply pca followed by t-sne on test set.
@@ -651,7 +651,7 @@ it represents hierarchal structures with decreasing importance due to its optimi
 
 unexpected clustering.
 recall tsne is for visualization.
-wanted to create invariant-model for classification and decode the fingerprint with t-sne to create a simple coherent plot where class and distortion would be cleanly separated into different axises.
+wanted to create invariant-model for classification and decode the fingerprint with t-sne to create a simple coherent plot where class and distortion would be cleanly separated into different axes.
 however as shown above t-sne doesn't work that way.
 its formulation doesn't allow to tweak it for a particular goal.
 cannot give easily hints about number of variance dimensions to represent.
