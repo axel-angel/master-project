@@ -521,10 +521,13 @@ Images in a pair can have different distortions and different classes (digit for
     \label{fig:mnist_transfo_tsne}
 \end{figure}
 
-In the experiments with t-SNE, we are generating a classification task where the training dataset contains untouched and translated digits with their digit class.
+In the experiments with t-SNE, we are generating a classification task where the training dataset contains one untouched and multiple translated digits with the corresponding label.
 This process is called {\em data augmentation}: the dataset is grown artificially by reusing samples but distorted by translations to train invariant models.
 Each sample is present with several combinations of increasing translations.
 The objective is to train an invariant network and inspect the underlying embedding by using t-SNE.
+The goal of this experiments is two folds.
+First we would like to understand classifier embeddings and its interaction with t-SNE in a practical manner: testing various data-augmentation methods to see how it impacts the model, its accuracy and how t-SNE adapts.
+Secondly, this experiment tests whether we can get an embedding with our prerequisites properties of predictability with a state-of-the-art method specialized for projecting in 2D.
 
 % for siamese
 In the Siamese experiments, in order to compare our results to our reference paper, we trained two models based on their settings on MNIST and NORB.
@@ -575,8 +578,26 @@ Thus again we have: $M=3$ (embedding dimensions), $p = 2$ (two labels) and $D = 
 We train our network based on LeCun's pairing strategy where we separate the azimuth and elevation into two labels (instead of having them merged).
 
 \section{Evaluation Metrics}
+evaluations are important to compare.
+qualitative gives insights of quality but has drawbacks.
+requires human effort, biased and varies among people.
+however lecun didn't provide qualitative.
+a simple measure is the loss, certain condition.
+need to use same params and same test sets.
+however don't know exact parameters.
+tried to reproduce as best as possible, comparing figures.
+
+in our case, we compare the quality of digit neighbor clustering.
+we can use lecun dataset, recall pairing.
+recall we project our 3D into 2D to compute loss.
+our model not optimizing this directly, disadvantaged.
+goal is to see the cost of keeping translation.
+
+need an other measure to compare quality for our goal.
+this measure should account for separation and predictability.
 % FIXME: to write
-contribution: how we can compute our energy-distance for comparisons.
+
+%contribution: how we can compute our energy-distance for comparisons.
 
 \section{Results and Discussion}
 
@@ -584,7 +605,9 @@ We conclude this chapter by presenting our results and insights, including the p
 Our first experiment is the visualization of the LeNet embedding on the MNIST classification task.
 We compare the structural differences between models trained with and without data-augmentation.
 However the resulting vector space has a very different structures than one could expect.
-Then, we move on with the results of our direct methodology with models using the contrastive loss.
+Then, we move on with results of directly optimized embedding with models using the contrastive loss.
+We apply LeCun's methods by replicating the experiments on MNIST and NORB.
+Followed by a throughout detailed discussion of our methods in the same conditions to compare the two.
 
 %tables and graphs: loss of training (for major models), add accuracy for comparison, compare lecun with ours (energy-distance).
 
@@ -599,6 +622,7 @@ digits clearly separated, one cluster per digit.
 clusters are coherent, similarity.
 most distortions are part of clusters but extremes are outside.
 
+people add distorted samples to their dataset (data augmentation) so models can learn to be transfo invariant, but results shows the embedding cluster them into clusters per transfo instead of per label [XXX].
 we can compare to data-augmented model for translation.
 give accuracy, show it is translation invariant.
 digits are heavily overlapping, not cluster.
@@ -611,8 +635,30 @@ recall tsne is for visualization.
 discussion.
 give insights: about t-sne, models, clustering, etc.
 
+lenet on mnist can be easily fooled by translations, because dataset is heavily normalized, translation-invariance is weak. small rotations works well but can fool easily. seems invariant to contrast (invariant filters?).
 
-people add distorted samples to their dataset (data augmentation) so models can learn to be transfo invariant, but results shows the embedding cluster them into clusters per transfo instead of per label [XXX].
+after ensuring my translated training set is correct (high accuracy and so), the t-sne seems ``overcrowded'' or much less separated than before.
+It's like for eevery digit half is clustered and the rest is spread.
+Probably one region for centered digit, one spread region for displaced.
+There are a lot of overlap but there seems to have cluster with the similar translation offset (but different digit!).
+Lots of clusters grouping similar translation offsets: left-shifted, right-shifted, upper-shifted, lower-shifted.
+I suspect the network learned there are two/three kind of samples not-shifted and shifted ones (left-right up-down kinds).
+I should try to have a sample appearing once with x-y-combined translation at random.
+
+shift-invariance training: models with shift-invariance performs better on shifted images obviously at a small cost 2\% on the original test set (not shifted).
+The accuracy on the corresponding shifted testset is lower ~91\% but the shifted-trained model is now much better on shifted than the original one, as shown by shifting accuracy histogram.
+Tried two ways to train for shift invariance for corresponding datasets: (1) original centered image + 1 x-shifted + 1 y-shifted (2) 3* xy-shifted.
+The first version is slightly better than second on the shifting accuracy histogram.
+But the second performs slightly better than first on test\_shift4.
+
+with translation-invariance: models keep quite good accuracy on original testset, but lost 2\% compared to original model.
+Accuracy on shifted testset is much lower (down to 91\%) probably because lots of sample are out of the receptive fields or too much information was lost to disambiguate.
+
+Justification of data-augmentation (with adversarial): we wanted to be distortion/transformation invariant, and we found that it's not necessarily the case with augmentation.
+We need to try other methods: making sure that samples related by label are close together in the vector space of the CNN, distortions shouldn't put them too far apart (wrt to other label).
+We can try to use our own loss function (distance) and constraint our vector space directly.
+We train our network to have such properties directly.
+Then we can try to fine-tune a softmax layer at the output for classification as before but we now have a very different vector space shape (constrained on distances).
 
 \section{Contrastive LeNet}
 
