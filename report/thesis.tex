@@ -616,16 +616,20 @@ Followed by a throughout detailed discussion of our methods in the same conditio
 \subsection{t-SNE on LeNet}
 show t-sne on raw mnist to compare?
 
-train lenet on digit classification task training set.
-no data augmentation, no invariance at this point.
-give accuracy, in the expected results \cite{mnist_web} (LeNet-5 is 0.95 error rate).
-take model, remove layers for classification (removing SoftMax): SoftMax and last inner-product layer (10 outputs).
-last remaining layer is ReLU after inner-product, 500 dimensions.
-hypothesis: this last layer should contains a high-level fingerprint of digits useful for classification.
-we apply pca followed by t-sne on test set.
-digits clearly separated, one cluster per digit.
-the structure shows our hypothesis seems correct, separation of class, coherence of similarity.
-most distortions are part of clusters but extremes are outside.
+To create our model, we train on the MNIST classification task to classify digits without any modification.
+At this point, all images of the training set are used as is without data-augmentation, thus there is little invariance.
+The error rate of this model is 1.0\% which is computed over the MNIST test set.
+According to the published results on the MNIST website, this is the expected value (LeNet-5: 0.95)\cite{mnist_web}.
+In the following experiments, we consider this network with the classification layers removed (SoftMax and 10-outputs inner-product).
+Therefore the last remaining layer is a ReLU which follows the last inner-product of 500 dimensions.
+Our hypothesis at this stage is as follows: This last layer should express high-level concepts of digits and we call it the fingerprint.
+To understand the behavior of the system, we also include a few distorted samples to the test set: for each digit we select one sample and include its distortions as described in the methodology.
+To confirm our intuition, we forward this test set into this network, apply PCA on its output which is given to t-SNE to create the final embedding.
+The figure \ref{fig:mnist_nda_tsne} doesn't include the distorted samples whereas \ref{fig:mnist_nda_tsne2} does.
+We can see qualitatively on figure \ref{fig:mnist_nda_tsne} that most of the original digits are well separated where each cluster represents a single class.
+The major exception are the 1s spreading on a thin vertical curve over a small part of he 6s.
+Our hypothesis seems validated by the structure on this plot: separation of classes and coherence inside clusters by visual inspection.
+Most of the distorted samples on figure \ref{fig:mnist_nda_tsne2} are part of their respective clusters however they drift apart and extremes are outside.
 
 apply the experiment again but learn translation invariance.
 one simple way is data augmentation to train model to recognize digits when translated.
@@ -636,6 +640,22 @@ translation is dominating the clustering.
 inside each cluster, visible digit separation.
 digits are heavily overlapping, not easily separable.
 Lots of clusters grouping similar translation offsets: left-shifted, right-shifted, upper-shifted, lower-shifted.
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[width=\textwidth]{thesis_figures/mnist_nda_tsne.jpg}
+    \end{center}
+    \caption{Scatter plot of a t-SNE representation of the CNN embedding fed with the MNIST test set using our interactive tool (distorted samples are hidden)}
+    \label{fig:mnist_nda_tsne}
+\end{figure}
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[width=\textwidth]{thesis_figures/mnist_nda_tsne2.jpg}
+    \end{center}
+    \caption{Scatter plot of a t-SNE representation of the CNN embedding fed with the MNIST test set using our interactive tool (distorted samples are shown)}
+    \label{fig:mnist_nda_tsne2}
+\end{figure}
 
 %discussion.
 %give insights: about t-sne, models, clustering, etc.
