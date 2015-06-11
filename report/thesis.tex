@@ -181,7 +181,7 @@ An intuitive explanation of embeddings is given and will be used later for dimen
 %introduce CNN and embeddings
 
 Let us quickly recall the definition of a Neural Network and its workings for classification.
-Basically, NN are composed of $L$ layers which are made of inter-connected neurons.
+Basically, NN are composed of $L$ layers which are made of inter-connected neurons (see figure \ref{fig:neural_network} for an example).
 A connection $l_{i \rightarrow j}$ in the $k$th layer is weighted by a parameter $w^k_{i,j}$ which is learned.
 Classification is done by feed-feeding the input onto the first layer whose output is propagated layers by layers through the network.
 The output of one layer is feed-forwarded onto the next through their neuronal connections.
@@ -232,7 +232,7 @@ Therefore different kernels are applied to the image where a single kernel convo
 Such layer naturally computes filters which can be seen like feature extractors driven by data.
 The benefit of weight sharing in convolutional layers is to reduce the number of global parameters to learn general purpose filters which can increase generalization.
 Usually, CNN have subsampling layers right after convolutional layers to reduce the dimensionality of the feature maps so that more concise and high-level information are extracted.
-Most CNN architectures puts multiple convolutional layers connected to the input to extract visual features after which they have regular inner-product layers.
+Most CNN architectures puts multiple convolutional layers connected to the input to extract visual features after which they have regular inner-product layers (see figure \ref{fig:convnet}).
 CNNs can be seen as two parts: a trainable feature extractor made by the convolutional network followed by a neural network classifier.
 Meanwhile CNN have more constrained, it has been shown they generally outperforms NN with more invariance in multiple computer vision problems \cite{simard2003best}\cite{mnist_web}\cite{lawrence1997face}\cite{krizhevsky2012imagenet}.
 
@@ -334,7 +334,7 @@ Moreover the ideas presented by reduction methods like t-SNE can be formulated i
 In our case the most important idea is to keep similar points together and dissimilar far.
 
 The Siamese network combined with a contrastive loss is a good practical solution to train such networks\cite{bromley1993signature}\cite{chopra2005learning}.
-Let us define $G_W$, the function that computes the network output, with parameters $W$.
+Let us define $G_W$, the function that computes the network output, with parameters $W$ (see figure \ref{fig:siamese_network}).
 Then the Siamese network put two weight-sharing instances of $G_W$ side by side, each having their own separate input.
 This architectural idea is to create two instances of $G_W$ where their weights $W$ are shared.
 On top of this Siamese network is placed the ``cost module'', the contrastive loss, which will compute a loss proportional to the difference between the two output.
@@ -349,7 +349,7 @@ When the network is used, only a single instance $G_W$ is required to feed an in
     \label{fig:siamese_network}
 \end{figure}
 
-The contrastive loss function is based on energy models but a single attractive term is not sufficient because it would allow degenerate solutions where all points squashed together; thus an opposing term to push dissimilar pairs should appear as well.
+The contrastive loss function is based on energy models (figure \ref{fig:contrastive_spring}) but a single attractive term is not sufficient because it would allow degenerate solutions where all points squashed together; thus an opposing term to push dissimilar pairs should appear as well.
 The definition of the contrastive loss for a pair is as follows:
 \begin{eqnarray}
     L = \frac{1}{2} Y (D_W)^2 + \frac{1}{2} (1-Y) \max(0, m - D_W)^2
@@ -360,7 +360,7 @@ where $Y \in \{0,1\}$ is the label: $1$ for similar pairs, $0$ otherwise; $D_W \
     \begin{center}
         \includegraphics[width=0.5\textwidth]{thesis_figures/contrastive_spring.jpg}
     \end{center}
-    \caption{A schematic representation of the contrastive loss using physical springs: (a) Shows the points connected to similar points with {\em attract-only} springs. (b) The loss function and its gardient associated with similar pairs. (c) The point connected only with dissimilar points inside the circle of radius $m$ with {\em m-repulse-only} springs. (d) Shows the loss function and its gradient associated with dissimilar pairs. (e) Shows the situation where a point is pulled by other points in different directions, creating equilibrium -- Source \cite{hadsell2006dimensionality}}
+    \caption{A schematic representation of the contrastive loss using physical springs. See \cite{hadsell2006dimensionality} for the details. (a) Shows the points connected to similar points with {\em attract-only} springs. (b) The loss function and its gardient associated with similar pairs. (c) The point connected only with dissimilar points inside the circle of radius $m$ with {\em m-repulse-only} springs. (d) Shows the loss function and its gradient associated with dissimilar pairs. (e) Shows the situation where a point is pulled by other points in different directions, creating equilibrium -- Source \cite{hadsell2006dimensionality}}
     \label{fig:contrastive_spring}
 \end{figure}
 
@@ -404,8 +404,8 @@ We present what we use to quantitatively measure our results that we use later f
 
 %explain our models.
 As previously said, we are closely following the work of our reference paper \cite{hadsell2006dimensionality}.
-Therefore, We employed the two different models they choose to experiment with the two popular datasets MNIST and NORB, one model per dataset.
-The first model is {\bf LeNet 5}, a multi-layer neural networks that features an architecture specialized for handwritten characters.
+Therefore, we employed the two different models they choose to experiment with the two popular datasets MNIST and NORB, one model per dataset.
+The first model is {\bf LeNet 5}, a multi-layer neural networks that features an architecture specialized for handwritten characters, illustrated in figure \ref{fig:siamese_cnn}.
 It is with no surprise that they are using it for MNIST, which is a handwritten digit dataset.
 We are using a very close fine-tuned variant with minor changes.
 This network architecture is comprised of a total of 7 layers with trainable parameters.
@@ -471,6 +471,7 @@ We briefly present each dataset with some sample images, we give a few insights 
 The {\bf MNIST} dataset ({\em modified National Institute of Standards and Technology}) is a gathering of multiple databases of handwritten digits.
 One of the goal of MNIST is to provide a unified benchmark for digit recognition and it is widely used in Computer Vision for many years.
 It is composed of $60'000$ training and $10'000$ testing images of digits between $0$ and $9$.
+A few examples of the training set are illustrated in figure \ref{fig:mnist}.
 The samples are heavily post-processed: uniform black background, white-shaded digits with bold strokes.
 The digits are centered such that the gravity center is in the middle and size-normalized so one digit lies inside a restrained sub-region of the $28 \times 28$ bitmap.
 The variability of this dataset lies in the different strokes, different writer styles, natural rotations, thickness, curve roundedness and such.
@@ -488,7 +489,7 @@ However it is still a good subject of experiments to try and validate new ideas 
 The {\bf NORB} dataset ({\em NYU Object Recognition Benchmark}) is a collection of photos of toy figures taken from a variety of contiguous poses.
 This dataset has two variants where we picked the normalized-uniform set.
 Its usage is also intended for benchmark, in ``large-scale invariant object categorization''.
-It is composed of $48'600$ processed photos of toy figures.
+It is composed of $48'600$ processed photos of toy, see figure \ref{fig:norb}.
 The dataset is made by combining: $9$ elevation views, $18$ azimuth views, $6$ illumination conditions and $5$ toys categories, each containing $10$ toys.
 The categories are: humans, animals, airplanes, trucks and cars.
 The usual training task is to recognize the toy category whatever viewpoint or illumination is used.
@@ -509,9 +510,10 @@ We are using Python scripts to automatically derive our training and testing set
 The training architecture apply sequentially SGD over the samples in batch as they appear and it loops over the whole dataset if the number of iterations hasn't reached zero.
 The generation of our datasets depends on multiple parameters related to the experiment.
 In the case of the t-SNE visualization, we create a distorted dataset containing each sample plus its distorted versions varying in strength, where each image has only a single transformation at a time.
-The samples are all distorted using the same set of intensities, quantified as follows: translations and shearing using pixel displacement, rotations using positive and negative angles and blurring with averaging radius.
+The samples are all distorted using the same set of intensities, quantified as follows: translations and shearing using pixel displacement, rotations using positive and negative angles and blurring with averaging radius (examples in figure \ref{fig:mnist_transfo_tsne}.
 In the case of Siamese training, we create paired datasets: containing two distorted images with their similarity (1 or 0).
 Images in a pair can have different distortions and different classes (digit for MNIST, elevation/azimuth for NORB) and still be paired (label 1), depending on the experiment.
+An example of pairs for MNIST is illustrated in figure \ref{fig:mnist_pairs}.
 
 \begin{figure}[h]
     \begin{center}
@@ -519,6 +521,14 @@ Images in a pair can have different distortions and different classes (digit for
     \end{center}
     \caption{Some examples of distortions in our data-augmented dataset used in our t-SNE visualization experiment}
     \label{fig:mnist_transfo_tsne}
+\end{figure}
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics{thesis_figures/mnist_pairs.jpg}
+    \end{center}
+    \caption{Examples of pairs in our Siamese training dataset}
+    \label{fig:mnist_pairs}
 \end{figure}
 
 In the experiments with t-SNE, we are generating a classification task where the training dataset contains one untouched and multiple translated digits with the corresponding label.
@@ -560,14 +570,6 @@ We name it the ``transformation'' label.
 Pairs not mentioned in our descriptions above are not included in our datasets.
 Moreover we reduce the size and the time for training by randomly taking a subset of dissimilar pairs to balance the label ratio instead of including all of them.
 
-\begin{figure}[h]
-    \begin{center}
-        \includegraphics{thesis_figures/mnist_pairs.jpg}
-    \end{center}
-    \caption{Examples of pairs in our Siamese training dataset}
-    \label{fig:mnist_pairs}
-\end{figure}
-
 In the case of NORB, we are using a 3D embedding as well: where the first 2D are used for the cyclic azimuth (horizontal angle of the viewpoint) and the last 1D for the non-cyclic elevation (vertical angle).
 LeCun's work defined similar pairs when the two images are from contiguous elevation or azimuth and we will do the same.
 The justification of LeCun's dimension allocation is as follows.
@@ -604,7 +606,7 @@ this measure should account for separation and predictability.
 We conclude this chapter by presenting our results and insights, including the plots and quantitative measures.
 Our first experiment is the visualization of the LeNet embedding on the MNIST classification task.
 We compare the structural differences between models trained with and without data-augmentation.
-However the resulting vector space has a very different structures than one could expect.
+However the resulting embedding has an unexpected structures that doesn't fit our requirements.
 Then, we move on with results of directly optimized embedding with models using the contrastive loss.
 We apply LeCun's methods by replicating the experiments on MNIST and NORB.
 Followed by a throughout detailed discussion of our methods in the same conditions to compare the two.
@@ -614,51 +616,50 @@ Followed by a throughout detailed discussion of our methods in the same conditio
 \subsection{t-SNE on LeNet}
 show t-sne on raw mnist to compare?
 
-train lenet on digit classification task train set.
-no data augmentation at this point
-give accuracy.
+train lenet on digit classification task training set.
+no data augmentation, no invariance at this point.
+give accuracy, in the expected results \cite{mnist_web} (LeNet-5 is 0.95 error rate).
+take model, remove layers for classification (removing softmax): softmax and last inner-product layer (10 outputs).
+last remaining layer is ReLU after inner-product, 500 dimensions.
+hypothesis: this last layer should contains a high-level fingerprint of digits useful for classification.
 we apply pca followed by t-sne on test set.
 digits clearly separated, one cluster per digit.
-clusters are coherent, similarity.
+the structure shows our hypothesis seems correct, separation of class, coherence of similarity.
 most distortions are part of clusters but extremes are outside.
 
-people add distorted samples to their dataset (data augmentation) so models can learn to be transfo invariant, but results shows the embedding cluster them into clusters per transfo instead of per label [XXX].
+apply the experiment again but learn translation invariance.
+one simple way is data augmentation to train model to recognize digits when translated.
 we can compare to data-augmented model for translation.
 give accuracy, show it is translation invariant.
-digits are heavily overlapping, not cluster.
-clusters are now per translation.
+hypothesis: the fingerprint now should also contains many features of digits with translation.
+translation is dominating the clustering.
 inside each cluster, visible digit separation.
-this shows unexpected clustering.
-lack of control.
-recall tsne is for visualization.
-
-discussion.
-give insights: about t-sne, models, clustering, etc.
-
-lenet on mnist can be easily fooled by translations, because dataset is heavily normalized, translation-invariance is weak. small rotations works well but can fool easily. seems invariant to contrast (invariant filters?).
-
-after ensuring my translated training set is correct (high accuracy and so), the t-sne seems ``overcrowded'' or much less separated than before.
-It's like for eevery digit half is clustered and the rest is spread.
-Probably one region for centered digit, one spread region for displaced.
-There are a lot of overlap but there seems to have cluster with the similar translation offset (but different digit!).
+digits are heavily overlapping, not easily separable.
 Lots of clusters grouping similar translation offsets: left-shifted, right-shifted, upper-shifted, lower-shifted.
-I suspect the network learned there are two/three kind of samples not-shifted and shifted ones (left-right up-down kinds).
-I should try to have a sample appearing once with x-y-combined translation at random.
 
-shift-invariance training: models with shift-invariance performs better on shifted images obviously at a small cost 2\% on the original test set (not shifted).
-The accuracy on the corresponding shifted testset is lower ~91\% but the shifted-trained model is now much better on shifted than the original one, as shown by shifting accuracy histogram.
-Tried two ways to train for shift invariance for corresponding datasets: (1) original centered image + 1 x-shifted + 1 y-shifted (2) 3* xy-shifted.
-The first version is slightly better than second on the shifting accuracy histogram.
-But the second performs slightly better than first on test\_shift4.
+%discussion.
+%give insights: about t-sne, models, clustering, etc.
+lenet on mnist without data-augmentation easily fooled with distortion.
+as said, mnist is heavily processed, nearly no variance left in dataset to train model.
+however small rotations works well because it's naturally present.
+adding multiplies translated copies in dataset greatly reduce errors on distorted.
+however t-sne embedding is ``overcrowded'' when augmented due to fuzzy boundaries between clusters.
+cause is due to important energy change in pixel space, \eg: center of mass is translated.
+network probably learned to separate the most important source of variance and acquired position-specific features to distinguish translated digits which impacts fingerprints of the last layer.
+t-SNE used this primary clustering energy for translation, then digits as its second major structure.
+it represents hierarchal structures with decreasing importance due to its optimization formulation, discriminative features.
 
-with translation-invariance: models keep quite good accuracy on original testset, but lost 2\% compared to original model.
-Accuracy on shifted testset is much lower (down to 91\%) probably because lots of sample are out of the receptive fields or too much information was lost to disambiguate.
+unexpected clustering.
+recall tsne is for visualization.
+wanted to create invariant-model for classification and decode the fingerprint with t-sne to create a simple coherent plot where class and distortion would be cleanly separated into different axises.
+however as shown above t-sne doesn't work that way.
+its formulation doesn't allow to tweak it for a particular goal.
+cannot give easily hints about number of variance dimensions to represent.
+the resulting embedding is confusing for humans.
+this is due to lack of control
+need supervised method where prior knowledge can be used to guide it.
 
-Justification of data-augmentation (with adversarial): we wanted to be distortion/transformation invariant, and we found that it's not necessarily the case with augmentation.
-We need to try other methods: making sure that samples related by label are close together in the vector space of the CNN, distortions shouldn't put them too far apart (wrt to other label).
-We can try to use our own loss function (distance) and constraint our vector space directly.
-We train our network to have such properties directly.
-Then we can try to fine-tune a softmax layer at the output for classification as before but we now have a very different vector space shape (constrained on distances).
+in the following we present the results of our alternative method.
 
 \section{Contrastive LeNet}
 
