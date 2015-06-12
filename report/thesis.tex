@@ -153,8 +153,8 @@ Some papers proposes to learn transformation-invariant embeddings, by means of m
 %proposes an alternative network, symmetry networks, to extend invariance beyond translation by using feature map over arbitrary symmetry groups by use of kernel-based interpolation.
 %paper: Dimensionality Reduction by Learning an Invariant Mapping
 
-The latter will be mentioned in the following as the {\em reference paper} or {\em LeCun}'s works.
-This paper proposes to create a dimensionality reducing mapping by training a CNN using a new loss function based on energy models, called the {\em contrastive loss}.
+The latter proposes to create a dimensionality reducing mapping, called {\em Reduction by Learning an Invariant Mapping} ({\em DrLIM}), by training a CNN using a new loss function based on energy models, called the {\em contrastive loss}.
+This paper will be mentioned in this work as the {\em reference paper} or DrLIM's paper.
 Their results using on the MINST dataset\cite{lecun1998mnist} shows that CNN can learn a mapping that distinguish labels, and group alike digits even when they are translated artificially.
 They experimented with the NORB dataset\cite{lecun2004learning} as well with intriguing results: each sample is mapped on a 3D cylinder whose axes quantify the orientation in 2D and the azimuth angle in 1D.
 The network was successfully trained to ignore lighting conditions, which is a strongly non-linear distortion.
@@ -195,6 +195,7 @@ Usual NN have a repetition of the following pattern: one layer computing inner-p
     \caption{A Neural Network with two layers -- Source: mechanicalforex.com}
     \label{fig:neural_network}
 \end{figure}
+% FIXME: figure, check usage rights
 
 The figure \ref{fig:artificial_neurons} presents the computation involving a particular neuron and its activation.
 Let us define the $j$th neuron in the $k$th layer for the inner-product case, then its output $z^k_j$ is defined:
@@ -242,6 +243,7 @@ Although CNNs have more constraints, it has been shown they generally outperform
     \caption{Architecture of a CNN -- Source: code.flickr.net}
     \label{fig:convnet}
 \end{figure}
+% FIXME: figure, check usage rights
 
 Moreover, research found interesting structures in the last-layer embedding of classification NN using t-SNE.
 The last layer tends to cluster samples of the same class together while separating the rest\cite{donahue2013decaf}\cite{yu2014visualizing}.
@@ -348,6 +350,7 @@ When the network is used, only a single instance $G_W$ is required to feed an in
     \caption{Schematic representation of a Siamese network -- Source: cs.nyu.edu}
     \label{fig:siamese_network}
 \end{figure}
+% FIXME: figure, check usage rights
 
 The contrastive loss function is based on energy models (figure \ref{fig:contrastive_spring}) but a single attractive term is not sufficient because it would allow degenerate solutions where all points squashed together; thus an opposing term to push dissimilar pairs should appear as well.
 The definition of the contrastive loss for a pair is as follows:
@@ -363,6 +366,7 @@ where $Y \in \{0,1\}$ is the label: $1$ for similar pairs, $0$ otherwise; $D_W \
     \caption{A schematic representation of the contrastive loss using physical springs. See \cite{hadsell2006dimensionality} for the details. (a) Shows the points connected to similar points with {\em attract-only} springs. (b) The loss function and its gardient associated with similar pairs. (c) The point connected only with dissimilar points inside the circle of radius $m$ with {\em m-repulse-only} springs. (d) Shows the loss function and its gradient associated with dissimilar pairs. (e) Shows the situation where a point is pulled by other points in different directions, creating equilibrium -- Source \cite{hadsell2006dimensionality}}
     \label{fig:contrastive_spring}
 \end{figure}
+% FIXME: figure, check usage rights
 
 With this cost function, a label describes whether or not a pair should be close in the embedding.
 The definition of similarity is left open for the application at hand.
@@ -417,6 +421,7 @@ This network architecture is comprised of a total of 7 layers with trainable par
     \caption{Architecture of the CNN (based on LeNet 5) -- Source: \cite{hadsell2006dimensionality}}
     \label{fig:siamese_cnn}
 \end{figure}
+% FIXME: figure, check usage rights
 
 The first part of this network is comprised of two pairs of convolution-pooling layers, where convolution kernels share their weights.
 As explained earlier, each convolution is applied to the entire image to create a single feature map.
@@ -544,7 +549,7 @@ In the Siamese experiments, in order to compare our results to our reference pap
 The goal of our reference paper is to train a model where points are close together if they are ``visually'' similar without considering translations.
 The implementation of their pairing strategy is as follows.
 First they group each sample into a common ``neighborhood'' relation the 5 most similar ones using the euclidean distance in pixel space.
-However in practice, neighbors with different digit class would appear and LeCun's didn't mention if they considered legit or not.
+However in practice, neighbors with different digit class would appear and DrLIM's paper didn't mention if they considered legit or not.
 In our case we decided to only consider neighborhood with the same class after a visual inspection (we found such pairs enough dissimilar).
 The sample and its $n$ translations are all paired with both its 5 neighbors and all its $n$ translations (this sums up to $n \times 5n$ pairs per sample).
 All other pairs are considered dissimilar: when the two samples are not part of the same common translated neighborhood.
@@ -559,10 +564,10 @@ We can use our extension of the contrastive loss function with $p$ labels for ea
 The definitions of $p$ and $D$ for the two Siamese experiments are now described and justified in the following.
 
 In the case of MNIST, we are using a 3-dimensional embedding space: where the first two dimensions express neighborhood similarity and the last dimension expresses the distortion similarity.
-It is true 2D suffices in this case but to be comparable to LeCun's 2D embedding, we will use a 2D neighborhood space as well and separate distortions into its own space.
-Making comparisons between LeCun's 2D space and our model with 1D neighborhood would be unfair due to distances increasing very quickly as the number of dimensions increases.
+It is true 2D suffices in this case but to be comparable to DrLIM's 2D embedding, we will use a 2D neighborhood space as well and separate distortions into its own space.
+Making comparisons between 2D space (DrLIM) and 1D neighborhood (our model) would be unfair due to distances increasing very quickly as the number of dimensions increases.
 In this settings, we have: $M=3$ (embedding dimensions), $p = 2$ (two labels) and $D = \left\{ 2, 1 \right\}$ (2D + 1D).
-We train our network using a similar pair strategy to LeCun's but with important differences.
+We train our network using a similar pair strategy to DrLIM but with important differences.
 Our first label considers similar: a sample and its translations; the sample and its neighbors if they have the same translations; and considers dissimilar: the sample and any non-neighbor sample.
 That's why we name it the ``neighborhood'' label.
 Our second label considers similar: a sample and any other sample with the same translation; and considers dissimilar any pair without the same translation.
@@ -571,26 +576,26 @@ Pairs not mentioned in our descriptions above are not included in our datasets.
 Moreover we reduce the size and the time for training by randomly taking a subset of dissimilar pairs to balance the label ratio instead of including all of them.
 
 In the case of NORB, we are using a 3D embedding as well: where the first 2D are used for the cyclic azimuth (horizontal angle of the viewpoint) and the last 1D for the non-cyclic elevation (vertical angle).
-LeCun's work defined similar pairs when the two images are from contiguous elevation or azimuth and we will do the same.
-The justification of LeCun's dimension allocation is as follows.
+DrLIM's work defined similar pairs when the two images are from contiguous elevation or azimuth and we will do the same.
+The justification of DrLIM's dimension allocation is as follows.
 The azimuth viewpoint is cyclic and the shape to represent such structure, without overlapping for different values, is an ellipsis which requires at least 2D.
 The elevation viewpoint is not cyclic because NORB has only a smaller subset of values, thus only a single dimension is allocated.
-In this case we can directly compare LeCun's embedding and ours as they work on the same problem.
+In this case we can directly compare DrLIM's embedding and ours as they work on the same problem.
 Thus again we have: $M=3$ (embedding dimensions), $p = 2$ (two labels) and $D = \left\{ 2, 1 \right\}$ (2D + 1D).
-We train our network based on LeCun's pairing strategy where we separate the azimuth and elevation into two labels (instead of having them merged).
+We train our network based on DrLIM's pairing strategy where we separate the azimuth and elevation into two labels (instead of having them merged).
 
 \section{Evaluation Metrics}
 evaluations are important to compare.
 qualitative gives insights of quality but has drawbacks.
 requires human effort, biased and varies among people.
-however lecun didn't provide qualitative.
+however DrLIM didn't provide qualitative.
 a simple measure is the loss, certain condition.
 need to use same params and same test sets.
 however don't know exact parameters.
 tried to reproduce as best as possible, comparing figures.
 
 in our case, we compare the quality of digit neighbor clustering.
-we can use lecun dataset, recall pairing.
+we can use DrLIM dataset, recall pairing.
 recall we project our 3D into 2D to compute loss.
 our model not optimizing this directly, disadvantaged.
 goal is to see the cost of keeping translation.
@@ -608,13 +613,13 @@ Our first experiment is the visualization of the LeNet embedding on the MNIST cl
 We compare the structural differences between models trained with and without data-augmentation.
 However the resulting embedding has an unexpected structures that doesn't fit our requirements.
 Then, we move on with results of directly optimized embedding with models using the contrastive loss.
-We apply LeCun's methods by replicating the experiments on MNIST and NORB.
+We apply DrLIM's methods by replicating the experiments on MNIST and NORB.
 Followed by a throughout detailed discussion of our methods in the same conditions to compare the two.
 
-%tables and graphs: loss of training (for major models), add accuracy for comparison, compare lecun with ours (energy-distance).
+%tables and graphs: loss of training (for major models), add accuracy for comparison, compare DrLIM with ours (energy-distance).
 
 \subsection{t-SNE on LeNet}
-show t-sne on raw mnist to compare?
+%show t-sne on raw mnist to compare?
 
 To create our model, we train on the MNIST classification task to classify digits without any modification.
 At this point, all images of the training set are used as is without data-augmentation, thus there is little invariance.
@@ -647,6 +652,7 @@ Most of the distorted samples on figure \ref{fig:mnist_nda_tsne2} are part of th
     \caption{Scatter plot of a t-SNE representation of the CNN embedding fed with the MNIST test set using our interactive tool (distorted samples are shown)}
     \label{fig:mnist_nda_tsne2}
 \end{figure}
+% FIXME: display some samples in figures?
 
 In the next experiment, we apply the same process with a translation-invariant model.
 One simple way to achieve invariance is to train the model over a data-augmented training set to distinguish centred digits as well as translated digits.
@@ -655,8 +661,8 @@ In our case we chose all translations in $x$ between $-5$ to $+5$ plus translati
 The error rate on the original test set increased up to $3.5\%$, but we don't have comparisons for this value.
 However this model has a strong translation invariance because its error rate is only $8.5\%$ on the data-augmented test set (we must stress the fact that it contains extreme translations).
 Our second hypothesis is as follows: As the fingerprint contains many different features, it should also detect translations which was heavily present in the training set.
-We can now compare the embeddings of this new model versus the one above.
-From a global observation, we can see that translations are dominating the way these digits are clustered together.
+We can now compare the embeddings of this new model (see figure \ref{fig:mnist_da_tsne}) versus the one above.
+From a general perspective, translations are dominating the global structure of the clusters.
 The centered digits are still in their own clusters but most of the translated ones are grouped disregarding their class.
 However the ``translated'' clusters exhibits coherence: sub-clusters represent digit classes but they are heavily overlapping.
 For example, the right-displaced digits are exclusively appearing in the top-left corner where all digits are present and mostly stacked together in the center.
@@ -669,6 +675,7 @@ This is actually a general problem with this plot: many clusters appear but thei
     \caption{Scatter plot of t-SNE representation of the CNN embedding fed with the data-augmented MNIST test set using our interactive tool}
     \label{fig:mnist_da_tsne}
 \end{figure}
+% FIXME: display some samples in figures?
 
 %discussion.
 %give insights: about t-sne, models, clustering, etc.
@@ -692,9 +699,9 @@ There is currently no way to add prior information like supervised methods to gu
 A possible solution is to modify the objective function of t-SNE to reach our goal but it has the important limitations we discussed in the methodology.
 The lack of end-to-end optimization in this method is also important and this can be solved by using layers handling the dimensionality reducing into a single NN.
 
-We present, in the following section, results of our alternative method based on end-to-end and supervised training of a single CNN.
+We present, in the following part, results of our alternative method based on end-to-end and supervised training of a single CNN.
 
-\section{Contrastive LeNet}
+\subsection{Contrastive LeNet}
 
 train siamese network with contrastive on subset train mnist.
 show plot embedding on test set.
@@ -702,7 +709,7 @@ give loss function, graph?
 describe clusters, well separated.
 coherent embedding inside clusters.
 converge faster?
-compare lecun and ours.
+compare DrLIM and ours.
 give quantitative results.
 
 train siamese network with contrastive on subset norb with plane.
@@ -710,7 +717,7 @@ show plot embedding on test set.
 give loss function, graph?
 describe coherence, continuity, cycle of structure.
 converge faster?
-compare lecun and ours.
+compare DrLIM and ours.
 give quantitative results.
 
 general discussion.
