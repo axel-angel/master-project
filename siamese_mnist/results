@@ -58,7 +58,8 @@ lecun_siamese2Dc3_digit << TODO
 lecun_siamese2Dc3_transfo << TODO
 
 > common loss dataset (lecun X 0)
-lecun_siamese0c_test: --shuffle --transfo-name shift_x --transfo-values -6 -3 0 3 6
+lecun_siamese0c_test: --method 0 --in-npz mnist_test_49_neighs_v2_3k.npz --out-npz data/lecun_siamese0c_test.npz --shuffle --transfo-name shift_x --transfo-values -6 -3 0 3 6
+lecun_siamese2bv7_test: --method 2b --in-npz mnist_test_49_neighs_v2_3k.npz --out-npz data/lecun_siamese2bv7_test.npz --pair-displaced --shuffle --transfo-name shift_x --transfo-values -6 -3 0 3 6
 
 > models
 lecun_siamese2b: use lecun_siamese2, random seed 43

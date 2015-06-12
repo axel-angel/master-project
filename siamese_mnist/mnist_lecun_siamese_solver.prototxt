@@ -20,7 +20,7 @@ display: 100
 max_iter: 10000
 # snapshot intermediate results
 snapshot: 1000
-snapshot_prefix: "snapshots/lecun_siamese2Dd"
+snapshot_prefix: "snapshots/tmp_lecun_siamese2Dd"
 # solver mode: CPU or GPU
 solver_mode: CPU
 # training is reproducible
