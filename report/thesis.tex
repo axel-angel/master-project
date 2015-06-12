@@ -623,23 +623,14 @@ According to the published results on the MNIST website, this is the expected va
 In the following experiments, we consider this network with the classification layers removed (SoftMax and 10-outputs inner-product).
 Therefore the last remaining layer is a ReLU which follows the last inner-product of 500 dimensions.
 Our hypothesis at this stage is as follows: This last layer should express high-level concepts of digits and we call it the fingerprint.
-To understand the behavior of the system, we also include a few distorted samples to the test set: for each digit we select one sample and include its distortions as described in the methodology.
+To understand the behavior of the system, we also include a few distorted samples to the test set: for each digit we select five samples and include their distortions as described in the methodology.
 To confirm our intuition, we forward this test set into this network, apply PCA on its output which is given to t-SNE to create the final embedding.
 The figure \ref{fig:mnist_nda_tsne} doesn't include the distorted samples whereas \ref{fig:mnist_nda_tsne2} does.
 We can see qualitatively on figure \ref{fig:mnist_nda_tsne} that most of the original digits are well separated where each cluster represents a single class.
 The major exception are the 1s spreading on a thin vertical curve over a small part of he 6s.
 Our hypothesis seems validated by the structure on this plot: separation of classes and coherence inside clusters by visual inspection.
 Most of the distorted samples on figure \ref{fig:mnist_nda_tsne2} are part of their respective clusters however they drift apart and extremes are outside.
-
-apply the experiment again but learn translation invariance.
-one simple way is data augmentation to train model to recognize digits when translated.
-we can compare to data-augmented model for translation.
-give accuracy, show it is translation invariant.
-hypothesis: the fingerprint now should also contains many features of digits with translation.
-translation is dominating the clustering.
-inside each cluster, visible digit separation.
-digits are heavily overlapping, not easily separable.
-Lots of clusters grouping similar translation offsets: left-shifted, right-shifted, upper-shifted, lower-shifted.
+% FIXME: need description of how they drift wrt distortion?
 
 \begin{figure}[h]
     \begin{center}
@@ -657,29 +648,51 @@ Lots of clusters grouping similar translation offsets: left-shifted, right-shift
     \label{fig:mnist_nda_tsne2}
 \end{figure}
 
+In the next experiment, we apply the same process with a translation-invariant model.
+One simple way to achieve invariance is to train the model over a data-augmented training set to distinguish centred digits as well as translated digits.
+As previously described, our augmentation consists of a range of translations applied to all samples which are included into the training set.
+In our case we chose all translations in $x$ between $-5$ to $+5$ plus translations in $y$ between $-10$ and $+10$.
+The error rate on the original test set increased up to $3.5\%$, but we don't have comparisons for this value.
+However this model has a strong translation invariance because its error rate is only $8.5\%$ on the data-augmented test set (we must stress the fact that it contains extreme translations).
+Our second hypothesis is as follows: As the fingerprint contains many different features, it should also detect translations which was heavily present in the training set.
+We can now compare the embeddings of this new model versus the one above.
+From a global observation, we can see that translations are dominating the way these digits are clustered together.
+The centered digits are still in their own clusters but most of the translated ones are grouped disregarding their class.
+However the ``translated'' clusters exhibits coherence: sub-clusters represent digit classes but they are heavily overlapping.
+For example, the right-displaced digits are exclusively appearing in the top-left corner where all digits are present and mostly stacked together in the center.
+This is actually a general problem with this plot: many clusters appear but their delimitations are fuzzy which suggests it would be hard to quantify translations and digits.
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[width=\textwidth]{thesis_figures/mnist_da_tsne.jpg}
+    \end{center}
+    \caption{Scatter plot of t-SNE representation of the CNN embedding fed with the data-augmented MNIST test set using our interactive tool}
+    \label{fig:mnist_da_tsne}
+\end{figure}
+
 %discussion.
 %give insights: about t-sne, models, clustering, etc.
-lenet on mnist without data-augmentation easily fooled with distortion.
-as said, mnist is heavily processed, nearly no variance left in dataset to train model.
-however small rotations works well because it's naturally present.
-adding multiplies translated copies in dataset greatly reduce errors on distorted.
-however t-sne embedding is ``overcrowded'' when augmented due to fuzzy boundaries between clusters.
-cause is due to important energy change in pixel space, \eg: center of mass is translated.
-network probably learned to separate the most important source of variance and acquired position-specific features to distinguish translated digits which impacts fingerprints of the last layer.
-t-SNE used this primary clustering energy for translation, then digits as its second major structure.
-it represents hierarchal structures with decreasing importance due to its optimization formulation, discriminative features.
+From these two experiments, we learn important knowledge about NN on simple classification tasks, about data-augmentation and t-SNE as well.
+Manual experiments confirmed that LeNet is sensitive to the distortions we used and can easily misclassify if no form data-augmentation is used during training.
+As we said, nearly no natural distortion is left in the dataset and this is mostly due to the heavy prior processing applied to the MNIST dataset
+However small rotations are still present in MNIST which explains why our model is less prone to errors on artificially rotated samples.
+Data-augmentation is an effective way to reduce the error rate on certain type of distortions but it has a cost.
+In our case t-SNE embedding looks ``overcrowded'' and most cluster are not well separated anymore.
+We think it is due to the important difference of energy in the pixel space, \eg: the center of mass is translated.
+One explanation is that the network learned to separate this source of variance and acquired position-specific features to distinguish translated digits which impacts fingerprints of the last layer.
+Then t-SNE is impacted by clustering translations first, then digits as its second major structure.
+One important insight is that t-SNE represents hierarchal structures with decreasing importance due to its optimization formulation thus the most discriminative features would be weighted more.
+% FIXME: check this claim
 
-unexpected clustering.
-recall tsne is for visualization.
-wanted to create invariant-model for classification and decode the fingerprint with t-sne to create a simple coherent plot where class and distortion would be cleanly separated into different axes.
-however as shown above t-sne doesn't work that way.
-its formulation doesn't allow to tweak it for a particular goal.
-cannot give easily hints about number of variance dimensions to represent.
-the resulting embedding is confusing for humans.
-this is due to lack of control
-need supervised method where prior knowledge can be used to guide it.
+We found these results are unexpected: the clusters are not well separated and they are lacking in coherence.
+This experiment is meant to create an invariant model for classification but the representation of the fingerprint doesn't naturally split digits and translations into different axes.
+We have to repeat again that t-SNE is oriented towards visualization whose goal is not formally and universally well defined.
+The current formulation of this method is to preserve distances between the fingerprints of our models which is not sufficient for our application.
+There is currently no way to add prior information like supervised methods to guide the optimization to associate particular dimensions to particular variance in the data.
+A possible solution is to modify the objective function of t-SNE to reach our goal but it has the important limitations we discussed in the methodology.
+The lack of end-to-end optimization in this method is also important and this can be solved by using layers handling the dimensionality reducing into a single NN.
 
-in the following we present the results of our alternative method.
+We present, in the following section, results of our alternative method based on end-to-end and supervised training of a single CNN.
 
 \section{Contrastive LeNet}
 
