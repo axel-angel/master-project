@@ -67,10 +67,10 @@ if __name__ == "__main__":
     sum = 0.0
     sumsq = 0.0
     try:
-        #num_cores = multiprocessing.cpu_count()
-        #pool = multiprocessing.Pool(num_cores)
-        #itr = pool.imap_unordered(process, izip(X, ls))
-        itr = imap(process, izip(X, ls))
+        num_cores = multiprocessing.cpu_count()
+        pool = multiprocessing.Pool(num_cores)
+        itr = pool.imap_unordered(process, izip(X, ls))
+        #itr = imap(process, izip(X, ls))
         for it, loss in enumerate(itr):
             losses.append( loss )
             sum += loss
