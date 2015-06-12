@@ -703,14 +703,25 @@ We present, in the following part, results of our alternative method based on en
 
 \subsection{Contrastive LeNet}
 
-train siamese network with contrastive on subset train mnist.
-show plot embedding on test set.
+In the two experiments below, we train Siamese networks with the contrastive loss function.
+To compare with the two DrLIM's results, we train for each one a network in the original configurations and an other network with the extension as described in the methodology section for two-label pairs.
+
+The first dataset is a subset containing only 4s and 9s digits and we derive the training and testing sets based on the pairing strategy of the respective model.
+show plot embedding on test set. see figure \ref{fig:mnist_cl2d}.
 give loss function, graph?
 describe clusters, well separated.
 coherent embedding inside clusters.
 converge faster?
 compare DrLIM and ours.
 give quantitative results.
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics{thesis_figures/mnist_cl2d.jpg}
+    \end{center}
+    \caption{Plot of the embedding of our network on the MNIST data-augmented test set.}
+    \label{fig:mnist_cl2d}
+\end{figure}
 
 train siamese network with contrastive on subset norb with plane.
 show plot embedding on test set.
