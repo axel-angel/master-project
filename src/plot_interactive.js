@@ -1,6 +1,8 @@
 var chart;
+var _chart;
 var lastwheel = new Date();
 var chart_focus = false;
+var tooltips_map = {};
 
 window.onload = function () {
     on_hash_change();
@@ -30,7 +32,7 @@ window.onload = function () {
     chart.options.axisY.minimum += dy * subscale;
     chart.options.axisX.maximum -= dx * subscale;
     chart.options.axisY.maximum -= dy * subscale;
-    chart.render()
+    chart_render();
   }
 
   $('#chartContainer')
@@ -67,7 +69,7 @@ window.onload = function () {
     chart.options.axisY.minimum += dy * diry / 4;
     chart.options.axisX.maximum += dx * dirx / 4;
     chart.options.axisY.maximum += dy * diry / 4;
-    chart.render();
+    chart_render();
   }
 
   $('#filters').submit(applyFilters);
@@ -81,7 +83,7 @@ function on_hash_change() {
   $debug.text("Loading...");
   if (chart) {
       chart.options.data = [];
-      chart.render();
+      chart_render();
   }
   var data_url = window.location.hash.substr(1);
   $.get(data_url, function (j) {
@@ -110,10 +112,6 @@ function plot() {
     var l = x.l;
     var src = x.src
     var k = l +"_"+ src;
-    x.label = "<b>"+ l +"</b> "
-      + "(#"+ x.i +") "
-      + "["+ x.src +" | "+ x.tr +"("+ x.v +")]<br/>"
-      + "<img class='digit' src='data:image/jpeg;base64,"+ imgs[x.i] +"'/>";
     data[k].push(x);
     legends[k] = x.l +" "+ src;
   });
@@ -124,6 +122,28 @@ function plot() {
       delete data[k];
   });
 
+  var point_click = function (e) {
+    var idx1 = e.dataSeriesIndex;
+    var idx2 = e.dataPointIndex;
+    var k = idx1 +"_"+ idx2;
+    var t = tooltips_map[k];
+    var x = e.dataPoint;
+    //console.log(['click', e]);
+    if (typeof(t) == "undefined") {
+      t = new ToolTip(_chart, _chart._options.toolTip, _chart.theme);
+      t.getToolTipInnerHTML = function () {
+        return "<img class='digit' src='data:image/jpeg;base64,"+ imgs[x.i] +"'/>";
+      };
+      $(t.contentDiv).parent().attr('class', 'mytooltip');
+      t._updateToolTip(e.x, e.y);
+      tooltips_map[k] = t;
+    }
+    else {
+      t.hide(false);
+      delete tooltips_map[k];
+    }
+  };
+
   // config the plot and render it
   var data_keys = Object.keys(data);
   data_keys.sort();
@@ -131,25 +151,39 @@ function plot() {
     axisX: { minimum: -6, maximum: 6, gridThickness: 1 },
     axisY: { minimum: -6, maximum: 6, gridThickness: 1 },
     legend: { // TODO: remove because our filters are better!
+      fontSize: 15,
       cursor: "pointer",
       itemclick: function (e) { // toggle cluster when click on legend
         e.dataSeries.visible = !(typeof(e.dataSeries.visible) === "undefined"
                              || e.dataSeries.visible)
-        e.chart.render();
+        chart_render();
       }
+    },
+    toolTip: {
+      content: function (e) {
+        var x = e.entries[0].dataPoint;
+        var l = x.l;
+        var src = x.src
+        var img = imgs[x.i];
+        return "<b>"+ l +"</b> "
+          + "(#"+ x.i +")<br/>"
+          + "["+ x.src +" | "+ x.tr +"("+ x.v +")]<br/>"
+          + "<img class='digit' src='data:image/jpeg;base64,"+ img +"'/>";
+      },
     },
     data: data_keys.map(function (k) {
       return {
         type: "scatter",
-        markerSize: 1,
+        markerSize: 2,
         legendText: legends[k],
         showInLegend: "true",
         markerType: "circle",
         dataPoints: data[k],
+        click: point_click,
       };
     }).concat([{
         type: "scatter",
-        markerSize: 5,
+        markerSize: 10,
         legendText: 'Overlay',
         showInLegend: "true",
         markerType: "triangle",
@@ -157,9 +191,11 @@ function plot() {
         markerColor: 'yellow',
         markerBorderThickness: 1,
         markerBorderColor: 'black',
+        click: point_click,
     }]),
   });
-  chart.render();
+  _chart = chart._internal;
+  chart_render();
 }
 
 function applyFilters(e) {
@@ -199,5 +235,14 @@ function applyFilters(e) {
     });
     overlayData.dataPoints = overlayPoints;
   }
+  chart_render();
+}
+
+function chart_render() {
   chart.render();
+
+  for (var k in tooltips_map) {
+    tooltips_map[k].hide();
+    delete tooltips_map[k];
+  }
 }
