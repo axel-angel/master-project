@@ -14,6 +14,8 @@
 \usepackage{lastpage}
 \usepackage{cite}
 \usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
 
 \linespread{1.2}
 
@@ -453,6 +455,8 @@ The training stage need many special parameters related to the solver (SGD): lea
 They were kept unchanged because the Caffe community already fine-tuned them.
 We limited all our experiments to $10'000$ iterations, with a batch size of $64$.
 All our networks were trained using the Caffe built-in solver provided with the binary using {\tt caffe train}.
+Our alternative loss function was implemented in a new loss layer like the built-in contrastive loss.
+Our implementation is straightforward with NumPy in Python and the caffe bindings were used to integrate our layer into the network architecture.
 
 % FIXME: add figures
 
@@ -545,8 +549,8 @@ First we would like to understand classifier embeddings and its interaction with
 Secondly, this experiment tests whether we can get an embedding with our prerequisites properties of predictability with a state-of-the-art method specialized for projecting in 2D.
 
 % for siamese
-In the Siamese experiments, in order to compare our results to our reference paper, we trained two models based on their settings on MNIST and NORB.
-The goal of our reference paper is to train a model where points are close together if they are ``visually'' similar without considering translations.
+In the Siamese experiments, in order to compare our results to the reference paper, we trained two models based on their settings on MNIST and NORB.
+The goal of DrLIM is to train a model where points are close together if they are ``visually'' similar without considering distortions depending on the dataset.
 The implementation of their pairing strategy is as follows.
 First they group each sample into a common ``neighborhood'' relation the 5 most similar ones using the euclidean distance in pixel space.
 However in practice, neighbors with different digit class would appear and DrLIM's paper didn't mention if they considered legit or not.
@@ -568,10 +572,10 @@ It is true 2D suffices in this case but to be comparable to DrLIM's 2D embedding
 Making comparisons between 2D space (DrLIM) and 1D neighborhood (our model) would be unfair due to distances increasing very quickly as the number of dimensions increases.
 In this settings, we have: $M=3$ (embedding dimensions), $p = 2$ (two labels) and $D = \left\{ 2, 1 \right\}$ (2D + 1D).
 We train our network using a similar pair strategy to DrLIM but with important differences.
-Our first label considers similar: a sample and its translations; the sample and its neighbors if they have the same translations; and considers dissimilar: the sample and any non-neighbor sample.
-That's why we name it the ``neighborhood'' label.
+Our first label considers: a sample and its translations to be similar; the sample and its neighbors to be similar if they have the same translations; and the sample and any non-neighbor sample to be dissimilar with or without translation.
+We call this first label: the ``neighborhood'' similarity.
 Our second label considers similar: a sample and any other sample with the same translation; and considers dissimilar any pair without the same translation.
-We name it the ``transformation'' label.
+We call this second label: the ``transformation'' similarity.
 Pairs not mentioned in our descriptions above are not included in our datasets.
 Moreover we reduce the size and the time for training by randomly taking a subset of dissimilar pairs to balance the label ratio instead of including all of them.
 
@@ -704,24 +708,54 @@ We present, in the following part, results of our alternative method based on en
 \subsection{Contrastive LeNet}
 
 In the two experiments below, we train Siamese networks with the contrastive loss function.
-To compare with the two DrLIM's results, we train for each one a network in the original configurations and an other network with the extension as described in the methodology section for two-label pairs.
+To compare with our reference results, we train for each one a network in the original configurations of DrLIM and an other network with the extension as described in the methodology section for two-label pairs.
 
-The first dataset is a subset containing only 4s and 9s digits and we derive the training and testing sets based on the pairing strategy of the respective model.
-show plot embedding on test set. see figure \ref{fig:mnist_cl2d}.
-give loss function, graph?
+The first dataset is a subset of MNIST containing only 4s and 9s digits which we derive our training and testing set based on our 2D pairing strategy.
+After around $100$ iterations, both models have reasonably converged to a stable solution (see figure \ref{mnist_cl2d_loss}).
+However, our model has reached a lower solution than DrLIM: comparing them directly is not possible because the two datasets are different but the difference in the loss is more important and converge as quickly in our case.
+The resulting embedding are shown in figures: \ref{fig:mnist_cl_drlim} for DrLIM and \ref{fig:mnist_cl2d} for our model.
+%show plot embedding on test set. see figure \ref{fig:mnist_cl2d}.
+%give loss function, graph?
 describe clusters, well separated.
 coherent embedding inside clusters.
 converge faster?
 compare DrLIM and ours.
 give quantitative results.
 
-\begin{figure}[h]
-    \begin{center}
-        \includegraphics{thesis_figures/mnist_cl2d.jpg}
-    \end{center}
-    \caption{Plot of the embedding of our network on the MNIST data-augmented test set.}
-    \label{fig:mnist_cl2d}
+\begin{figure*}[t!]
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_2bv7.jpg}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_3Dc3.jpg}
+    \end{subfigure}
+    \label{fig:mnist_cl2d_loss}
+    \caption{Plot of the model loss function for 500 iterations of DrLIM and our model on MNIST}
+\end{figure*}
+
+\begin{figure}[<+htpb+>]
+    \centering
+    \includegraphics{thesis_figures/mnist_cl_drlim.jpg}
+    \caption{Plot of the embedding of DrLIM on the MNIST data-augmented test set}
+    \label{fig:mnist_cl_drlim}
 \end{figure}
+
+\begin{figure*}[t!]
+    \centering
+    \begin{subfigure}[t]{0.75\textwidth}
+        \centering
+        \includegraphics{thesis_figures/mnist_cl2d.jpg}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.75\textwidth}
+        \centering
+        \includegraphics{thesis_figures/mnist_cl2d2.jpg}
+    \end{subfigure}
+    \label{fig:mnist_cl2d}
+    \caption{Plot of the embedding of our network on the MNIST data-augmented test set projected in 2D}
+\end{figure*}
 
 train siamese network with contrastive on subset norb with plane.
 show plot embedding on test set.
