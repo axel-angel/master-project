@@ -79,9 +79,28 @@ First page (make guard, epfl logo, prof names, title, etc)
 \chapter{Introduction}
 % FIXME: to write
 
-common use of high-dim data, like images
+Nowadays Computer Science has become predominant in many fields of science for data storage, data analysis, simulations and much more.
+The amount of data is increasing every day and computers are still getting faster to explore more complex problems.
+There is an enormous number of information sources which most produce datasets with a high number of dimensions: web databases, statistics, sound, images, videos.
+Many area of science need a way to make sense of huge data with many dimensions through either analysis or visualization which are sometimes combined.
 
-dim reduction (LLE, isomap, t-SNE), why, drawbacks
+Dimensionality reduction is a process through which a compact representation is derived from a dataset that can represent the most important information with only a fraction of the initial dimensions.
+Many methods were developed with various properties, flexibility and goals like PCA, LLE, Isomap and more recently SNE.
+However many of them lack in flexibility by representing only linearity and among the rest many still cannot preserve correctly hierarchical structures.
+Researches have shown that t-SNE, a variant of SNE, has greatly improved on this regard: it is capable of keeping global clusters and fine-grained coherence inside them.
+Nonetheless, such methods have new drawbacks on their own.
+For example, they are hard to control in a semi-supervised manner and they cannot represent new points unlike a well-defined function mapping.
+
+An alternative dimensionality reduction method consists of using {\em Neural Network}s (NN).
+A network is used to represent a mapping between the original space to a lower embedding which satisfies the properties above.
+There is a proof showing that any continuous function can be learned by a NN\cite{csaji2001approximation}, which means they can compute non-linear mappings to reduce dimensionality.
+Moreover the ideas employed in t-SNE can be expressed in an equivalent formulation for NN.
+
+It is possible to express the constraints to create a human-friendly and predictable embedding through a suitable loss function and training architecture.
+In this work we are concerned by creating such model and we leverage the current progress in the Computer Vision field.
+We derive from the contrastive loss function, a generalized variant to express multi-dimensional relations.
+
+% FIXME: continue
 
 an other approach is to use CNN to classify, then dim reduction on embedding
 
@@ -102,14 +121,24 @@ new loss function, short summary of results
 use case (medical imaging)
 
 \section{Thesis Outline}
-% list chapters with their summarzied content
+% FIXME: list chapters with their summarzied content
+Chapter \ref{chap:related}
+
+Chapter \ref{chap:neural_network}
+
+Chapter \ref{chap:dim_red}
+
+Chapter \ref{chap:results}
+
+Chapter \ref{chap:conclusion}
 
 
 % ==============================================================================
 \chapter{Related Work}
+\label{chap:related}
 % explain each paper, group them and discuss result adv/drawbacks
 
-More than 20 years ago, researchers discovered that {\em Neural Networks} (NN) is a highly flexible model architecture to solve many classification problems.
+More than 20 years ago, researchers discovered that NN is a highly flexible model architecture to solve many classification problems.
 Most of today models are using {\em Convolutional Neural Networks} (CNN) which are a powerful and specialized variant for visual tasks like MNIST \cite{mnist_web} and ImageNet \cite{krizhevsky2012imagenet}, face detection as well \cite{rowley1998neural} and many more \cite{prechelt1994proben1}.
 This architecture is more efficient for Computer Vision problems, partly because the convolutions share their weights in the first layers to extract spatial cues.
 
@@ -178,6 +207,7 @@ In this work, we will present a practical solution towards predictable embedding
 
 % ==============================================================================
 \chapter{Theory: Neural Networks}
+\label{chap:neural_network}
 We introduce the general layout of neural networks and their mathematical foundations.
 The important differences between {\em Neural Networks} (NN) and {\em Convolutional Neural Networks} (CNN) are discussed and we briefly justify why CNN is so predominant in Computer Vision tasks.
 An intuitive explanation of embeddings is given and will be used later for dimensionality reduction.
@@ -265,6 +295,7 @@ This justifies why we combined CNN classifiers with t-SNE to create a 2D embeddi
 
 % ==============================================================================
 \chapter{Theory: Dimensionality reduction}
+\label{chap:dim_red}
 Dimensionality reduction is an important method in machine learning that maps points in a high-dimensional space into a space with a lower number of dimensions.
 We will call this lower subspace an {\em embedding}.
 Representations suitable for human visualization should keep important relations between points of the original space.
@@ -403,6 +434,7 @@ where $Y \in \{0,1\}^p$ with $Y_i$ being the $i$th component of $Y$, $D_{Wi} \in
 
 % ==============================================================================
 \chapter{Methodology and Results}
+\label{chap:results}
 
 In this chapter, we will describe the general environment we used to produce our experiments, the settings to reproduce them and their results.
 The different models we used are first introduced in details with their architecture.
@@ -696,7 +728,7 @@ In our case t-SNE embedding looks ``overcrowded'' and most cluster are not well 
 We think it is due to the important difference of energy in the pixel space, \eg: the center of mass is translated.
 One explanation is that the network learned to separate this source of variance and acquired position-specific features to distinguish translated digits which impacts fingerprints of the last layer.
 Then t-SNE is impacted by clustering translations first, then digits as its second major structure.
-One important insight is that t-SNE represents hierarchal structures with decreasing importance due to its optimization formulation thus the most discriminative features would be weighted more.
+One important insight is that t-SNE represents hierarchical structures with decreasing importance due to its optimization formulation thus the most discriminative features would be weighted more.
 % FIXME: check this claim
 
 We consider these results unexpected: the clusters are not well separated and they are lacking in coherence even though the task require to separate the digits.
@@ -813,6 +845,7 @@ usecase of predictable disto
 
 % ==============================================================================
 \chapter{Conclusion}
+\label{chap:conclusion}
 
 summarize work.
 
