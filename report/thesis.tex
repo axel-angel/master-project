@@ -190,7 +190,7 @@ This process is repeated until the last layer, whose output is considered as the
 Each layer does a single particular computation over its input.
 Usual NN have a repetition of the following pattern: one layer computing inner-products with their neuronal weights then adding biases, followed by a non-linear layer using an activation function.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics{thesis_figures/NN.jpg}
     \end{center}
@@ -216,7 +216,7 @@ This loss represents the error between the prediction of the network (its output
 The training involves an iterative process where: the input is first feed-forwarded into the network to compute the error, then this latter is back-propagated up to the first layer, while each unit weights is adjusted to minimize the unit error.
 This process should be repeated until the error on the validation set has converged to a local optimum.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics{thesis_figures/800px-ArtificialNeuronModel_english.jpg}
     \end{center}
@@ -238,7 +238,7 @@ Most CNN architectures puts multiple convolutional layers connected to the input
 CNN can be seen as two parts: a trainable feature extractor made by the convolutional network followed by a neural network classifier.
 Although CNNs have more constraints, it has been shown they generally outperform NN in multiple Computer Vision problems because they learn more invariance\cite{simard2003best}\cite{mnist_web}\cite{lawrence1997face}\cite{krizhevsky2012imagenet}.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics[width=\textwidth]{thesis_figures/conv-net2.jpg}
     \end{center}
@@ -345,7 +345,7 @@ On top of this Siamese network is placed the ``cost module'', the contrastive lo
 The complete network takes a pair of images as input, each image fed into a single $G_W$ instance, and the output is computed over their outputs.
 When the network is used, only a single instance $G_W$ is required to feed an input which gives the dimensionality-reduced point.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics[width=0.5\textwidth]{thesis_figures/siamese_network.jpg}
     \end{center}
@@ -361,7 +361,7 @@ The definition of the contrastive loss for a pair is as follows:
 \end{eqnarray}
 where $Y \in \{0,1\}$ is the label: $1$ for similar pairs, $0$ otherwise; $D_W \in \R^N$ is the difference between the two network outputs and the parameter $m \in \R$ defines the minimal distance between dissimilar points.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics[width=0.5\textwidth]{thesis_figures/contrastive_spring.jpg}
     \end{center}
@@ -416,7 +416,7 @@ It is with no surprise that they are using it for MNIST, which is a handwritten 
 We are using a very close fine-tuned variant with minor changes.
 This network architecture is comprised of a total of 7 layers with trainable parameters.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics{thesis_figures/siamese_cnn.jpg}
     \end{center}
@@ -487,7 +487,7 @@ The variability of this dataset lies in the different strokes, different writer 
 The MNIST dataset is considered nowadays extremely simple, like a toy example due to the lack of natural variability and because state-of-the-art achieved extremely good results.
 However it is still a good subject of experiments to try and validate new ideas easily as it is in our case.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics{thesis_figures/mnist.jpg}
     \end{center}
@@ -505,7 +505,7 @@ The usual training task is to recognize the toy category whatever viewpoint or i
 However the reference paper uses only the images of a single plane toy, to infer a representation of the distortions in 3D.
 As we are doing comparisons with their methods, we will use the same toy to make our results as well.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics{thesis_figures/norb.jpg}
     \end{center}
@@ -524,7 +524,7 @@ In the case of Siamese training, we create paired datasets: containing two disto
 Images in a pair can have different distortions and different classes (digit for MNIST, elevation/azimuth for NORB) and still be paired (label 1), depending on the experiment.
 An example of pairs for MNIST is illustrated in figure \ref{fig:mnist_pairs}.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics{thesis_figures/mnist_transfo_tsne.jpg}
     \end{center}
@@ -532,7 +532,7 @@ An example of pairs for MNIST is illustrated in figure \ref{fig:mnist_pairs}.
     \label{fig:mnist_transfo_tsne}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics{thesis_figures/mnist_pairs.jpg}
     \end{center}
@@ -641,7 +641,7 @@ Our hypothesis seems validated by the structure on this plot: separation of clas
 Most of the distorted samples on figure \ref{fig:mnist_nda_tsne2} are part of their respective clusters however they drift apart and extremes are outside.
 % FIXME: need description of how they drift wrt distortion?
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics[width=\textwidth]{thesis_figures/mnist_nda_tsne.jpg}
     \end{center}
@@ -649,7 +649,7 @@ Most of the distorted samples on figure \ref{fig:mnist_nda_tsne2} are part of th
     \label{fig:mnist_nda_tsne}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics[width=\textwidth]{thesis_figures/mnist_nda_tsne2.jpg}
     \end{center}
@@ -672,7 +672,7 @@ However the ``translated'' clusters exhibits coherence: sub-clusters represent d
 For example, the right-displaced digits are exclusively appearing in the top-left corner where all digits are present and mostly stacked together in the center.
 This is actually a general problem with this plot: many clusters appear but their delimitations are fuzzy which suggests it would be hard to quantify translations and digits.
 
-\begin{figure}[h]
+\begin{figure}[t]
     \begin{center}
         \includegraphics[width=\textwidth]{thesis_figures/mnist_da_tsne.jpg}
     \end{center}
@@ -710,8 +710,24 @@ We present, in the following part, results of our alternative method based on en
 In the two experiments below, we train Siamese networks with the contrastive loss function.
 To compare with our reference results, we train for each one a network in the original configurations of DrLIM and an other network with the extension as described in the methodology section for two-label pairs.
 
+\begin{figure*}[t]
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_2bv7.jpg}
+        %\caption{Loss of DrLIM}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_3Dc3.jpg}
+        %\caption{Loss of our model}
+    \end{subfigure}
+    \caption{Plot of the model loss function for 500 iterations of DrLIM and our model on MNIST.}
+    \label{fig:mnist_cl2d_loss}
+\end{figure*}
+
 The first dataset is a subset of MNIST containing only 4s and 9s digits which we derive our training and testing set based on our 2D pairing strategy.
-After around $100$ iterations, both models have reasonably converged to a stable solution (see figure \ref{mnist_cl2d_loss}).
+After around $100$ iterations, both models have reasonably converged to a stable solution (see figure \ref{fig:mnist_cl2d_loss}).
 However, our model has reached a lower solution than DrLIM: comparing them directly is not possible because the two datasets are different but the difference in the loss is more important and converge as quickly in our case.
 The resulting embedding are shown in figures: \ref{fig:mnist_cl_drlim} for DrLIM and \ref{fig:mnist_cl2d} for our model.
 %show plot embedding on test set. see figure \ref{fig:mnist_cl2d}.
@@ -722,39 +738,27 @@ converge faster?
 compare DrLIM and ours.
 give quantitative results.
 
-\begin{figure*}[t!]
-    \centering
-    \begin{subfigure}[t]{0.45\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_2bv7.jpg}
-    \end{subfigure}
-    \begin{subfigure}[t]{0.45\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_3Dc3.jpg}
-    \end{subfigure}
-    \label{fig:mnist_cl2d_loss}
-    \caption{Plot of the model loss function for 500 iterations of DrLIM and our model on MNIST}
-\end{figure*}
-
-\begin{figure}[<+htpb+>]
+\begin{figure}[t]
     \centering
     \includegraphics{thesis_figures/mnist_cl_drlim.jpg}
-    \caption{Plot of the embedding of DrLIM on the MNIST data-augmented test set}
+    \caption{Plot of the embedding of DrLIM on the MNIST data-augmented test set with some samples.}
     \label{fig:mnist_cl_drlim}
 \end{figure}
 
-\begin{figure*}[t!]
+\begin{figure*}[t]
     \centering
     \begin{subfigure}[t]{0.75\textwidth}
         \centering
         \includegraphics{thesis_figures/mnist_cl2d.jpg}
+        %\caption{Scatter plot of the embedding}
     \end{subfigure}
     \begin{subfigure}[t]{0.75\textwidth}
         \centering
         \includegraphics{thesis_figures/mnist_cl2d2.jpg}
+        %\caption{Scatter plot of the embedding with some samples}
     \end{subfigure}
+    \caption{Plot of the embedding of our network on the MNIST data-augmented test set projected in 2D.}
     \label{fig:mnist_cl2d}
-    \caption{Plot of the embedding of our network on the MNIST data-augmented test set projected in 2D}
 \end{figure*}
 
 train siamese network with contrastive on subset norb with plane.
