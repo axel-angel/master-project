@@ -13,7 +13,7 @@
 \usepackage{graphicx}
 \usepackage{lastpage}
 \usepackage{cite}
-\usepackage{hyperref}
+\usepackage[pdftex]{hyperref}
 \usepackage{caption}
 \usepackage{subcaption}
 
@@ -41,11 +41,15 @@
 \rfoot{Page \thepage\ of \pageref{LastPage}}
 \lfoot{\mydate}
 
-\pdfinfo{
-    /Author (\myname)
-    /Title (\mytitle)
-    /Subject (\mysubtitle)
-    }
+\makeatletter
+\AtBeginDocument{
+  \hypersetup{
+    pdfauthor = {\myname},
+    pdftitle = {\mytitle},
+    pdfsubject = {\mysubtitle},
+  }
+}
+\makeatother
 
 \newcommand{\eg}{e.g.}
 \setkeys{Gin}{width=0.75\textwidth}
@@ -695,7 +699,7 @@ Then t-SNE is impacted by clustering translations first, then digits as its seco
 One important insight is that t-SNE represents hierarchal structures with decreasing importance due to its optimization formulation thus the most discriminative features would be weighted more.
 % FIXME: check this claim
 
-We found these results are unexpected: the clusters are not well separated and they are lacking in coherence.
+We consider these results unexpected: the clusters are not well separated and they are lacking in coherence even though the task require to separate the digits.
 This experiment is meant to create an invariant model for classification but the representation of the fingerprint doesn't naturally split digits and translations into different axes.
 We have to repeat again that t-SNE is oriented towards visualization whose goal is not formally and universally well defined.
 The current formulation of this method is to preserve distances between the fingerprints of our models which is not sufficient for our application.
@@ -727,16 +731,21 @@ To compare with our reference results, we train for each one a network in the or
 \end{figure*}
 
 The first dataset is a subset of MNIST containing only 4s and 9s digits which we derive our training and testing set based on our 2D pairing strategy.
+Therefore the resulting dataset is composed of each sample plus its translations (±3, ±6 pixels) which is then paired.
+The models are trained until the loss on the respective testset has attained a reasonable local minima.
 After around $100$ iterations, both models have reasonably converged to a stable solution (see figure \ref{fig:mnist_cl2d_loss}).
-However, our model has reached a lower solution than DrLIM: comparing them directly is not possible because the two datasets are different but the difference in the loss is more important and converge as quickly in our case.
+However, our model has reached a lower solution than DrLIM: comparing them directly is not possible because the two datasets are different but the difference in the loss in our model is more important and converge as quickly.
+Intuitively this means that our problem formulation is easier to solve and the model finds a ``better'' solution, in the sense it could satisfy more our constraints.
 The resulting embedding are shown in figures: \ref{fig:mnist_cl_drlim} for DrLIM and \ref{fig:mnist_cl2d} for our model.
-%show plot embedding on test set. see figure \ref{fig:mnist_cl2d}.
-%give loss function, graph?
-describe clusters, well separated.
-coherent embedding inside clusters.
-converge faster?
-compare DrLIM and ours.
-give quantitative results.
+The DrLIM embedding we reproduced is very similar to the excepted result of having a coherent grouping based on translation-agnostic similarity, however the separation between digits is more pronounced.
+We can look at the DrLIM as a top-down projection of our 3D embedding in 2D where the additional vertical dimension quantify the displacement.
+The different intensity of translations are well separated into their own cluster as demonstrated by a meticulous manual inspection and remarkably they are ordered vertically by their intensity.
+Once again, the space inside clusters is well organized by digit features like DrLIM.
+
+In order to compare the two methods, we present quantitative measures where the contrastive loss is computed on the DrLIM paired testset as described in the methodology.
+Evolutions of this measure during training are plotted in figure \ref{fig:loss_test_common} and the final losses after 10'000 iterations are: $0.160023$ (DrLIM) and 0.145418 (our model).
+These two loss series are statistically indistinguishable validated by the null hypothesis with a t-test with $\alpha = 0.05$.
+Therefore we can conclude our model learns an equivalent representation in its 2D digit-projection to DrLIM with a slightly different formulation and it can expresses distortions without loosing information in its 3rd dimension at the same time.
 
 \begin{figure}[t]
     \centering
@@ -747,19 +756,39 @@ give quantitative results.
 
 \begin{figure*}[t]
     \centering
-    \begin{subfigure}[t]{0.75\textwidth}
+    \begin{subfigure}[t]{0.7\textwidth}
         \centering
         \includegraphics{thesis_figures/mnist_cl2d.jpg}
-        %\caption{Scatter plot of the embedding}
+        \caption{Scatter plot of the embedding with two samples' distortions shown as triangles.}
     \end{subfigure}
-    \begin{subfigure}[t]{0.75\textwidth}
+    \begin{subfigure}[t]{0.7\textwidth}
         \centering
         \includegraphics{thesis_figures/mnist_cl2d2.jpg}
-        %\caption{Scatter plot of the embedding with some samples}
+        \caption{Scatter plot of the embedding with some samples}
     \end{subfigure}
     \caption{Plot of the embedding of our network on the MNIST data-augmented test set projected in 2D.}
     \label{fig:mnist_cl2d}
 \end{figure*}
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics{thesis_figures/final_loss_test2bv7.jpg}
+    \end{center}
+    \caption{Quantitative measures of DrLIM and our model during training iterations (MNIST)}
+    \label{fig:loss_test_common}
+\end{figure}
+
+We tested our model on a data-augmentation of MNIST based on rotations as well.
+The results are similar to our previous experiment and we only provide the figure for demonstration as we won't discuss it in details.
+Clusters are still arranged in a linear fashion although rotations are non-linear but the cluster separations are smaller, see figure \ref{fig:mnist_cl2d_rotate}.
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics{thesis_figures/mnist_cl2d_rotate.jpg}
+    \end{center}
+    \caption{Scatter plot of our model embedding applied to rotations (MNIST)}
+    \label{fig:mnist_cl2d_rotate}
+\end{figure}
 
 train siamese network with contrastive on subset norb with plane.
 show plot embedding on test set.
