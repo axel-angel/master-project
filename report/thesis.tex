@@ -64,7 +64,7 @@ First page (make guard, epfl logo, prof names, title, etc)
     % TODO: rewrite
     Current research in Computer Vision has shown that {\em Convolutional Neural Networks} (CNN) give state-of-the-art performance in many classification tasks and Computer Vision problems\cite{mnist_web}\cite{krizhevsky2012imagenet}\cite{rowley1998neural}\cite{prechelt1994proben1}.
     The embedding of CNN, which is the internal representation produced by the last layer, can indirectly learn topological and relational properties.
-    By using a suitable loss function, these models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
+    By using a suitable loss function, CNN models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
     In this work, we provide insights about CNN embeddings and propose a new loss function, derived from the contrastive loss, whose mapping under particular distortions is more predictable.
     Our contribution makes a step towards the derivation of features for varying distortions, given the features of a single feed-forward pass which is distortion-predictable, where usual methods require to feed-forward images under every distortions.
     % ^ TODO: careful about this last statement, too strong!
@@ -84,7 +84,26 @@ The amount of data is increasing every day and computers are still getting faste
 There is an enormous number of information sources which most produce datasets with a high number of dimensions: web databases, statistics, sound, images, videos.
 Many area of science need a way to make sense of huge data with many dimensions through either analysis or visualization which are sometimes combined.
 
-Dimensionality reduction is a process through which a compact representation is derived from a dataset that can represent the most important information with only a fraction of the initial dimensions.
+Computer Vision (CV) is a field addressing the problem of analyzing and understanding visual multimedias by means of automatic processing.
+Usual tasks are image classification, pattern recognition and many more.
+Many state-of-the-art solutions are combining the advance of Machine Learning to solve them statistically, to avoid designing algorithms by hand which would require a good knowledge of the data.
+For example {\em Convolutional Neural Networks} (CNN), which is a ``visual'' variant of {\em Neural Network}s (NN), are now widely used for Computer Vision.
+They are trained in a supervised way to perform a processing task which is generally to classify an image into a number of fixed categories.
+These networks acquire an internal representation of the input, the {\em features}, which are refined to the task during training and are usually more concise.
+Most practical applications will have to deal with some form of image distortions in their data: shearing, noise, camera viewpoint, lighting condition, to name a few.
+In the case of classification, distortions can require putting extra efforts to train a ``resistant'' model which still classifies correctly its input in the presence of such deformations.
+However, most of the time distortions are killed in the output but there are applications that would benefit from having a quantified and predictable signal of the distortions.
+
+% FIXME: to check:
+For example Biomedical Imaging needs to detect orientation-dependent structures and doing so with a NN would require to classify every possible rotations of an input image which is costly and inefficient.
+We present a step towards solving this problem efficiently by training a network that quantifies the distortions and exhibits more predictable features under distortions.
+When our model is given a distorted input image, it returns distortion-dependant features and the necessary information to quantify the distortions.
+With such model it becomes theoretically possible to compute the features of any distortion based on a single pass.
+The derived features can then be fed into very thin orientation-dependant networks to classify structures.
+
+%Therefore, NN can be seen as a dimensionality reduction method with an embedded classifier.
+An other example is in data visualization where dimensionality reduction doesn't necessarily give satisfying results.
+%Dimensionality reduction is a process through which a compact representation is derived from a dataset that can represent the most important information with only a fraction of the initial dimensions.
 Many methods were developed with various properties, flexibility and goals like PCA, LLE, Isomap and more recently SNE.
 However many of them lack in flexibility by representing only linearity and among the rest many still cannot preserve correctly hierarchical structures.
 Researches have shown that t-SNE, a variant of SNE, has greatly improved on this regard: it is capable of keeping global clusters and fine-grained coherence inside them.
@@ -228,7 +247,7 @@ Usual NN have a repetition of the following pattern: one layer computing inner-p
     \begin{center}
         \includegraphics{thesis_figures/NN.jpg}
     \end{center}
-    \caption{A Neural Network with two layers -- Source: mechanicalforex.com}
+    \caption{An example of a Neural Network with two layers -- Source: mechanicalforex.com}
     \label{fig:neural_network}
 \end{figure}
 % FIXME: figure, check usage rights
@@ -254,7 +273,7 @@ This process should be repeated until the error on the validation set has conver
     \begin{center}
         \includegraphics{thesis_figures/800px-ArtificialNeuronModel_english.jpg}
     \end{center}
-    \caption{An inner-product neuron with the connection to its activation neuron -- Source: Wikipedia}
+    \caption{A neuron computing an inner-product with a link to its activation neuron -- Source: Wikipedia}
     \label{fig:artificial_neurons}
 \end{figure}
 
@@ -276,7 +295,7 @@ Although CNNs have more constraints, it has been shown they generally outperform
     \begin{center}
         \includegraphics[width=\textwidth]{thesis_figures/conv-net2.jpg}
     \end{center}
-    \caption{Architecture of a CNN -- Source: code.flickr.net}
+    \caption{Architecture of a CNN where the computation flow is explicitly shown -- Source: code.flickr.net}
     \label{fig:convnet}
 \end{figure}
 % FIXME: figure, check usage rights
@@ -384,7 +403,7 @@ When the network is used, only a single instance $G_W$ is required to feed an in
     \begin{center}
         \includegraphics[width=0.5\textwidth]{thesis_figures/siamese_network.jpg}
     \end{center}
-    \caption{Schematic representation of a Siamese network -- Source: cs.nyu.edu}
+    \caption{Schematic representation of a Siamese network -- Source: \ref{bromley1993signature}}
     \label{fig:siamese_network}
 \end{figure}
 % FIXME: figure, check usage rights
@@ -403,7 +422,6 @@ where $Y \in \{0,1\}$ is the label: $1$ for similar pairs, $0$ otherwise; $D_W \
     \caption{A schematic representation of the contrastive loss using physical springs. See \cite{hadsell2006dimensionality} for the details. (a) Shows the points connected to similar points with {\em attract-only} springs. (b) The loss function and its gardient associated with similar pairs. (c) The point connected only with dissimilar points inside the circle of radius $m$ with {\em m-repulse-only} springs. (d) Shows the loss function and its gradient associated with dissimilar pairs. (e) Shows the situation where a point is pulled by other points in different directions, creating equilibrium -- Source \cite{hadsell2006dimensionality}}
     \label{fig:contrastive_spring}
 \end{figure}
-% FIXME: figure, check usage rights
 
 With this cost function, a label describes whether or not a pair should be close in the embedding.
 The definition of similarity is left open for the application at hand.
@@ -440,7 +458,7 @@ In this chapter, we will describe the general environment we used to produce our
 The different models we used are first introduced in details with their architecture.
 Followed by the explanation of our implementation using Caffe and Python.
 We quickly discuss how our datasets are generated based on MNIST and NORB.
-We present what we use to quantitatively measure our results that we use later for comparisons with prior art.
+Finally, we present what we use to quantitatively measure our results that we use later for comparisons with prior art.
 
 \section{Models and parameters}
 
@@ -456,10 +474,9 @@ This network architecture is comprised of a total of 7 layers with trainable par
     \begin{center}
         \includegraphics{thesis_figures/siamese_cnn.jpg}
     \end{center}
-    \caption{Architecture of the CNN (based on LeNet 5) -- Source: \cite{hadsell2006dimensionality}}
+    \caption{Architecture of the CNN used for our experiments on MNIST (based on LeNet 5). The network contains two convolutions layer which are connected by a subsampling layer and the final output is computed by a fully-connected layer. The computation flow is illustrated for a region of an image. -- Source: \cite{hadsell2006dimensionality}}
     \label{fig:siamese_cnn}
 \end{figure}
-% FIXME: figure, check usage rights
 
 The first part of this network is comprised of two pairs of convolution-pooling layers, where convolution kernels share their weights.
 As explained earlier, each convolution is applied to the entire image to create a single feature map.
@@ -527,7 +544,7 @@ However it is still a good subject of experiments to try and validate new ideas 
     \begin{center}
         \includegraphics{thesis_figures/mnist.jpg}
     \end{center}
-    \caption{A few samples taken in the training set of MNIST}
+    \caption{A few image samples taken from the MNIST training set to illustrate the dataset. Images were concatenated to save space.}
     \label{fig:mnist}
 \end{figure}
 
@@ -545,7 +562,7 @@ As we are doing comparisons with their methods, we will use the same toy to make
     \begin{center}
         \includegraphics{thesis_figures/norb.jpg}
     \end{center}
-    \caption{A few samples taken from the training set of NORB}
+    \caption{A few samples taken from the NORB training set to illustrate the dataset. Images were concatenated to save save.}
     \label{fig:norb}
 \end{figure}
 
@@ -564,7 +581,7 @@ An example of pairs for MNIST is illustrated in figure \ref{fig:mnist_pairs}.
     \begin{center}
         \includegraphics{thesis_figures/mnist_transfo_tsne.jpg}
     \end{center}
-    \caption{Some examples of distortions in our data-augmented dataset used in our t-SNE visualization experiment}
+    \caption{Illustration of some distortions applied to a random sample included in our data-augmented dataset used in the t-SNE visualization experiment. The following distortions are shown: translations, rotations, blurring and linear deformation}
     \label{fig:mnist_transfo_tsne}
 \end{figure}
 
@@ -572,7 +589,7 @@ An example of pairs for MNIST is illustrated in figure \ref{fig:mnist_pairs}.
     \begin{center}
         \includegraphics{thesis_figures/mnist_pairs.jpg}
     \end{center}
-    \caption{Examples of pairs in our Siamese training dataset}
+    \caption{Illustration of some pairs generated for a random sample with its distortions, neighbors and non-neighbors. The pairs are included in our training dataset for our Siamese network.}
     \label{fig:mnist_pairs}
 \end{figure}
 
@@ -678,21 +695,18 @@ Most of the distorted samples on figure \ref{fig:mnist_nda_tsne2} are part of th
 % FIXME: need description of how they drift wrt distortion?
 
 \begin{figure}[t]
-    \begin{center}
-        \includegraphics[width=\textwidth]{thesis_figures/mnist_nda_tsne.jpg}
-    \end{center}
-    \caption{Scatter plot of a t-SNE representation of the CNN embedding fed with the MNIST test set using our interactive tool (distorted samples are hidden)}
+    \centering
+    \includegraphics[width=\textwidth]{thesis_figures/mnist_nda_tsne.jpg}
+    \caption{Scatter plot of the t-SNE representation of the CNN embedding fed with the MNIST test set using our interactive tool. General view where the distorted samples are hidden. Some random samples are shown for each cluster. Each color represent a digit class.}
     \label{fig:mnist_nda_tsne}
 \end{figure}
 
 \begin{figure}[t]
-    \begin{center}
-        \includegraphics[width=\textwidth]{thesis_figures/mnist_nda_tsne2.jpg}
-    \end{center}
-    \caption{Scatter plot of a t-SNE representation of the CNN embedding fed with the MNIST test set using our interactive tool (distorted samples are shown)}
+    \centering
+    \includegraphics[width=\textwidth]{thesis_figures/mnist_nda_tsne2.jpg}
+    \caption{Scatter plot of the t-SNE representation of the CNN embedding fed with the MNIST test set using our interactive tool. Close view of the 0s cluster containing distorted samples. Most of the samples are continuous distortions of the sample sample (same color). A unique color is given to each digit class as before plus one unique color for each sample's distortions.}
     \label{fig:mnist_nda_tsne2}
-\end{figure}
-% FIXME: display some samples in figures?
+\end{figure}[t]
 
 In the next experiment, we apply the same process with a translation-invariant model.
 One simple way to achieve invariance is to train the model over a data-augmented training set to distinguish centred digits as well as translated digits.
@@ -712,7 +726,7 @@ This is actually a general problem with this plot: many clusters appear but thei
     \begin{center}
         \includegraphics[width=\textwidth]{thesis_figures/mnist_da_tsne.jpg}
     \end{center}
-    \caption{Scatter plot of t-SNE representation of the CNN embedding fed with the data-augmented MNIST test set using our interactive tool}
+    \caption{Scatter plot of t-SNE representation of the CNN embedding fed with the data-augmented MNIST test set using our interactive tool. A unique color is attributed to each digit class and one for each sample's distortions as before. The digits shown were manually selected to represent the local trend.}
     \label{fig:mnist_da_tsne}
 \end{figure}
 % FIXME: display some samples in figures?
@@ -779,6 +793,7 @@ Evolutions of this measure during training are plotted in figure \ref{fig:loss_t
 These two loss series are statistically indistinguishable validated by the null hypothesis with a t-test with $\alpha = 0.05$.
 Therefore we can conclude our model learns an equivalent representation in its 2D digit-projection to DrLIM with a slightly different formulation and it can expresses distortions without loosing information in its 3rd dimension at the same time.
 
+% FIXME: figure caption should be self-contained
 \begin{figure}[t]
     \centering
     \includegraphics{thesis_figures/mnist_cl_drlim.jpg}
@@ -792,6 +807,7 @@ Therefore we can conclude our model learns an equivalent representation in its 2
         \centering
         \includegraphics{thesis_figures/mnist_cl2d.jpg}
         \caption{Scatter plot of the embedding with two samples' distortions shown as triangles.}
+        % FIXME: add arrow with triangles display digits
     \end{subfigure}
     \begin{subfigure}[t]{0.7\textwidth}
         \centering
