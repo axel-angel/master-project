@@ -83,8 +83,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print "\nStopping as requested"
     finally:
-        #pool.terminate()
-        pass
+        pool.terminate()
     if not args.quiet:
         print ""
 
