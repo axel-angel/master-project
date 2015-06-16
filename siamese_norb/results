@@ -18,7 +18,13 @@ lecun_smallnorb_2D1b: use 2D1 m=n=C=1 caffe_seed=43
 lecun_smallnorb_2D1c: use 2D1 m=5, n=C=1 caffe_seed=44
 lecun_smallnorb_2D1d: use 2D1 m=20, n=C=1 caffe_seed=44
 lecun_smallnorb_2D1e: use 2D1 m=100, n=C=1 caffe_seed=44
+lecun_smallnorb_2D1g: use 2D1 m=n=C=1 caffe_seed=44
 
->> lecun archi NN (2 fully connected) with ReLU in middle
+>> finals
+lecun_smallnorb_v3d: use v3 m=1 caffe_seed=44
+lecun_smallnorb_2D1g2: use 2D1 m=10 n=C=1 caffe_seed=44
+
+
+>> (failed experiment) lecun archi NN (2 fully connected) with ReLU in middle
 lecun_smallnorb_v3c: use v3 margin=1 caffe_seed=42
 lecun_smallnorb_2D1f: m=n=C=1 use 2D1
