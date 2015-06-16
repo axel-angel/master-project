@@ -1,0 +1,15 @@
+net: "smallnorb_lecun_siamese2D1_train_test.prototxt"
+test_iter: 100
+test_interval: 1000
+base_lr: 0.001
+momentum: 0.9
+weight_decay: 0.0000
+lr_policy: "inv"
+gamma: 0.0001
+power: 0.75
+display: 100
+max_iter: 100000
+snapshot: 1000
+snapshot_prefix: "snapshots_final/lecun_siamese2D1g2"
+solver_mode: CPU
+random_seed: 44

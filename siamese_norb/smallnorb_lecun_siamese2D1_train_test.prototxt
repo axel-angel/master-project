@@ -1,0 +1,154 @@
+name: "smallnorb_lecun_siamese2D1g_train_test"
+layer {
+  name: "pair_data"
+  type: "Data"
+  top: "pair_data"
+  top: "sim"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "data/lecun_smallnorb_2D1_train"
+    batch_size: 64
+    backend: LMDB
+  }
+}
+layer {
+  name: "pair_data"
+  type: "Data"
+  top: "pair_data"
+  top: "sim"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "data/lecun_smallnorb_2D1_test"
+    batch_size: 100
+    backend: LMDB
+  }
+}
+layer {
+  name: "slice_pair"
+  type: "Slice"
+  bottom: "pair_data"
+  top: "data"
+  top: "data_p"
+  slice_param {
+    slice_dim: 1
+    slice_point: 1
+  }
+}
+layer {
+  name: "prod1"
+  type: "InnerProduct"
+  bottom: "data"
+  top: "prod1"
+  param {
+    name: "prod1_w"
+    lr_mult: 1
+  }
+  param {
+    name: "prod1_b"
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 20
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "prod2"
+  type: "InnerProduct"
+  bottom: "prod1"
+  top: "prod2"
+  param {
+    name: "prod2_w"
+    lr_mult: 1
+  }
+  param {
+    name: "prod2_b"
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 3
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "prod1_p"
+  type: "InnerProduct"
+  bottom: "data_p"
+  top: "prod1_p"
+  param {
+    name: "prod1_w"
+    lr_mult: 1
+  }
+  param {
+    name: "prod1_b"
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 20
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "prod2_p"
+  type: "InnerProduct"
+  bottom: "prod1_p"
+  top: "prod2_p"
+  param {
+    name: "prod2_w"
+    lr_mult: 1
+  }
+  param {
+    name: "prod2_b"
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 3
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "loss"
+  type: "Python"
+  bottom: "prod2"
+  bottom: "prod2_p"
+  bottom: "sim"
+  top: "loss"
+  python_param {
+    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
+    module: "pyloss"
+    # the layer name -- the class name in the module
+    layer: "OwnDouble2DContrastiveLossLayer"
+  }
+  # set loss weight so Caffe knows this is a loss layer
+  loss_weight: 1
+}
