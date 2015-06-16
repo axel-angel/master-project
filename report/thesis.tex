@@ -117,11 +117,11 @@
 \begin{abstract}
     Current research in Computer Vision has shown that {\em Convolutional Neural Networks} (CNN) give state-of-the-art performance in many classification tasks and Computer Vision problems\cite{mnist_web}\cite{krizhevsky2012imagenet}\cite{rowley1998neural}\cite{prechelt1994proben1}.
     The embedding of CNN, which is the internal representation produced by the last layer, can indirectly learn topological and relational properties.
-    By using a suitable loss function, CNN models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
-    In this work, we provide insights about CNN embeddings and propose a new loss function, derived from the contrastive loss, whose mapping under particular distortions is more predictable.
-    Our contribution makes a step towards the derivation of features for varying distortions, given the features of a single feed-forward pass which is distortion-predictable, where usual methods require to feed-forward images under every distortions.
-    % ^ TODO: careful about this last statement, too strong!
-    %We also introduce a simple method to compare quantitatively embeddings whose purpose is to capture topological structures of particular distortions.
+    Moreover, by using a suitable loss function, CNN models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
+    In this work, we provide insights about CNN embeddings and propose a new loss function, derived from the contrastive loss, that creates models with more predicable mapping and also quantifies distortions.
+    Usual distortion-dependant methods would require to feed-forward inputs under every distortions because no simple relation would exist between their features.
+    Our contribution makes a step towards embeddings where features of distorted inputs are related and can be derived from each others by their intensity.
+    We also introduce a simple method to compare quantitatively embeddings of models which are used for dimensionality reduction. %whose purpose is to capture topological structures of particular distortions.
 \end{abstract}
 
 % ==============================================================================
@@ -131,57 +131,60 @@
 % ==============================================================================
 \chapter{Introduction}
 
-Nowadays Computer Science has become predominant in many fields of science for data storage, data analysis, simulations and much more.
-The amount of data is increasing every day and computers are still getting faster to explore more complex problems.
-There is an enormous flow of information in terms of quantity and dimensions: web databases, statistics, sound, images, videos.
-Many area of science need methods to extract specific information out of these huge data for example through analysis, visualization, or sometimes both combined.
+Nowadays Computer Science has become predominant in many fields of science for data storage, data analysis, and many more.
+The amount of data is increasing every day and computers are made faster to explore more complex problems.
+There is an enormous flow of information in terms of quantity and dimensions: sound, images and videos are common.
+Many area of science need methods to extract specific information out of these growing data.
+This is usually done through analysis, visualization, or even both combined.
 
-Computer Vision (CV) is a field addressing the problem of analyzing and understanding visual multimedias by means of automatic processing.
-To name a few examples: image classification, pattern recognition and many more.
-Many state-of-the-art solutions are combining the advance of Machine Learning to solve them statistically, to avoid designing algorithms by hand which would require a good knowledge of the data.
-For example {\em Convolutional Neural Networks} (CNN), which is a ``visual'' variant of {\em Neural Network}s (NN), are now widely used for Computer Vision.
-They are trained in a supervised way to perform a systematic processing task, for example to classify an image (\eg: a handwritten digit) into a number of fixed categories (\eg: 0 through 9).
-These networks acquire an internal representation of the input, the {\em features}, which are optimized during training to give better results.
-In the usual classification task, the features usually lie in a low dimensional space compared to the input.
-Therefore, these NN can be seen as two embedded parts: a dimensionality reducer that clean the data, extract important information and a classifier that takes a decision based on the features.
+Computer Vision (CV) is a field addressing the problem of analyzing visual multimedias by automatic processing means.
+To name a few examples: image classification and pattern recognition.
+Many state-of-the-art solutions are combining the advance of Machine Learning to find models statistically instead of designing algorithms by hand which usually requires expert knowledge of the domain.
+For example {\em Convolutional Neural Networks} (CNN), which is a ``visual'' variant of {\em Neural Network}s (NN), are now widely used for Computer Vision with great success\cite{krizhevsky2012imagenet}\cite{rowley1998neural}\cite{prechelt1994proben1}.
+They are trained in a supervised way to perform a systematic processing task like for instance image classification (\eg: a handwritten digit) into a number of fixed categories (\eg: 0 through 9).
+The {\em Features} are the internal representation of the input inside NN that they optimize during training to give better results.
+In common classification tasks, the features are meant to lie in a low dimensional space and should be more compact than the input.
+Therefore, these NN can be seen as two embedded parts: a dimensionality reducer that extracts important informations and a classifier that takes a decision based on these features.
 Most practical applications will have to deal with some form of image distortions in their data: shearing, noise, camera viewpoint, lighting condition, to name a few.
-In the case of classification, distortions can require putting extra efforts to train a ``resistant'' model which still classifies correctly its input in the presence of such deformations.
-Most implementations decide to just kill the distortion signal by assigning the original label on distorted samples.
-However there are practical use cases that would benefit from having a quantified and predictable signal of the distortions in the features.
+In the case of classification, distortions can require putting extra efforts to train a ``resistant'' model which still classifies correctly its input in the presence of such deformation.
+Most implementations decide to just kill the distortion signal with data-augmentation (which assigns the original label on distorted samples) because they don't need this information eventually.
+However there are practical use cases that would benefit from having a quantified and predictable signal of the distortions coded into their features.
 
-Visual inspection of the feature space using a human-friendly representation can help to gain insights and improve the models.
-One way to analyze the features is to apply conventional methods such as dimensionality reduction.
-Many dimensionality reduction methods exist with many differences such as: properties, flexibility and final goals.
-Popular methods are PCA, LLE, Isomap and more recently SNE.
-However many of them lack in flexibility by representing only linearity while many of the rest still cannot preserve hierarchical structures accurately.
+Our first step towards our research is to better understand NN embeddings and see if we can use conventional tools to extract distortion features reliably.
+Moreover, visual inspection of the feature space using a human-friendly representation can help to gain insights and improve our models.
+One way to analyze the features is to apply methods that project highly-dimensional points into lower space such as dimensionality reduction.
+Many differences characterize dimensionality reduction methods such as: properties, flexibility and final goals.
+We will do a brief overview of them: PCA, LLE, Isomap and more recently SNE.
+However many of them lack in flexibility by representing only linearity while many of the rest still cannot preserve hierarchical structures accurately\cite{t-SNE}.
 Researches have shown that t-SNE, a variant of SNE, has greatly improved on this regard: it is capable of keeping global clusters and fine-grained coherence inside them.
-Moreover it was used multiple times successfully to visualize the feature space of NN.
+Moreover it was used multiple times successfully to visualize the feature space of NN\cite{donahue2013decaf}\cite{yu2014visualizing}.
 
-Nonetheless, t-SNE has new drawbacks on their own.
-First, it cannot be controlled directly similarly to unsupervised methods because it only receives unlabelled points.
-Therefore the resulting embedding can have an unexpected shape unfit for the target application.
+Nonetheless, t-SNE isn't a perfect solution and it has its own drawbacks as well.
+First, like unsupervised methods it cannot be controlled directly because t-SNE is only given unlabelled points.
+Therefore, as we will show later, the resulting embedding can have an unexpected shape unfit for the target application.
 Secondly, this method works directly on the representations of the points without creating a mapping that computes the relation between input and output.
 Thus it is impossible to compute the representation of points that weren't part of the optimization process at the beginning.
-It would be necessary to recompute the whole representation from scratch with these new points.
+It would be necessary to recompute the whole representation from scratch with these new points which isn't fast to start with.
 In this work, we show how we tried to combine CNN and t-SNE to produce an embedding that quantifies distortions in a predictable way.
 However the resulting embeddings are unexpectedly messy: distortions are the primary factor of clusters, digit classes are not well separated and we faced problems to scale t-SNE to larger datasets.
+We could have improved t-SNE to leverage external prior-informations such as labels but the faced shortcomings were quite important.
 
-An alternative dimensionality reduction method consists of using the NN to directly learn an embedding similar to t-SNE but trained in a supervised manner.
-The network is used to represent a mapping from the image space to a lower embedding which does not have the previous shortcomings and can satisfy the properties we described above.
-As NN can represent any non-linear continuous functions\cite{csaji2001approximation}, it is suitable to compute a dimensionality reduction method potentially as powerful as t-SNE.
-To achieve this goal, it is possible to combine concepts similar to the ones employed in t-SNE but expressed in an equivalent adapted formulation for NN.
-In this work, we are continuing the research on dimensionality reduction methods using on neural networks.
+An alternative dimensionality reduction method consists of using the NN to directly compute an embedding similar to t-SNE but trained in a supervised manner.
+The network is used to learn a mapping from the image space to a lower embedding which does not have the previous shortcomings and can satisfy the properties we described above.
+As NN have the capacity to represent any non-linear continuous functions\cite{csaji2001approximation}, it is suitable to compute a very powerful dimensionality reduction method, hopefully very similar to t-SNE.
 
-We expand the {\em Reduction by Learning an Invariant Mapping} ({\em DrLIM}) models\cite{hadsell2006dimensionality} by introducing a generalized loss function.
+To achieve this goal, {\em Reduction by Learning an Invariant Mapping} ({\em DrLIM}) has combined concepts similar to the ones employed in t-SNE but expressed in an equivalent adapted formulation for NN.
+%By using this new formulation, we can progress on the research of dimensionality reduction methods employing neural networks.
 The key elements in their paper are: the contrastive loss function with the Siamese network architecture for training and a pairing strategy directly describing the embedding.
 The current formulation allows to express a one-dimensional relation between two pair of images based on the similarity: similar pairs of images should be close together whereas dissimilar pairs should be further.
+In this work, we extend DrLIM by introducing a generalized loss function.
 Our extension allows to express a N-dimensional similarity relation between pairs of images and each similarity is expressed in the embedding only by a number of dimensions of choice.
 
-Therefore, it becomes possible to express the constraints to create a more predictable embedding through our extension.
-We will follow the experiments done for DrLIM by training our model on a data-augmentation of MNIST with translations or rotations and on the NORB dataset.
-The resulting embeddings are analyzed in depth and compared quantitatively with DrLIM.
-We find that we can embed distortion information in one extra dimension while the other dimensions are still modeling the same information of the DrLIM embedding on MNIST with comparable quality.
-We also find that our solution can express the coherence in camera viewpoint on NORB like the cyclic pattern in the azimuth rotations.
+Therefore, it becomes possible to control more finely the embedding through our extension.
+We will follow the experiments made on DrLIM and train our own model on a data-augmentation of the MNIST dataset\cite{lecun1998mnist} with translations or rotations then we do the same on the NORB dataset\cite{lecun2004learning}.
+The resulting embeddings are studied in details with multiple comparisons to DrLIM.
+We find that we can embed distortion information in one extra dimension while reasonably preserving the characteristics of DrLIM on MNIST.
+We also find that our solution can represent the DrLIM's coherent and cyclic space of the camera viewpoint on NORB.
 The successful application on these two datasets demonstrate the effectiveness of our method.
 
 \section{Thesis Outline}
@@ -1016,8 +1019,9 @@ Future work could compare our models with regression models to see if further re
 
 An other aspect that future research is to test practically the predictability of our embeddings.
 For instance by using the produced features in a bigger classification network, for MNIST: gives the distortion intensity and the digit class; for NORB: the two azimuth-elevation angles.
-The useful contribution would be to come with a measure that quantifies the ``predictability'' of our model for certain application.
+An other useful contribution would find a measure that quantifies the ``predictability'' of our model for certain application.
 One simple example would be to use the accuracy of the classification model above but it wouldn't represent the effective usability in practical applications which combine both distortions and application-specific features.
+A better example would be a simple model that is trained to derive all distorted inputs' features from one input and the accuracy of such model would serve as a score.
 
 % applications?
 % FIXME: usecase of predictable disto?
