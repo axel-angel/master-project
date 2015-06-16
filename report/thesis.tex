@@ -777,14 +777,14 @@ We can look at the DrLIM embedding as a top-down projection of our 3D embedding 
 The different intensity of translations are well separated into their own cluster as demonstrated by a meticulous manual inspection and remarkably they are ordered vertically by their intensity.
 Once again, the space inside clusters is well organized by digit features like DrLIM.
 
-\begin{figure*}[t]
+\begin{figure*}[h]
     \centering
-    \begin{subfigure}[t]{0.45\textwidth}
+    \begin{subfigure}{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_2bv7.jpg}
         %\caption{Loss of DrLIM}
     \end{subfigure}
-    \begin{subfigure}[t]{0.45\textwidth}
+    \begin{subfigure}{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_3Dc3.jpg}
         %\caption{Loss of our model}
@@ -794,25 +794,25 @@ Once again, the space inside clusters is well organized by digit features like D
 \end{figure*}
 
 In order to compare the two methods, we present quantitative measures where the contrastive loss is computed on the DrLIM paired test set as described in the methodology.
-Evolutions of this measure during training are plotted in figure~\ref{fig:loss_test_common} and the final losses after 10'000 iterations are: $0.160023$ (DrLIM) and 0.145418 (our model).
+Evolutions of this measure during training are plotted in figure~\ref{fig:loss_mnist_test_common} and the final losses after 10'000 iterations are: $0.160023$ (DrLIM) and 0.145418 (our model).
 The two loss series shown in this figure are statistically indistinguishable according to a t-test with a null hypothesis of $\alpha = 0.05$.
 Therefore we can conclude our model learns an equivalent representation in its 2D digit-projection to DrLIM with a slightly different formulation and it can expresses distortions without loosing information in its 3rd dimension at the same time.
 
-\begin{figure}[t]
+\begin{figure}[h]
     \centering
     \includegraphics{thesis_figures/mnist_cl_drlim.jpg}
     \caption{Plot of the DrLIM embedding on the MNIST translation-augmented test set where some random samples are shown for illustration.}
     \label{fig:mnist_cl_drlim}
 \end{figure}
 
-\begin{figure*}[t]
+\begin{figure*}[h]
     \centering
-    \begin{subfigure}[t]{0.7\textwidth}
+    \begin{subfigure}{0.7\textwidth}
         \centering
         \includegraphics{thesis_figures/mnist_cl2d.jpg}
         \caption{Two samples of different class were selected at random and their distortions are marked as triangles in the figure.}
     \end{subfigure}
-    \begin{subfigure}[t]{0.7\textwidth}
+    \begin{subfigure}{0.7\textwidth}
         \centering
         \includegraphics{thesis_figures/mnist_cl2d2.jpg}
         \caption{General view where random sample's distortions are displayed to represent the local trend.}
@@ -821,19 +821,19 @@ Therefore we can conclude our model learns an equivalent representation in its 2
     \label{fig:mnist_cl2d}
 \end{figure*}
 
-\begin{figure}[t]
+\begin{figure}[h]
     \begin{center}
         \includegraphics{thesis_figures/final_loss_test2bv7.jpg}
     \end{center}
     \caption{Comparison of quantitative measures between DrLIM and our model during training iterations on the translation-augmented MNIST test set.}
-    \label{fig:loss_test_common}
+    \label{fig:loss_mnist_test_common}
 \end{figure}
 
 We tested our model on a data-augmentation of MNIST based on rotations as well to show it works on non-linear deformations as well.
 Clusters are still arranged in a linear fashion although rotations are non-linear but the cluster separations are smaller, see figure~\ref{fig:mnist_cl2d_rotate}.
 The results are similar to our previous experiment and we only provide the figure for demonstration as we won't discuss it in more details.
 
-\begin{figure}[t]
+\begin{figure}[h]
     \begin{center}
         \includegraphics{thesis_figures/mnist_cl2d_rotate.jpg}
     \end{center}
@@ -842,8 +842,8 @@ The results are similar to our previous experiment and we only provide the figur
 \end{figure}
 
 \subsection{Contrastive LeNet (NORB)}
-Once again we train our network following our conventions on a subset of the NORB dataset.
-As we previously described, this subset is composed of all viewpoint of a single plane which was used in the DrLIM paper.
+Once again we train our network following our conventions, this time on a subset of the NORB dataset with a single plane.
+As we previously described, this subset is composed of all viewpoint of a single plane which we call thereafter the 1-plane NORB dataset.
 We split this subset into two parts: 660 training samples and 312 test samples.
 These two sets are both separately paired according to the strategy described in the methodology to form the training and testing sets.
 The models are trained until the loss on the respective test set has attained a reasonable local minima, which takes around 10 minutes.
@@ -856,20 +856,14 @@ However, the cylinder is not perfect: multiples parts are more flat along the el
 The major difference with our solution, as shown in figure \ref{fig:norb_cl2d_embedding}, is the alignment along the plot axes, a more stable radius and a better separation inside the cylinder.
 The predictability of our solution is improved by these properties compared to DrLIM.
 
-give loss function, graph?
-describe coherence, continuity, cycle of structure.
-converge faster?
-compare DrLIM and ours.
-give quantitative results.
-
-\begin{figure*}[t]
+\begin{figure*}[h]
     \centering
-    \begin{subfigure}[t]{0.45\textwidth}
+    \begin{subfigure}{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_3d.jpg}
         %\caption{Loss of DrLIM}
     \end{subfigure}
-    \begin{subfigure}[t]{0.45\textwidth}
+    \begin{subfigure}{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_2D1g2.jpg}
         %\caption{Loss of our model}
@@ -878,13 +872,13 @@ give quantitative results.
     \label{fig:norb_cl2d_loss}
 \end{figure*}
 
-\begin{figure*}[t]
+\begin{figure*}[h]
     \centering
-    \begin{subfigure}[t]{0.45\textwidth}
+    \begin{subfigure}{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{thesis_figures/norb_drlim1.jpg}
     \end{subfigure}
-    \begin{subfigure}[t]{0.45\textwidth}
+    \begin{subfigure}{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{thesis_figures/norb_drlim2.jpg}
     \end{subfigure}
@@ -892,35 +886,56 @@ give quantitative results.
     \label{fig:norb_drlim_embedding}
 \end{figure*}
 
-\begin{figure*}[t]
+\begin{figure*}[h]
     \centering
-    \begin{subfigure}[t]{0.45\textwidth}
+    \begin{subfigure}{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{thesis_figures/norb_cl2d.jpg}
         \caption{2D projection of the first two axes. Colors indicate the azimuth angle.}
     \end{subfigure}
-    \begin{subfigure}[t]{0.45\textwidth}
+    \begin{subfigure}{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{thesis_figures/norb_cl2d2.jpg}
         \caption{2D projection of the last two axes. Colors indicate the elevation angle.}
     \end{subfigure}
-    \caption{2D Plot of our model embedding on the NORB 1-plane train+test after $100'000$ iterations.}
+    \caption{2D Plot of our model embedding on the NORB 1-plane train+test after $100'000$ iterations. A few random samples were shown to represent the local trend.}
     \label{fig:norb_cl2d_embedding}
 \end{figure*}
 
-general discussion.
-with difficulties?
+To compare the two models, we computed the contrastive loss on the test set of the 1-plane NORB with the same parameters ($m=1$) as with MNIST.
+The plot of this loss is shown in figure \ref{fig:loss_norb_test_common} where we also added a version of our model with $m=1$.
+The embedding of this new model has many aspects of our other model and the main difference is instead of having a round shape for the azimuth, it is similar to a heart which is also cyclic but less desirable in our opinion.
+We can see a major difference with our model $m=10$ compared to both DrLIM and our second model $m=1$.
+By definition of the loss function, the model is not penalized to put dissimilar pairs further than the margin, therefore it means our model $m=10$ has decided it is better to put similar neighbors further than the other two models.
+Moreover, the loss suggests that our model $m=1$ is better but we find qualitatively that our second model is better, although it has a higher loss.
+Unfortunately, the visual quality is not reflected by the loss function in this case.
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics{thesis_figures/final_loss_testv3.jpg}
+    \end{center}
+    \caption{Comparison of quantitative measures between DrLIM and our model during training iterations on the 1-plane NORB test set.}
+    \label{fig:loss_norb_test_common}
+\end{figure}
+
+To conclude this chapter, we would like to state a few remarks and overview some difficulties in our experiments.
+The primary goal of our experiments using contrastive losses is to show we can expect more predictability in the sense of constraints over the axes, the shape and clusters with a simple extension of the original formulation.
+Our qualitative judgement is positive about the success of our experiments.
+We demonstrated in our first experiment that models based on DrLIM can include more informations concerning the distortions with minor impact over the original dimensions.
+We also demonstrated in our second experiment that they can be guided with minimal efforts to represent the NORB space by using dimensions in a certain way.
+Moreover we had great difficulties to reproduce DrLIM on MNIST and especially NORB due to the lack of directives for parameters and due to the initial randomness of model initialization.
+During these experiments, we also learned that one if not the most important factor for training a Siamese network comes from the pairing method.
+On this regard, many minor factors can greatly impact the final results such as: the ratio of similar/dissimilar pairs, their ordering (shuffled or not) and the addition/removal of certain pairs.
+We found our models easier to train because they converged to the above results with nearly no effort: the default weights and margin were safely used and our models converged to the expected solutions.
+
+However there is still room for improvements, especially for the quantitative measures which doesn't always reflect the structure quality quantified by a visual inspection.
+It is important to keep in mind that the visual quality is not necessarily representative of its real usability as features for further layers in a NN.
+Nonetheless, it shows that our model can create quite interesting and human-friendly representation by simple methods.
 
 explain what we found using double-contrastive loss with lenet, on mnist.
-
-We had great difficulties to reproduce DrLIM on NORB due to the lack of directives for parameters and due to the initial randomness of model initialization.
-
-One of the most important factor for training a Siamese network comes from the pairing method: which samples are considered a pair, which are not.
 The results are extremely sensitive to minor changes with regard to pairing distortions, neighborhood samples together and the ordering which can end with important overlapping or incoherent neighborhood.
 
-can add norb, when finished.
-
-usecase of predictable disto
+% FIXME: usecase of predictable disto?
 
 
 % ==============================================================================
