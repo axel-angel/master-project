@@ -54,12 +54,65 @@
 \newcommand{\eg}{e.g.}
 \setkeys{Gin}{width=0.75\textwidth}
 
+%\renewcommand{\includegraphics}[2][0]{\relax} % FIXME: figures disabled
+
 \begin{document}
-\thispagestyle{empty}
-% TODO: make
-First page (make guard, epfl logo, prof names, title, etc)
+%First page (make guard, epfl logo, prof names, title, etc)
+\begin{titlepage}
+\begin{center}
+    \vspace*{0.5cm}
+
+    \line(1,0){400}
+    \vspace{0.5cm}
+
+    {\bf \Large Towards Distortion-Predictable Embedding}
+
+    \vspace{0.5cm}
+
+    {\bf \Large of Neural Networks}
+
+    \vspace{0.5cm}
+    \line(1,0){400}
+
+    \vspace{1.5cm}
+
+    {\bf \myname}
+
+    Master of Computer Science
+
+    \vspace{1.6cm}
+
+    Supervised by
+
+    {\bf Prof. Pascal Fua}
+
+    {\bf Dr. Sironi Amos}
+
+    \vspace{0.8cm}
+
+    Computer Vision Laboratory (CVLAB)
+
+    École Polytechnique Fédérale de Lausanne (EPFL)
+
+    \vspace{3cm}
+
+    \today
+
+    \vfill
+
+    \includegraphics[width=0.3\textwidth]{thesis_figures/epfl_logo.png}
+
+
+    \end{center}
+\end{titlepage}
 
 \newpage
+\thispagestyle{empty}
+\centering
+\vfill
+Page intentionally left blank.
+
+\cleardoublepage
 \begin{abstract}
     Current research in Computer Vision has shown that {\em Convolutional Neural Networks} (CNN) give state-of-the-art performance in many classification tasks and Computer Vision problems\cite{mnist_web}\cite{krizhevsky2012imagenet}\cite{rowley1998neural}\cite{prechelt1994proben1}.
     The embedding of CNN, which is the internal representation produced by the last layer, can indirectly learn topological and relational properties.
