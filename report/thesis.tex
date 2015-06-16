@@ -760,10 +760,22 @@ The lack of end-to-end optimization in this method is also important and this ca
 
 We present, in the following part, results of our alternative method based on end-to-end and supervised training of a single CNN.
 
-\subsection{Contrastive LeNet}
+\subsection{Contrastive LeNet (MNIST)}
 
 In the two experiments below, we train Siamese networks with the contrastive loss function.
 To compare with our reference results, we train for each one a network in the original configurations of DrLIM and an other network with the extension as described in the methodology section for two-label pairs.
+
+The first dataset is a subset of MNIST containing only 4s and 9s digits which we derive our training and testing set based on our 2D pairing strategy.
+Therefore the resulting dataset is composed of each sample plus its translations (±3, ±6 pixels) which is then paired.
+The models are trained until the loss on the respective test set has attained a reasonable local minima, which takes around 10 minutes.
+After around $100$ iterations, both models have reasonably converged to a stable solution (see figure~\ref{fig:mnist_cl2d_loss}).
+However, our model has reached a lower solution than DrLIM: comparing them directly is not possible because the two datasets are different but the difference in the loss in our model is more important and converge as quickly.
+Intuitively this means that our problem formulation is easier to solve and the model finds a ``better'' solution, in the sense it could satisfy more our constraints described by the loss.
+The resulting embedding are shown in figures:~\ref{fig:mnist_cl_drlim} for DrLIM and~\ref{fig:mnist_cl2d} for our model.
+The DrLIM embedding we reproduced is very similar to the excepted result: a coherent grouping based on translation-agnostic similarity; however the separation between digits is more pronounced.
+We can look at the DrLIM embedding as a top-down projection of our 3D embedding where the additional vertical dimension quantify the displacement.
+The different intensity of translations are well separated into their own cluster as demonstrated by a meticulous manual inspection and remarkably they are ordered vertically by their intensity.
+Once again, the space inside clusters is well organized by digit features like DrLIM.
 
 \begin{figure*}[t]
     \centering
@@ -780,18 +792,6 @@ To compare with our reference results, we train for each one a network in the or
     \caption{Plot of the model loss for 500 iterations of DrLIM and our model on MNIST.}
     \label{fig:mnist_cl2d_loss}
 \end{figure*}
-
-The first dataset is a subset of MNIST containing only 4s and 9s digits which we derive our training and testing set based on our 2D pairing strategy.
-Therefore the resulting dataset is composed of each sample plus its translations (±3, ±6 pixels) which is then paired.
-The models are trained until the loss on the respective test set has attained a reasonable local minima.
-After around $100$ iterations, both models have reasonably converged to a stable solution (see figure~\ref{fig:mnist_cl2d_loss}).
-However, our model has reached a lower solution than DrLIM: comparing them directly is not possible because the two datasets are different but the difference in the loss in our model is more important and converge as quickly.
-Intuitively this means that our problem formulation is easier to solve and the model finds a ``better'' solution, in the sense it could satisfy more our constraints described by the loss.
-The resulting embedding are shown in figures:~\ref{fig:mnist_cl_drlim} for DrLIM and~\ref{fig:mnist_cl2d} for our model.
-The DrLIM embedding we reproduced is very similar to the excepted result: a coherent grouping based on translation-agnostic similarity; however the separation between digits is more pronounced.
-We can look at the DrLIM embedding as a top-down projection of our 3D embedding where the additional vertical dimension quantify the displacement.
-The different intensity of translations are well separated into their own cluster as demonstrated by a meticulous manual inspection and remarkably they are ordered vertically by their intensity.
-Once again, the space inside clusters is well organized by digit features like DrLIM.
 
 In order to compare the two methods, we present quantitative measures where the contrastive loss is computed on the DrLIM paired test set as described in the methodology.
 Evolutions of this measure during training are plotted in figure~\ref{fig:loss_test_common} and the final losses after 10'000 iterations are: $0.160023$ (DrLIM) and 0.145418 (our model).
@@ -841,18 +841,79 @@ The results are similar to our previous experiment and we only provide the figur
     \label{fig:mnist_cl2d_rotate}
 \end{figure}
 
-train siamese network with contrastive on subset norb with plane.
-show plot embedding on test set.
+\subsection{Contrastive LeNet (NORB)}
+Once again we train our network following our conventions on a subset of the NORB dataset.
+As we previously described, this subset is composed of all viewpoint of a single plane which was used in the DrLIM paper.
+We split this subset into two parts: 660 training samples and 312 test samples.
+These two sets are both separately paired according to the strategy described in the methodology to form the training and testing sets.
+The models are trained until the loss on the respective test set has attained a reasonable local minima, which takes around 10 minutes.
+After $2'000$ iterations, both models have reasonably converged to a stable solution (see figure~\ref{fig:norb_cl2d_loss}).
+To get the most convincing results, we had to chose $m=1$ for DrLIM and $m=10$ for our model, therefore their loss on the test set shouldn't be compared directly, instead the quantitative measures below should be used instead.
+However we can see DrLIM in figure \ref{fig:norb_drlim_embedding} has an easier formulation this time (smaller margin) and the embedding is very similar to the one presented on DrLIM paper.
+The most important features of the embedding to represent NORB is: the cyclic structures for the azimuth angle, the continuity along the two axes disregarding lighting illumination and the sharp separation along the axes.
+Indeed, this embedding is a thin cylinder whose long axis represent the elevation and the radius is the azimuth angle.
+However, the cylinder is not perfect: multiples parts are more flat along the elevation axis (like a plane) and the radius is fuzzier than presented in the reference paper.
+The major difference with our solution, as shown in figure \ref{fig:norb_cl2d_embedding}, is the alignment along the plot axes, a more stable radius and a better separation inside the cylinder.
+The predictability of our solution is improved by these properties compared to DrLIM.
+
 give loss function, graph?
 describe coherence, continuity, cycle of structure.
 converge faster?
 compare DrLIM and ours.
 give quantitative results.
 
+\begin{figure*}[t]
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_3d.jpg}
+        %\caption{Loss of DrLIM}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_2D1g2.jpg}
+        %\caption{Loss of our model}
+    \end{subfigure}
+    \caption{Plot of the model loss for 10'000 iterations of DrLIM and our model on NORB.}
+    \label{fig:norb_cl2d_loss}
+\end{figure*}
+
+\begin{figure*}[t]
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{thesis_figures/norb_drlim1.jpg}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{thesis_figures/norb_drlim2.jpg}
+    \end{subfigure}
+    \caption{3D Plot of the DrLIM embedding on the NORB 1-plane train+test dataset after $100'000$ iterations. The colors indicate the elevation angle.}
+    \label{fig:norb_drlim_embedding}
+\end{figure*}
+
+\begin{figure*}[t]
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{thesis_figures/norb_cl2d.jpg}
+        \caption{2D projection of the first two axes. Colors indicate the azimuth angle.}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{thesis_figures/norb_cl2d2.jpg}
+        \caption{2D projection of the last two axes. Colors indicate the elevation angle.}
+    \end{subfigure}
+    \caption{2D Plot of our model embedding on the NORB 1-plane train+test after $100'000$ iterations.}
+    \label{fig:norb_cl2d_embedding}
+\end{figure*}
+
 general discussion.
 with difficulties?
 
 explain what we found using double-contrastive loss with lenet, on mnist.
+
+We had great difficulties to reproduce DrLIM on NORB due to the lack of directives for parameters and due to the initial randomness of model initialization.
 
 One of the most important factor for training a Siamese network comes from the pairing method: which samples are considered a pair, which are not.
 The results are extremely sensitive to minor changes with regard to pairing distortions, neighborhood samples together and the ordering which can end with important overlapping or incoherent neighborhood.
