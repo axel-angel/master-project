@@ -78,7 +78,9 @@
 
     {\bf \myname}
 
-    Master of Computer Science
+    Master of Science
+
+    School of Computer Science
 
     \vspace{1.6cm}
 
@@ -86,7 +88,7 @@
 
     {\bf Prof. Pascal Fua}
 
-    {\bf Dr. Sironi Amos}
+    {\bf Sironi Amos}
 
     \vspace{0.8cm}
 
@@ -118,9 +120,9 @@
     Current research in Computer Vision has shown that {\em Convolutional Neural Networks} (CNN) give state-of-the-art performance in many classification tasks and Computer Vision problems\cite{mnist_web}\cite{krizhevsky2012imagenet}\cite{rowley1998neural}\cite{prechelt1994proben1}.
     The embedding of CNN, which is the internal representation produced by the last layer, can indirectly learn topological and relational properties.
     Moreover, by using a suitable loss function, CNN models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
-    In this work, we provide insights about CNN embeddings and propose a new loss function, derived from the contrastive loss, that creates models with more predicable mapping and also quantifies distortions.
+    In this work, we provide insights about CNN embeddings and propose a new loss function, derived from the contrastive loss, that creates models with more predicable mappings and also quantifies distortions.
     Usual distortion-dependant methods would require to feed-forward inputs under every distortions because no simple relation would exist between their features.
-    Our contribution makes a step towards embeddings where features of distorted inputs are related and can be derived from each others by their intensity.
+    Our contribution makes a step towards embeddings where features of distorted inputs are related and can be derived from each others by the intensity of the distortion.
     We also introduce a simple method to compare quantitatively embeddings of models which are used for dimensionality reduction. %whose purpose is to capture topological structures of particular distortions.
 \end{abstract}
 
@@ -142,7 +144,7 @@ To name a few examples: image classification and pattern recognition.
 Many state-of-the-art solutions are combining the advance of Machine Learning to find models statistically instead of designing algorithms by hand which usually requires expert knowledge of the domain.
 For example {\em Convolutional Neural Networks} (CNN), which is a ``visual'' variant of {\em Neural Network}s (NN), are now widely used for Computer Vision with great success\cite{krizhevsky2012imagenet}\cite{rowley1998neural}\cite{prechelt1994proben1}.
 They are trained in a supervised way to perform a systematic processing task like for instance image classification (\eg: a handwritten digit) into a number of fixed categories (\eg: 0 through 9).
-The {\em Features} are the internal representation of the input inside NN that they optimize during training to give better results.
+The {\em features} are the internal representation of the input inside NN that they optimize during training to give better results.
 In common classification tasks, the features are meant to lie in a low dimensional space and should be more compact than the input.
 Therefore, these NN can be seen as two embedded parts: a dimensionality reducer that extracts important informations and a classifier that takes a decision based on these features.
 Most practical applications will have to deal with some form of image distortions in their data: shearing, noise, camera viewpoint, lighting condition, to name a few.
@@ -173,11 +175,12 @@ An alternative dimensionality reduction method consists of using the NN to direc
 The network is used to learn a mapping from the image space to a lower embedding which does not have the previous shortcomings and can satisfy the properties we described above.
 As NN have the capacity to represent any non-linear continuous functions\cite{csaji2001approximation}, it is suitable to compute a very powerful dimensionality reduction method, hopefully very similar to t-SNE.
 
-To achieve this goal, {\em Reduction by Learning an Invariant Mapping} ({\em DrLIM}) has combined concepts similar to the ones employed in t-SNE but expressed in an equivalent adapted formulation for NN.
+To achieve this goal, {\em Dimensionality Reduction by Learning an Invariant Mapping} ({\em DrLIM}) has combined concepts similar to the ones employed in t-SNE but expressed in an equivalent adapted formulation for NN.
 %By using this new formulation, we can progress on the research of dimensionality reduction methods employing neural networks.
 The key elements in their paper are: the contrastive loss function with the Siamese network architecture for training and a pairing strategy directly describing the embedding.
 The current formulation allows to express a one-dimensional relation between two pair of images based on the similarity: similar pairs of images should be close together whereas dissimilar pairs should be further.
 In this work, we extend DrLIM by introducing a generalized loss function.
+% FIXME: rephrase
 Our extension allows to express a N-dimensional similarity relation between pairs of images and each similarity is expressed in the embedding only by a number of dimensions of choice.
 
 Therefore, it becomes possible to control more finely the embedding through our extension.
@@ -188,7 +191,7 @@ We also find that our solution can represent the DrLIM's coherent and cyclic spa
 The successful application on these two datasets demonstrate the effectiveness of our method.
 
 \section{Thesis Outline}
-% FIXME: list chapters with their summarzied content
+% list chapters with their summarized content
 In Chapter~\ref{chap:related}, we introduce the previous papers that are related to our current work.
 We take a look at the prior arts in dimensionality reduction and the advance of Computer Vision with NN.
 Then we will introduce our most important reference paper introducing DrLIM models.
@@ -263,7 +266,7 @@ Some papers proposes to learn transformation-invariant embeddings, by means of m
 %proposes an alternative network, symmetry networks, to extend invariance beyond translation by using feature map over arbitrary symmetry groups by use of kernel-based interpolation.
 %paper: Dimensionality Reduction by Learning an Invariant Mapping
 
-The latter proposes to create a dimensionality reducing mapping, called {\em Reduction by Learning an Invariant Mapping} ({\em DrLIM}), by training a CNN using a new loss function based on energy models, called the {\em contrastive loss}.
+The latter proposes to create a dimensionality reducing mapping, called {\em Dimensionality Reduction by Learning an Invariant Mapping} ({\em DrLIM}), by training a CNN using a new loss function based on energy models, called the {\em contrastive loss}.
 This paper will be mentioned in this work as the {\em reference paper} or DrLIM's paper.
 Their results using on the MINST dataset\cite{lecun1998mnist} shows that CNN can learn a mapping that distinguish labels, and group alike digits even when they are translated artificially.
 They experimented with the NORB dataset\cite{lecun2004learning} as well with intriguing results: each sample is mapped on a 3D cylinder whose axes quantify the orientation in 2D and the azimuth angle in 1D.
@@ -527,7 +530,8 @@ Finally, we present how we will later compute quantitatively measure for compari
 %explain our models.
 As previously said, we are closely following the work of our reference paper \cite{hadsell2006dimensionality}.
 Therefore, we employ the same two models to experiment on their respective datasets MNIST and NORB.
-The first model is {\bf LeNet 5}, a multi-layer neural networks that is characterized by an architecture designed for handwritten characters as illustrated in figure~\ref{fig:siamese_cnn}.
+
+The {\bf first model} is {\em LeNet 5}, a multi-layer neural networks that is characterized by an architecture designed for handwritten characters as illustrated in figure~\ref{fig:siamese_cnn}.
 It is with no surprise that they are using it for MNIST, which is the most popular handwritten digit dataset for research.
 In our experiments with this dataset, we are using a very close fine-tuned variant with minor changes described below.
 
@@ -540,37 +544,43 @@ In our experiments with this dataset, we are using a very close fine-tuned varia
 \end{figure}
 
 This network architecture is comprised of a total of 7 layers with trainable parameters.
-The first part of this network is comprised of two pairs of convolution-pooling layers, where convolution kernels share their weights.
-As explained earlier, each convolution is applied to the entire image to create a single feature map.
-The first convolutional layer has 20 different trainable $5 \times 5$ kernels, which is followed by a trainable $2 \times 2$ max-pooling layer (with a stride of $2$).
-The second convolutional layer has 50 trainable $5 \times 5$ kernels, followed again by a $2 \times 2$ max-pool layer (stride $2$).
-The convolutional network ({\em convnet}) part, made by these two pairs of layers, are {\em feature extractors} for this network, it will extract features related to high-level cues to detect digits (\eg: straight or curved strokes).
+The first part of this network contains two pairs of convolution-pooling layers, where each convolution shares its weights defined as a kernel.
+As explained earlier, each convolution is applied to the entire image to create one feature map and the ensemble of convolutions of a layer creates the feature map of this layer.
+The first convolutional layer has 20 different trainable $5 \times 5$ kernels, which is followed by a trainable $2 \times 2$ max-pooling layer (with pixel stride of $2$).
+The second convolutional layer has 50 trainable $5 \times 5$ kernels, followed again by a $2 \times 2$ max-pool layer (same stride).
+These two pairs of layers form the convolutional network ({\em convnet}) part of this network which can be seen as {\em feature extractors}.
+It will extract features encoding high-level cues (\eg: shape of strokes: straight or curved) in this application to discriminate between digits.
 
-The second part of this network is composed of two fully-connected layers where only the first one is followed by a non-linear layer.
+The second part of this network is made of two fully-connected layers which are connected through a non-linear activation layer.
 The first layer has 500 trainable units computing an inner-product, followed by a non-trainable Rectified Linear Unit (ReLU) activations\cite{nair2010rectified}, followed by 10 trainable output units computing an inner-product which gives the digit class (1 versus rest).
+These three layers form the neural network part used for classification based on the prior features.
+%It also creates intermediate representations of the data, which we can see as features but they are less visual than in the convnet.
 
-The second model is composed of only two fully-connected inner-product layers.
-This network is much simpler than the one above because it is trained on a subset of the NORB dataset, which exhibits very few variability (compared to MNIST).
-The two layers are made of 20 and 3 trainable units respectively, without non-linearity between them. % FIXME: non-linearity, really?
+The {\bf second model} is only made of two fully-connected inner-product layers.
+This network is much simpler than the one above because it is trained on a subset of the NORB dataset, which exhibits very few variability compared to MNIST.
+Indeed, only a single 3D object will be used and its shape in 3D is easily recognizable from any angle.
+Back to the network, its two layers are made of 20 and 3 trainable units respectively, without non-linearity between them. % non-linearity, really?
 
-In the following experiments, we will train our variant of LeNet in two different ways: for digit classification to analyze the ``natural'' embedding and with a Siamese training architecture with the contrastive loss function to analyze a ``constrained'' embedding.
-For our second model, we will only train a ``constrained'' embedding with the Siamese architecture for NORB, like in our reference paper.
-It is important to note that in the LeNet ``constrained'' experiment we keep only a single fully-connected layer with the number of trainable units equals to the embedding dimensions (\eg: $2$ or $3$).
-The motivation is that the classification task is built on top of the network stack generating this embedding but in our second experiment we need this output rawly, like in our reference paper.
+In the following experiments, we will train our variant of LeNet in two different ways: for digit classification to analyze its ``natural'' embedding then with a Siamese training architecture with the contrastive loss function to analyze a ``constrained'' embedding.
+In the second version, we keep a single fully-connected layer in the NN part and reshape its number of units to match the embedding dimensions (\eg: $2$ or $3$).
+The motivation is that the classification task is built on top of the network stack generating this embedding but in our second experiment we need this output rawly projected, like in our reference paper.
+About our second model, we will directly train a ``constrained'' embedding with the Siamese architecture for NORB.
 
 In the case of digit classification, the model is trained using Stochastic Gradient Descend (SGD) with a learning rate of 0.01 optimizing a SoftMax loss function.
-Siamese models are trained with SGD with a learning rate between 0.01 and 0.001 optimizing the contrastive loss.
+Siamese models are trained with SGD with a learning rate of 0.01 or 0.001 optimizing the contrastive loss.
 
-For this project we chose the {\bf Caffe} deep-learning framework to train our models.
-There are several reasons among them: the simplicity to express networks, train or manipulate them; Caffe includes several network implementations for MNIST with LeNet and Siamese networks, for ImageNet with AlexNet, GoogLeNet where pre-trained versions are available; Moreover Caffe is well optimized C++ with CUDA GPU parallelism, it is flexible including official Python and MatLab bindings and its community is very active and helpful.
+For this project we chose the {\bf Caffe} Deep Learning framework for training models.
+There are several reasons such as: simplicity to express, train and manipulate networks; it includes several real implementations: LeNet on MNIST, Siamese on MNIST, AlexNet on ImageNet and provide pre-trained models (which we didn't used).
+Moreover Caffe is well optimized in C++ for CPU and CUDA for GPU, flexible with official bindings for Python and MatLab and its community is very active and helpful.
+Caffe is not perfect and has a few minor downsides that we won't discuss here.
 
-For our experiments on MNIST we could easily adapt the provided LeNet to match the architecture design discussed above.
-For the second non-convolutional network, we wrote the network definition ourself due to the triviality of this task.
-The training stage need many special parameters related to the solver (SGD): learning rate, batch size, momentum, weight decay (gamma and power) and number of epoch.
-They were kept unchanged because the Caffe community already fine-tuned them.
-We limited all our experiments to $10'000$ iterations, with a batch size of $64$.
-All our networks were trained using the Caffe built-in solver provided with the binary using {\tt caffe train}.
-Our alternative loss function was implemented in a new loss layer like the built-in contrastive loss.
+We could easily adapt the provided LeNet to match the architecture design discussed above for MNIST.
+As the second model is very simple, it was trivial to write its definition ourself.
+The training stage need many important parameters related to the SGD solver: learning rate, batch size, momentum, weight decay (gamma and power) and number of epoch.
+We mostly used the parameters as they are in Caffe because the community already fine-tuned them for us.
+We limited all our experiments to $10'000$ iterations for MNIST and $100'000$ for NORB, with a batch size of $64$.
+All our networks were trained using the Caffe built-in solver started using the {\tt caffe train} command.
+Our alternative loss function was implemented in a new loss layer inspired by the built-in contrastive loss.
 Our implementation is straightforward with NumPy in Python and the caffe bindings were used to integrate our layer into the network architecture.
 
 % FIXME: add figures
@@ -655,6 +665,7 @@ An example of pairs for MNIST is illustrated in figure~\ref{fig:mnist_pairs}.
     \label{fig:mnist_pairs}
 \end{figure}
 
+% FIXME: move this, pairing strategy into results
 In the experiments with t-SNE, we are generating a classification task where the training dataset contains one untouched and multiple translated digits with the corresponding label.
 This process is called {\em data augmentation}: the dataset is grown artificially by reusing samples but distorted by translations to train invariant models.
 Each sample is present with several combinations of increasing translations.
@@ -663,6 +674,7 @@ The goal of this experiments is two folds.
 First we would like to understand classifier embeddings and its interaction with t-SNE in a practical manner: testing various data-augmentation methods to see how it impacts the model, its accuracy and how t-SNE adapts.
 Secondly, this experiment tests whether we can get an embedding with our prerequisites properties of predictability with a state-of-the-art method specialized for projecting in 2D.
 
+% FIXME: move this, pairing strategy into results
 % for siamese
 In the Siamese experiments, in order to compare our results to the reference paper, we trained two models based on their settings on MNIST and NORB.
 The goal of DrLIM is to train a model where points are close together if they are ``visually'' similar without considering distortions depending on the dataset.
@@ -776,7 +788,7 @@ Most of the distorted samples on figure~\ref{fig:mnist_nda_tsne2} are part of th
     \includegraphics[width=\textwidth]{thesis_figures/mnist_nda_tsne2.jpg}
     \caption{Scatter plot of the t-SNE representation of the CNN embedding fed with the MNIST test set using our interactive tool. Close view of the 0s cluster containing distorted samples. Most of the samples are continuous distortions of the sample sample (same color). A unique color is given to each digit class as before plus one unique color for each sample's distortions.}
     \label{fig:mnist_nda_tsne2}
-\end{figure}[t]
+\end{figure}
 
 In the next experiment, we apply the same process with a translation-invariant model.
 One simple way to achieve invariance is to train the model over a data-augmented training set to distinguish centred digits as well as translated digits.
@@ -947,6 +959,7 @@ The predictability of our solution is improved by these properties compared to D
         \includegraphics[width=\textwidth]{thesis_figures/norb_drlim2.jpg}
     \end{subfigure}
     \caption{3D Plot of the DrLIM embedding on the NORB 1-plane train+test dataset after $100'000$ iterations. The colors indicate the elevation angle.}
+    % FIXME: add why it is nice
     \label{fig:norb_drlim_embedding}
 \end{figure*}
 
@@ -978,6 +991,7 @@ Unfortunately, the visual quality is not reflected by the loss function in this 
     \begin{center}
         \includegraphics{thesis_figures/final_loss_testv3.jpg}
     \end{center}
+    % FIXME: try to plot the two terms separately (see if neighbor is high for our model m=10)
     \caption{Comparison of quantitative measures between DrLIM and our model during training iterations on the 1-plane NORB test set.}
     \label{fig:loss_norb_test_common}
 \end{figure}
@@ -1027,6 +1041,7 @@ An other aspect that future research is to test practically the predictability o
 For instance by using the produced features in a bigger classification network, for MNIST: gives the distortion intensity and the digit class; for NORB: the two azimuth-elevation angles.
 An other useful contribution would find a measure that quantifies the ``predictability'' of our model for certain application.
 One simple example would be to use the accuracy of the classification model above but it would not represent the effective usability in practical applications which combine both distortions and application-specific features.
+% FIXME: rephrase, explicit
 A better example would be a simple model that is trained to derive all distorted inputs' features from one input and the accuracy of such a model would serve as a score.
 
 % applications?
