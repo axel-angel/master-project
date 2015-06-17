@@ -581,11 +581,9 @@ We mostly used the parameters as they are in Caffe because the community already
 We limited all our experiments to $10'000$ iterations for MNIST and $100'000$ for NORB, with a batch size of $64$.
 All our networks were trained using the Caffe built-in solver started using the {\tt caffe train} command.
 Our alternative loss function was implemented in a new loss layer inspired by the built-in contrastive loss.
-Our implementation is straightforward with NumPy in Python and the caffe bindings were used to integrate our layer into the network architecture.
+Our implementation in Python is straightforward with NumPy and the Caffe bindings were used to integrate our layer into the network architecture.
 
-% FIXME: add figures
-
-Most of our experiments were implemented using the Python scripting language: to generate our transformed datasets, to compute quantitative measures and visualization projections.
+Most of our experiments were implemented using the Python scripting language: to prepare datasets, to compute measures and project for visualization.
 We created our own set of tools to generate distorted training sets for our t-SNE experiments and to generate the distorted pairs training sets for our two Siamese experiments.
 The scikit-learn Python library ({\em sklearn}) now implements most of the standard algorithms for machine learning including the one we used: PCA and t-SNE\cite{pedregosa2011scikit}.
 The performance of t-SNE depends heavily on the number of input dimensions and in our experiments we had to apply PCA on our datasets first like other papers suggest\cite{t-SNE} (to compute t-SNE in a reasonable amount of time).
@@ -847,7 +845,7 @@ The models are trained until the loss on the respective test set has attained a 
 After around $100$ iterations, both models have reasonably converged to a stable solution (see figure~\ref{fig:mnist_cl2d_loss}).
 However, our model has reached a lower solution than DrLIM: comparing them directly is not possible because the two datasets are different but the difference in the loss in our model is more important and converge as quickly.
 Intuitively this means that our problem formulation is easier to solve and the model finds a ``better'' solution, in the sense it could satisfy more our constraints described by the loss.
-The resulting embedding are shown in figures:~\ref{fig:mnist_cl_drlim} for DrLIM and~\ref{fig:mnist_cl2d} for our model.
+The resulting embeddings are shown in figure ~\ref{fig:mnist_cl_drlim} for DrLIM and figures ~\ref{fig:mnist_cl2d_1} and ~\ref{fig:mnist_cl2d_2} for our model.
 The DrLIM embedding we reproduced is very similar to the excepted result: a coherent grouping based on translation-agnostic similarity; however the separation between digits is more pronounced.
 We can look at the DrLIM embedding as a top-down projection of our 3D embedding where the additional vertical dimension quantify the displacement.
 The different intensity of translations are well separated into their own cluster as demonstrated by a meticulous manual inspection and remarkably they are ordered vertically by their intensity.
@@ -881,21 +879,19 @@ Therefore we can conclude our model learns an equivalent representation in its 2
     \label{fig:mnist_cl_drlim}
 \end{figure}
 
-\begin{figure*}[h]
+\begin{figure}
     \centering
-    \begin{subfigure}{0.7\textwidth}
-        \centering
-        \includegraphics{thesis_figures/mnist_cl2d.jpg}
-        \caption{Two samples of different class were selected at random and their distortions are marked as triangles in the figure.}
-    \end{subfigure}
-    \begin{subfigure}{0.7\textwidth}
-        \centering
-        \includegraphics{thesis_figures/mnist_cl2d2.jpg}
-        \caption{General view where random sample's distortions are displayed to represent the local trend.}
-    \end{subfigure}
-    \caption{Plots of our model embedding on the MNIST translation-augmented test set projected in 2D.}
-    \label{fig:mnist_cl2d}
-\end{figure*}
+    \includegraphics[width=\textwidth]{thesis_figures/mnist_cl2d.jpg}
+    \caption{Plot of our model embedding on the MNIST translation-augmented test set projected in 2D. Two samples of different class were selected at random and their distortions are marked as triangles in the figure.}
+    \label{fig:mnist_cl2d_1}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{thesis_figures/mnist_cl2d2.jpg}
+    \caption{Plot of our model embedding on the MNIST translation-augmented test set projected in 2D. General view where random sample's distortions are displayed to represent the local trend.}
+    \label{fig:mnist_cl2d_2}
+\end{figure}
 
 \begin{figure}[h]
     \begin{center}
@@ -929,7 +925,7 @@ However we can see DrLIM in figure \ref{fig:norb_drlim_embedding} has an easier 
 The most important features of the embedding to represent NORB is: the cyclic structures for the azimuth angle, the continuity along the two axes disregarding lighting illumination and the sharp separation along the axes.
 Indeed, this embedding is a thin cylinder whose long axis represent the elevation and the radius is the azimuth angle.
 However, the cylinder is not perfect: multiples parts are more flat along the elevation axis (like a plane) and the radius is fuzzier than presented in the reference paper.
-The major difference with our solution, as shown in figure \ref{fig:norb_cl2d_embedding}, is the alignment along the plot axes, a more stable radius and a better separation inside the cylinder.
+The major difference with our solution, as shown in figures \ref{fig:norb_cl2d_embedding_1} and \ref{fig:norb_cl2d_embedding_2}, is the alignment along the plot axes, a more stable radius and a better separation inside the cylinder.
 The predictability of our solution is improved by these properties compared to DrLIM.
 
 \begin{figure*}[h]
@@ -963,21 +959,19 @@ The predictability of our solution is improved by these properties compared to D
     \label{fig:norb_drlim_embedding}
 \end{figure*}
 
-\begin{figure*}[h]
+\begin{figure}
     \centering
-    \begin{subfigure}{0.45\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{thesis_figures/norb_cl2d.jpg}
-        \caption{2D projection of the first two axes. Colors indicate the azimuth angle.}
-    \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{thesis_figures/norb_cl2d2.jpg}
-        \caption{2D projection of the last two axes. Colors indicate the elevation angle.}
-    \end{subfigure}
-    \caption{2D Plot of our model embedding on the NORB 1-plane train+test after $100'000$ iterations.}
-    \label{fig:norb_cl2d_embedding}
-\end{figure*}
+    \includegraphics[width=\textwidth]{thesis_figures/norb_cl2d.jpg}
+    \caption{Plot of our model embedding on the NORB 1-plane train+test after $100'000$ iterations. 2D projection of the first two axes. Colors indicate the azimuth angle.}
+    \label{fig:norb_cl2d_embedding_1}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{thesis_figures/norb_cl2d2.jpg}
+    \caption{Plot of our model embedding on the NORB 1-plane train+test after $100'000$ iterations. 2D projection of the last two axes. Colors indicate the elevation angle.}
+    \label{fig:norb_cl2d_embedding_2}
+\end{figure}
 
 To compare the two models, we computed the contrastive loss on the test set of the 1-plane NORB with the same parameters ($m=1$) as with MNIST.
 The plot of this loss is shown in figure \ref{fig:loss_norb_test_common} where we also added a version of our model with $m=1$.
