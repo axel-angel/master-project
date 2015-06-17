@@ -120,9 +120,11 @@
     Current research in Computer Vision has shown that {\em Convolutional Neural Networks} (CNN) give state-of-the-art performance in many classification tasks and Computer Vision problems\cite{mnist_web}\cite{krizhevsky2012imagenet}\cite{rowley1998neural}\cite{prechelt1994proben1}.
     The embedding of CNN, which is the internal representation produced by the last layer, can indirectly learn topological and relational properties.
     Moreover, by using a suitable loss function, CNN models can learn invariance to a wide range of non-linear distortions such as rotation, viewpoint angle or lighting condition.
-    In this work, we provide insights about CNN embeddings and propose a new loss function, derived from the contrastive loss, that creates models with more predicable mappings and also quantifies distortions.
-    Usual distortion-dependant methods requires feed-forwarding inputs under every distortions because no simple relation exists between their features, our contribution makes a step towards embeddings where features of distorted inputs are related and can be derived from each others by the intensity of the distortion.
-    We also introduce a simple method to compare quantitatively embeddings of models which are used for dimensionality reduction. %whose purpose is to capture topological structures of particular distortions.
+    In this work, insights are provided about CNN embeddings and propose a new loss function, derived from the contrastive loss, that creates models with more predicable mappings and also quantifies distortions.
+    In typical distortion-dependent methods, there is no simple relation between the features corresponding to one image and the features of the distorted image.
+    Therefore, these methods require to feed-forward inputs under every distortions in order to find the corresponding features representation.
+    Our contribution makes a step towards embeddings where features of distorted inputs are related and can be derived from each others by the intensity of the distortion.
+    A simple method is introduced to compare quantitatively embeddings of models which are used for dimensionality reduction.
 \end{abstract}
 
 % ==============================================================================
@@ -132,80 +134,85 @@
 % ==============================================================================
 \chapter{Introduction}
 
-Nowadays Computer Science has become predominant in many fields of science for data storage, data analysis, and many more.
-The amount of data is increasing every day and computers are made faster to explore more complex problems.
-There is an enormous flow of information in terms of quantity and dimensions: sound, images and videos are common.
-Many area of science need methods to extract specific information out of these growing data.
-This is usually done through analysis, visualization, or both.
+Nowadays, Computer Science has become predominant in many fields of science.
+Data storage, data analysis and visualization are only a few examples where it plays a fundamental role.
+The amount of available data is increasing every day which encourages the improvement of computers and the exploration of more complex problems.
+There is an enormous flow of information in terms of quantity and dimensionality.
+Sound, images and videos are common example of large multidimensional data.
+Many areas of science need methods to reliably extract specific information from these growing amount of data.
+This is usually done through analysis, visualization or a combination of both.
 
-Computer Vision (CV) is a field addressing the problem of analyzing visual multimedias by automatic processing, for example: image classification and pattern recognition.
-Many state-of-the-art solutions are combining the advance of Machine Learning to find data-driven models instead of designing algorithms manually which usually requires expert knowledge of the domain.
-For example {\em Convolutional Neural Networks} (CNN), a ``visual'' variant of {\em Neural Network}s (NN), are now widely used for Computer Vision with great success\cite{krizhevsky2012imagenet}\cite{rowley1998neural}\cite{prechelt1994proben1}.
-They are trained in a supervised way to perform a systematic processing task.
-For instance classification of images into a number of fixed categories (\eg: handwritten digits between 0 and 9).
-The {\em features} are the internal representation of the input inside the NN that is being optimized during training to give better results.
-In common classification tasks, the features are meant to lie in a low dimensional space and should be more compact than the input.
+Computer Vision (CV) is a field addressing the problem of analyzing visual multimedias by automatic processing.
+Image classification and pattern recognition are two examples of problems studied in Computer Vision.
+Many state-of-the-art solutions are combining the advance of Machine Learning to find data-driven models, instead of hand-designing algorithms, which usually requires expert knowledge of the domain.
+Among other methods, {\em Convolutional Neural Networks} (CNN), are a variant of {\em Neural Network}s (NN) used in vision tasks and now widely employed for Computer Vision with great success\cite{krizhevsky2012imagenet}\cite{rowley1998neural}\cite{prechelt1994proben1}.
+They are trained in a supervised way to perform a systematic processing task, for instance to classify images into a number of fixed categories (\eg: handwritten digits between 0 and 9).
+The {\em features} are the internal representation of the input inside NN that is being optimized during training to give better results.
+In common classification tasks, the features are meant to lie in a low dimensional space and should provide a more compact representation of the input.
 Therefore, these NN can be seen as two embedded parts: a dimensionality reduction part that extracts important informations and a classifier that takes a decision based on these features.
-Most practical applications will have to deal with some form of image distortions in their data: shearing, noise, camera viewpoint, lighting condition.
-In the case of classification, distortions can require putting extra efforts to train a robust model which still classifies correctly its input in the presence of such deformations.
-Most implementations decide to nullify the distortion signal with data-augmentation (which assigns the original label on distorted samples) because they do not need this information eventually.
-However as will show in this paper, there are practical cases that would benefit from having a quantified and predictable signal of the distortions coded into their features.
+In practical applications, image distortions of various kind are present in the data: shearing, noise, camera viewpoint and lighting condition.
+In the case of classification, distortions can require putting extra efforts to train a robust model able to classify correctly the input in the presence of such deformations.
+Most implementations decide to nullify the distortion signal with data-augmentation (which assigns the original label on distorted samples).
+This can be done when the application does not require this information.
+However, there are practical cases where it is required to have a feature representation able to quantify and possibly predict the distortion.
 
-Our first step towards our research is to better understand NN embeddings and see if we can use conventional tools to extract distortion features reliably.
-Moreover, visual inspection of the feature space using a human-friendly representation can help to gain insights and improve our models.
-One way to analyze the features is to apply methods that project highly-dimensional points into a lower space, this is called dimensionality reduction.
+The first step of this research is to better understand NN embeddings and explore if conventional tools can be used to extract distortion features reliably.
+Moreover, visual inspection of the feature space using a human-friendly representation can help to gain insights and improve the models.
+One way to analyze the features is to apply dimensionality reduction techniques to project highly-dimensional points into lower dimensional space.
 Many differences characterize dimensionality reduction methods such as: properties, flexibility and final goals.
-We will do a brief overview of them: PCA, LLE, Isomap and more recently SNE.
+A brief overview is made about: PCA, LLE, Isomap and the more recent SNE.
 However many of them lack flexibility by representing only linearity, while many others don't preserve hierarchical structures accurately\cite{t-SNE}.
 Researches have shown that t-SNE, a variant of SNE, has greatly improved on this regard: it is capable of keeping global clusters and fine-grained coherence inside them.
 Moreover it was used multiple times successfully to visualize the feature space of NN\cite{donahue2013decaf}\cite{yu2014visualizing}.
 
-Nonetheless, t-SNE is not a perfect solution and it has its own drawbacks as well.
-First, like unsupervised methods it cannot be controlled directly because t-SNE is only given unlabelled points.
-Therefore, as we will show later, the resulting embedding can have an unexpected shape unfit for the target application.
+Nonetheless, several limitations of t-SNE will be detailed.
+It cannot be controlled directly because t-SNE is only given unlabelled points like the unsupervised methods.
+Therefore, as shown later, the resulting embedding can have an unexpected shape unfit for the target application.
 Secondly, this method works directly on the representations of the points without creating a mapping that computes the relation between input and output.
 Thus it is impossible to compute the representation of points that were not part of the optimization process at the beginning.
 It would be necessary to recompute the whole representation from scratch with these new points and t-SNE is not cheap.
-In this work, we first try to combine CNN and t-SNE to produce an embedding that quantifies distortions in a predictable way.
-However the resulting embeddings were unexpectedly messy: distortions are the primary factor of clusters, digit classes are not well separated and we faced problems to scale t-SNE to larger datasets.
-We could have improved t-SNE to leverage external prior-informations such as labels but the faced shortcomings were quite important.
+In this work, a first try is made by combining CNN and t-SNE to produce an embedding quantifying distortions.
+However, the resulting embeddings are not predictable and difficult to interpret.
+Distortions are the primary factor in the resulting clusters, while classes are not well separated.
+Moreover, problems were faced to scale t-SNE on larger datasets.
+t-SNE could be probably improved to leverage external prior-informations such as labels, but because of the major shortcomings faced, we opted for another solution.
 
 An alternative dimensionality reduction method consists of using the NN to directly compute an embedding similar to t-SNE but trained in a supervised manner.
-The network is used to learn a mapping from the image space to a lower embedding which does not have the previous shortcomings and can satisfy the properties we described above.
-As NN have the capacity to represent any non-linear continuous functions\cite{csaji2001approximation}, it is suitable to compute a very powerful dimensionality reduction method, hopefully very similar to t-SNE.
+The network is used to learn a mapping from the image space to a lower embedding which does not have the previous shortcomings and can satisfy the properties described above.
+As NN have the capacity to represent any non-linear continuous functions\cite{csaji2001approximation}, it is suitable to compute a very powerful dimensionality reduction method.
 
 To achieve this goal, {\em Dimensionality Reduction by Learning an Invariant Mapping} ({\em DrLIM}) combines concepts similar to the ones employed in t-SNE but expressed in an equivalent adapted formulation for NN\cite{hadsell2006dimensionality}.
-%By using this new formulation, we can progress on the research of dimensionality reduction methods employing neural networks.
 The key elements are: the contrastive loss function with the Siamese network architecture for training and a pairing strategy directly describing the embedding.
 The current formulation allows to express a one-dimensional relation between two pair of images based on the similarity: similar pairs of images should be close together whereas dissimilar pairs should be far from each other.
-In this work, we extend DrLIM by introducing a generalized loss function.
-Our extension allows to express richer similarity relations between image pairs for training and how the embedding dimensions are allocated to express these relations.
+In this work, an extension of DrLIM is proposed with a generalized loss function.
+It allows to express richer similarity relations between image pairs for training.
+Moreover, each of these similarities is expressed in the embedding by dimensions selected in advance to which corresponds feature components.
 
-Therefore, it becomes possible to control more finely the embedding through our extension.
-We will follow the experiments made on DrLIM and train our own model on a data-augmentation of the MNIST dataset\cite{lecun1998mnist} with translations or rotations, likewise on the NORB dataset\cite{lecun2004learning}.
+Therefore, thanks to this extension, it becomes possible to have a better control on the final embedding of a NN.
+The experiments made on DrLIM are followed and models are trained on a data-augmentation of the MNIST dataset\cite{lecun1998mnist} with translations or rotations, likewise on the NORB dataset\cite{lecun2004learning}.
 The resulting embeddings are studied in details with multiple comparisons to DrLIM.
-We find that we can embed distortion information in one extra dimension while reasonably preserving the characteristics of DrLIM on MNIST.
-We also find that our solution can represent the DrLIM's coherent and cyclic space of the camera viewpoint on NORB.
-The successful application on these two datasets demonstrates the effectiveness of our method.
+We find it is possible to embed distortion information in one extra dimension while preserving the characteristics of DrLIM on MNIST.
+We also find that this new solution can represent the DrLIM's coherent and cyclic space of the camera viewpoint on NORB.
+The successful application on these two datasets demonstrates the effectiveness of this method.
 
 \section{Thesis Outline}
 % list chapters with their summarized content
-In Chapter~\ref{chap:related}, we introduce the previous papers that are related to our current work.
-We take a look at the prior art in dimensionality reduction and the advance of Computer Vision with NN.
-Then we will introduce our reference paper introducing DrLIM models.
+In Chapter~\ref{chap:related}, the previous papers related to this work are presented.
+An overview is made at the prior art in dimensionality reduction and the advance of Computer Vision with NN.
+Then, the reference paper introducing DrLIM models is discussed.
 
-In Chapter~\ref{chap:neural_network}, we recap the background knowledge necessary to understand the networks used in our experiments.
+In Chapter~\ref{chap:neural_network}, a summary is given for the background knowledge necessary to understand the networks used in this work.
 We also discuss the general architecture of NN, their similarity with CNN and some important definitions.
 
 This is followed by Chapter~\ref{chap:dim_red} where the standard dimensionality reduction methods are reviewed in more details.
-We explain the major advantages and drawbacks of t-SNE, compared to other methods.
-Later in the chapter, we provide the basic theoretical knowledge behind t-SNE optimisation problem.
-Next we talk about the necessary tools to achieve dimensionality reduction with NN and how we extend the contrastive loss to N-dimensional similarity.
+The major advantages and drawbacks of t-SNE, compared to other methods are explained.
+Later in the chapter, the basic theoretical knowledge behind t-SNE optimisation problem is provided
+Then the necessary tools are explained to achieve dimensionality reduction with NN and how to extend the contrastive loss to N-dimensional similarity.
 
-In Chapter~\ref{chap:results}, we describe our experiment environment in terms of technical choices (software, network architecture and datasets).
-This chapter also includes all our practical results, our hypothesises and also our early conclusions.
+In Chapter~\ref{chap:results}, the experiment environment is established in terms of technical choices (software, network architecture and datasets).
+This chapter also includes all the practical results, the hypothesises and also the early conclusions of our work.
 
-And finally in Chapter~\ref{chap:conclusion}, we present our final conclusions about our results and the future works that can start from our contributions.
+And finally in Chapter~\ref{chap:conclusion}, the final conclusions about the results and the future works that can start from our contribution.
 
 
 % ==============================================================================
@@ -225,15 +232,15 @@ The use of GPUs parallelism and cloud computing allowed scaling up to much deepe
 %paper: Flexible, high performance convolutional neural networks for image classification
 Both researchers and professional programmers built various frameworks to train and to use NN with many different goals such as: performance, accessibility or composability.
 The most popular are: Theano\cite{bastien2012theano}, Caffe\cite{jia2014caffe}, Torch7\cite{collobert2011torch7}, Pylearn2\cite{goodfellow2013pylearn2}.
-We decided to leverage the efficiency and modularity proposed by Caffe for several reasons described later.
+The efficiency and modularity proposed by Caffe were leveraged in this work for several reasons described later.
 %deeper architectures improves accuracy on more complex tasks, people found optimisations to make them fast.
 
-Even though CNN models are now widely used in Computer Vision with great success thanks to these frameworks, current research exposed our ignorance of these networks behaviors.
+Even though CNN models are now widely used in Computer Vision with great success thanks to these frameworks, current research exposed the ignorance of these networks behaviors.
 Some papers work on reliable ways to fool networks using adverserial attacks which exploits their unintuitive properties\cite{szegedy2013intriguing}.
 Most publications do not try to formally justify their good results because of the non-linear and complex relations between units. % FIXME: citation needed?
 %paper: Intriguing properties of neural networks
 Moreover, this problem is greater with the addition of distortions in the inputs.
-It is not possible to directly look at the high-dimensional embedding, because we cannot easily plot nor interpret so many dimensions.
+It is not possible to directly look at the high-dimensional embedding, because humans cannot easily plot nor interpret so many dimensions.
 The manifestation of this relation can be looked visually using methods to produce an alternative human-friendly representation.
 
 % moved from dim red chapter
@@ -250,11 +257,9 @@ However it suffers from ``center-crowdedness'' and faces difficulties in optimis
 That's why papers are using t-SNE, a variant of SNE, to reduce CNN embeddings into a 2D human-friendly manifold. % FIXME: more cite?
 This method exhibits an easier optimisation formulation and it preserve more structures at diverse scales.
 More convincing examples were created with t-SNE directly from raw popular datasets\cite{van2009new} like MNIST\cite{t-SNE}.
-A more recent work proposed an alternative method, called Barnes-Hut SNE, that approximates t-SNE with a much faster algorithm but we do not use it in our work.
+A more recent work proposed an alternative method, called Barnes-Hut SNE, that approximates t-SNE with a much faster algorithm but it wasn't useful for this work.
 
 Many more details in CNN embeddings appears by using t-SNE such as: how samples are grouped depending on multiple factors: essentially based on similarity of the digits (strokes, thickness and shapes) and natural variance (rotation).
-%Although it is unintuitive, this can be seen by inspecting the embedding.
-%we can add constraints against distortions directly over the embedding, to cluster them the way we meant.
 Many papers use dimensionality reduction to create a human viewable representation of the output embedding \cite{donahue2013decaf}\cite{yu2014visualizing}\cite{yaotiny}.
 Only a few papers actually try to formalize the input-output relations\cite{goodfellow2009measuring}.
 Some papers proposes to learn transformation-invariant embeddings, by means of modelling distortions directly into their models\cite{gens2014deep} or using data-augmentation\cite{hadsell2006dimensionality}.
@@ -272,21 +277,21 @@ They use the Siamese training architecture to present image pairs which are opti
 There are several advantages of such a method: the cost penalty is very low and present only during training, the usage of standard CNN allows more freedom for experimenting with different architectures and the proposed loss function is effective while simple.
 
 However the input-output relations of distorted images is usually damped instead of being quantified in a predictable way.
-We think that the distortion information should be kept because they are valuable later on.
+The distortion information should be kept because they can be valuable later on.
 Besides, the reference paper provides subjective comments of the embedding coherence (description and figure) but they do not offer nor propose a formal way to measure and compare its quality objectively.
-We used this paper as our primary reference for experiments to continue improving their ideas in this work.
+This paper is the primary reference of this project which proposes a continuation to improve its ideas.
 
-In this work, we will present a few steps towards predictable embedding with respect to distortions and we offer a simple qualitative measure to compare similar methods.
+In this work, a few steps are presented towards predictable embedding with respect to distortions and a simple qualitative measure is presented to compare similar methods.
 
 
 % ==============================================================================
 \chapter{Theory: Neural Networks}
 \label{chap:neural_network}
-We introduce the general layout of neural networks and their mathematical foundations.
-The important differences between {\em Neural Networks} (NN) and {\em Convolutional Neural Networks} (CNN) are discussed and we briefly justify why CNN is so predominant in Computer Vision tasks.
+The general layout of neural networks and their mathematical foundations is now introduced
+The important differences between {\em Neural Networks} (NN) and {\em Convolutional Neural Networks} (CNN) are discussed and a justification is given why CNN is so predominant in Computer Vision tasks.
 An intuitive explanation of embeddings is given and will be used later for dimensionality reduction.
 
-\section{NN and CNN Classifier}
+\section{NN and CNN Classifiers}
 %introduce CNN and embeddings
 
 Let us quickly recall the definition of a Neural Network and its workings for classification.
@@ -333,9 +338,9 @@ This process should be repeated until the error on the validation set has conver
 
 One particular architecture is the CNN, a special case of NN with certain restrictions.
 CNN models learn very effective solutions for many Computer Vision problems in image classification.
-We briefly describe below three main ideas: local receptive fields, weight sharing and subsampling.
+The three key ideas of CNN are described below: local receptive fields, weight sharing and subsampling.
 In CNN, a convolutional layer can model receptive fields by computing multiple trainable 2D kernels which is convoluted with its entire input whose result is called its feature maps.
-We can see a kernel convolution as the replication of a single unit along the dimensions of the input (a 2D grid for images), thus all weights are constrained to be equal by definition.
+A kernel convolution can be seen as the replication of a single unit along the dimensions of the input (a 2D grid for images), thus all weights are constrained to be equal by definition.
 A convolutional layer contains multiple units where each has its own kernel.
 Therefore different kernels are applied to the image where a single kernel convolution is called a feature map.
 Such layer naturally computes filters which can be seen like data-driven feature extractors.
@@ -355,33 +360,33 @@ Although CNNs have more constraints, it has been shown they generally outperform
 
 Moreover, research found interesting structures in the last-layer embedding of classification NN using t-SNE.
 The last layer tends to cluster samples of the same class together while separating the rest\cite{donahue2013decaf}\cite{yu2014visualizing}.
-This is explained by the fact that deeper layers extract more high-level information, which is necessary to separate classes. Moreover the prediction is a direct product with the last layer, which encourage the network to have a simple structure directly clustered by classes.
+This is explained by the fact that deeper layers extract more high-level information, which is necessary to separate classes. Moreover the prediction is a direct product with the last layer, which encourages the network to have a simple structure directly clustered by classes.
 
 
 % ==============================================================================
 \chapter{Theory: Dimensionality reduction}
 \label{chap:dim_red}
 Dimensionality reduction is an important method in machine learning that maps points in a high-dimensional space into a space with a lower number of dimensions.
-We will call this lower subspace an {\em embedding}.
+This lower subspace is later called an {\em embedding}.
 Representations suitable for human visualization should keep important relations between points of the original space.
-In our experiments, we will apply dimensionality reduction on our neural networks' outputs.
-This allows us to quickly compare qualitatively the impact of controlled distortions applied on images over the networks' outputs.
+In the experiments, we will apply dimensionality reduction on the neural networks' outputs.
+This allows to quickly compare qualitatively the impact of controlled distortions applied on images over the networks' outputs.
 The structure inferred by distances between points such as clusters, intra-cluster neighbors and inter-cluster outsiders reveals important properties of neural network models.
-Thus we need accurate low-dimensional representations of embeddings that preserve local distances to compare different models.
-In the following sections, we will discuss dimensionality reduction methods that were not fit for our uses, then we introduce in details the one we used, called t-SNE.
+Thus, accurate low-dimensional representations of embeddings that preserve local distances are needed to compare different models.
+In the following sections, dimensionality reduction methods are introduced where some are disregarded because they were not justified for this project, then the one used here, called t-SNE, is introduced in details.
 
-\section{Optimisation Problem}
+\section{Optimization Problem}
 Various algorithms differentiate themselves by several properties: their goal (\eg: interpolation, compression, visualization), by what they preserve (\eg: variance, distances), how they model point correlation (\eg: linearly or not) or whether they can model new points (\eg: a representation or a mapping).
 
-First, our choice is guided by our primary need, which is to visualize our data.
+First, the choice is guided by the requirements of this work, which is to visualize the data.
 Thus the method should produce a 2D or 3D embedding, preferably in 2D, for easily interpretable scatter plots.
 Secondly, we need an optimization problem that keeping certain relations between points such that clusters are equivalently represented.
 This can be implemented by preserving relative distances to close neighborhood.
-Considering the previous works we discussed above, t-SNE is the best candidate in the current state-of-the-art.
-We now define the method objective functions, probabilities and explain intuitive properties.
+Considering the previous works discussed above, t-SNE is the best candidate in the current state-of-the-art.
+The definition of the objective functions, the probabilities and the intuitive properties behind this method are now established.
 
 %introduce theory of SNE, then t-SNE modification.
-Let us define our dataset $D$ formed by points in the input-space $X$ of dimension $N$: $D = \left\{ x_1, x_2, \dots, x_n \right\}$, each $x_i \in \R^N$, and one representation $D^\ast$ in the output-space $Y$ of dimension $M$: $D^\ast = \left\{ y_1, y_2, \dots, y_n \right\}$, each $y_i \in \R^M$.
+Let us define the dataset $D$ formed by points in the input-space $X$ of dimension $N$: $D = \left\{ x_1, x_2, \dots, x_n \right\}$, each $x_i \in \R^N$, and one representation $D^\ast$ in the output-space $Y$ of dimension $M$: $D^\ast = \left\{ y_1, y_2, \dots, y_n \right\}$, each $y_i \in \R^M$.
 The process of dimensionality reduction is to find the best representation $D^\ast$ that best preserves the most ``important'' information between $x_i$ and $y_i$ for each point.
 SNE uses two Gaussian distributions for each point expressing the neighbor distances in $X$ and its equivalent in $Y$.
 The Kullback-Leibler divergence is used to compute the objective function, which represents the mismatch of these two distribution for each pair:
@@ -399,7 +404,7 @@ Therefore, a closer pair implies a higher neighbor-election probability because 
 This cost function gives an asymmetrical importance to the distances: nearby points in $X$ are greatly penalized if they are far in $Y$; whereas a small cost is incurred for pairs far in $X$ but close in $Y$.
 %There is a simple physical interpretation of the SNE optimisation problem: pairs are modeled by asymmetrical springs in a mechanical system, the best solution is when the system is still.
 
-As we said SNE suffers from crowdedness problems in the middle of the embedding and the optimisation is harder due to the asymmetrical nature of the objective function.
+As said SNE suffers from crowdedness problems in the middle of the embedding and the optimisation is harder due to the asymmetrical nature of the objective function.
 Both problems were addressed in t-SNE which give very good results in practice.
 The two major differences with t-SNE is the symmetrization of the cost function and replaces the distributions of the embedding by student variants.
 In t-SNE, a single objective function is minimized:
@@ -423,19 +428,20 @@ Global structures is encouraged by the coherence of the local structures as the 
 
 \section{CNN for Dimensionality Reduction}
 Usual dimensionality reductions like t-SNE are helpful for many visualizing tasks but it has important drawbacks as well.
-We think the most important ones are: the computational cost, the incapacity of mapping new points and the indirect control over the resulting embedding.
+The most important ones are: the computational cost, the incapacity of mapping new points and the indirect control over the resulting embedding.
 Current implementations of t-SNE are still rare, unpolished and require tricks to make them tractable in practice (\eg: reducing first with PCA).
 Moreover, there is currently no way with t-SNE to map new points (not in $D$) without optimizing the whole system from scratch.
 Besides, t-SNE parameters like perplexity and learning rate are not simple to chose.
 Fortunately there are new promising alternatives directly harnessing the power of NN.
-We introduce such models in the following section.
+Such models is introduced in the following section.
 
 %there is a direct way to learn an embedding with CNN without t-SNE.
-CNN are mostly used for classification but we can optimize them for other purposes as well.
-Instead of the SoftMax loss function used for classification, we can use a special training architecture with a suitable loss that when optimized tries to satisfy some constraints.
-For example to create an embedding with chosen properties directly found into the output layer.
+% FIXME: continue conversion: familiar -> neutral
+CNN are mostly used for classification but it can be optimized for other purposes as well.
+Instead of the SoftMax loss function used in classification, a special training architecture with a suitable loss can be used to optimize topological constraints.
+For example to create an embedding with particular properties in the output layer.
 Moreover the ideas presented by reduction methods like t-SNE can be formulated in different terms to be applicable to NN.
-In our case the most important idea is to keep similar points together and dissimilar far away from each other.
+In this work, the most important idea is to keep similar points together and dissimilar far away from each other.
 
 The Siamese network combined with a contrastive loss is a good practical solution to train such networks\cite{bromley1993signature}\cite{chopra2005learning}.
 Let us define $G_W$, the function that computes the network output, with parameters $W$ (see figure~\ref{fig:siamese_network}).
@@ -482,17 +488,17 @@ However, there is no guarantee that this system will converge to an intended glo
 Secondly, the training required to make the embedding converge to a desirable structure can happen or not depending on the training time or specific initialization seeds, and this is partially due to the lack of constraints in the task.
 When the number of embedding dimensions, $M$, is higher than the dimension of the pairing, $1$, the model can become unpredictable because more dimensions give more freedom in the way to represent these pairs.
 
-To improve this situation, we propose to add more constraints on such dimensions directly into the optimisation process.
+To improve this situation, a solution is to add more constraints on such dimensions directly into the optimisation process.
 We propose to give more than one information per pair and this allows to structure the embedding directly through the loss function.
-Our method allows to control separately the usage of each dimension to express simultaneously different properties of our dataset.
-To accomplish that, we generalize the contrastive loss to work on training pairs with $p$-dimensional labels and an embedding with $M$ dimensions, where $p \leq N$ by definition.
+This new method allows to control separately the usage of each dimension to express simultaneously different properties of the dataset.
+To accomplish that, a generalization to the contrastive loss is proposed to work on training pairs with $p$-dimensional labels and an embedding with $M$ dimensions, where $p \leq N$ by definition.
 In this framework, an embedding dimension is allocated to one particular component of the label and one component can be expressed through one or more embedding dimensions.
 The allocation of the embedding dimensions and the pairing strategy are left open to the use-case.
 
-We now introduce our loss function with a formal definition.
+This new loss function is now introduced with its formal definition.
 Let us define $M$ as the number of embedding dimensions, $p$ the dimensions of the labels and $p \leq M$.
 We define $D \in \N_+^p$ as the number of embedding dimensions assigned for each label component.
-In this work, we only consider problems where each dimension is assigned to a single label and no dimension is left unconstrained: $\sum_i^p D_i = M$.
+Only problems where each dimension is assigned to a single label and no dimension is left unconstrained are considered in this work: $\sum_i^p D_i = M$.
 Then it follows that the definition of the generalized $p$-dimensional contrastive loss for a pair is:
 \begin{eqnarray}
     L = \frac{1}{2} \sum_{i=1}^p \left( Y_i (D_{Wi})^2 + (1-Y_i) \max(0, m_i - D_{Wi})^2 \right)
@@ -504,26 +510,26 @@ where $Y \in \{0,1\}^p$ with $Y_i$ being the $i$th component of $Y$, $D_{Wi} \in
 \chapter{Methodology and Results}
 \label{chap:results}
 
-In this chapter, we will describe the general environment we used to make our experiments, the settings to reproduce them and their outcomes.
-We introduce the different models in details with their architecture, then we explain our implementation using Caffe and Python.
-We discuss how our datasets are generated by combining samples from MNIST or NORB.
-Finally, we present how we will later compute quantitatively measure for comparisons with prior arts.
+In this chapter, the following sections describe the general environment used to make the experiments, the settings to reproduce them and their outcomes.
+The different models are introduced in details with their architecture, then the implementation using Caffe and Python is explained.
+The generation of the datasets by combining samples from MNIST or NORB is also discussed.
+Finally, the idea of quantitative measures is presented and used in the results for comparisons with the previous work.
 
 \section{Models and parameters}
 
 %explain our models.
-As previously said, we are closely following the work of our reference paper \cite{hadsell2006dimensionality}.
-Therefore, we employ the same two models to experiment on their respective datasets MNIST and NORB.
+As previously said, the work in the reference paper \cite{hadsell2006dimensionality} is closely followed here.
+Therefore, we employ the same two models to experiment on the respective datasets MNIST and NORB.
 
 The {\bf first model} is {\em LeNet 5}, a multi-layer neural networks that is characterized by an architecture designed for handwritten characters as illustrated in figure~\ref{fig:siamese_cnn}.
 %It is with no surprise that they are using it for MNIST, which is the most popular handwritten digit dataset for research.
-In our experiments with the MNIST dataset, we are using a very close fine-tuned variant with some minor changes described below.
+In the experiments with the MNIST dataset, a variant is used with some minor changes described below.
 
 \begin{figure}[t]
     \begin{center}
         \includegraphics{thesis_figures/siamese_cnn.jpg}
     \end{center}
-    \caption{Architecture of the CNN used for our experiments on MNIST (based on LeNet 5). The network contains two convolutions layer which are connected by a subsampling layer and the final output is computed by a fully-connected layer. The computation flow is illustrated for a region of an image. -- Source: \cite{hadsell2006dimensionality}}
+    \caption{Architecture of the CNN used for the experiments on MNIST (based on LeNet 5). The network contains two convolutions layer which are connected by a subsampling layer and the final output is computed by a fully-connected layer. The computation flow is illustrated for a region of an image. -- Source: \cite{hadsell2006dimensionality}}
     \label{fig:siamese_cnn}
 \end{figure}
 
@@ -538,51 +544,50 @@ They will extract features encoding high-level cues (\eg: shape of strokes: stra
 The second part of this network is made of two fully-connected layers which are connected through a non-linear activation layer.
 The first layer has 500 trainable units computing an inner-product, followed by a non-trainable Rectified Linear Unit (ReLU) activations\cite{nair2010rectified}, followed by 10 trainable output units computing an inner-product which gives the digit class (1 versus rest).
 These three layers form the neural network part used for classification based on the prior features.
-%It also creates intermediate representations of the data, which we can see as features but they are less visual than in the convnet.
 
 The {\bf second model} is only made of two fully-connected inner-product layers.
 This network is much simpler than the one above because it is trained on a subset of the NORB dataset, which exhibits very few variability compared to MNIST.
 Indeed, only a single 3D object will be used and its shape in 3D is easily recognizable from any angle.
 Back to the network, its two layers are made of 20 and 3 trainable units respectively, without non-linearity between them. % non-linearity, really?
 
-In the following experiments, we will train our variant of LeNet in two different ways: for digit classification to analyze its ``natural'' embedding then with a Siamese training architecture with the contrastive loss function to analyze a ``constrained'' embedding.
-In the second version, we keep a single fully-connected layer in the NN part and reshape its number of units to match the embedding dimensions (\eg: $2$ or $3$).
-The motivation is that the classification task is built on top of the network stack generating this embedding but in our second experiment we need this output projected, like in our reference paper.
-Regarding our second model, we will directly train a ``constrained'' embedding with the Siamese architecture for NORB.
+In the following experiments, the variant of LeNet is trained in two different ways: for digit classification to analyze its ``natural'' embedding then with a Siamese training architecture with the contrastive loss function to analyze a ``constrained'' embedding.
+In the second version, a single fully-connected layer is left in the NN part and reshape its number of units to match the embedding dimensions (\eg: $2$ or $3$).
+The motivation is that the classification task is built on top of the network stack generating this embedding but in the second experiment this output needs to be projected, like in the reference paper.
+Regarding this second model, a ``constrained'' embedding is directly trained with the Siamese architecture for NORB.
 
 In the case of digit classification, the model is trained using Stochastic Gradient Descend (SGD) with a learning rate of 0.01 optimizing a SoftMax loss function.
 Siamese models are trained with SGD with a learning rate of 0.01 or 0.001 optimizing the contrastive loss.
 
-For this project we chose the {\bf Caffe} Deep Learning framework for training models.
+For this work, the {\bf Caffe} Deep Learning framework was chosen to make models.
 There are several reasons such as: simplicity to express, train and manipulate networks and the inclusion of several practical architectures: LeNet on MNIST, Siamese on MNIST, AlexNet on ImageNet.
 Moreover Caffe is well optimized in C++ for CPU and CUDA for GPU, flexible with official bindings for Python and MatLab and its community is very active and helpful.
 %Some downsides has a few minor downsides that we won't discuss here.
 
-We easily adapted the provided LeNet to match the architecture design discussed above for MNIST.
+The provided LeNet is easily adapted to match the architecture design discussed above for MNIST.
 As the second model is very simple, it was trivial to write its definition ourself.
 The training stage needs many important parameters related to the SGD solver: learning rate, batch size, momentum, weight decay (gamma and power) and number of epoch.
-We mostly used the parameters as they are in Caffe because the community already fine-tuned them for us.
-We limited all our experiments to $10'000$ iterations for MNIST and $100'000$ for NORB, with a batch size of $64$.
-All our networks were trained using the Caffe built-in solver started using the {\tt caffe train} command.
-Our alternative loss function was implemented in a new loss layer inspired by the built-in contrastive loss.
-Our implementation in Python is straightforward with NumPy and the Caffe bindings were used to integrate our layer into the network architecture.
+The default parameters were mostly used as defined in Caffe because the community already fine-tuned them.
+The experiments are limited to $10'000$ iterations for MNIST and $100'000$ for NORB, with a batch size of $64$.
+All networks were trained using the Caffe built-in solver started using the {\tt caffe train} command.
+The alternative loss function was implemented in a new loss layer inspired by the built-in contrastive loss.
+The implementation was straightforward to make in Python with NumPy and the Caffe bindings to integrate this layer into the network architecture.
 
-Most of our experiments were implemented using Python: to prepare datasets, to compute measures and project for visualization.
-We created our own set of tools to generate distorted training sets for our t-SNE experiments and to generate the distorted pairs training sets for our two Siamese experiments.
+%Most of the experiments were using Python: to prepare datasets, to compute measures and project for visualization.
+The set of tools to generate distorted training sets were created ourself for the t-SNE experiments and to generate the distorted pairs training sets for the two Siamese experiments.
 The scikit-learn Python library ({\em sklearn}) implements most of the standard algorithms for machine learning including: PCA and t-SNE\cite{pedregosa2011scikit}.
-The performance of t-SNE depends heavily on the number of input dimensions and we had to apply PCA on our datasets in our experiments following other papers suggestions\cite{t-SNE}.
-We used sklearn recommendation to reduce to $50$ dimensions with PCA before applying t-SNE\footnote{t-SNE documentation page: \url{http://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html}}.
+The performance of t-SNE depends heavily on the number of input dimensions and the usage of PCA on the datasets was necessary and followed other papers suggestions\cite{t-SNE}.
+Likewise sklearn recommendation is to reduce to $50$ dimensions with PCA before applying t-SNE\footnote{t-SNE documentation page: \url{http://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html}}.
 % FIXME: make source available?
 
-For the visualization of our resulting embeddings, we developed our own solution based on the web library {\em CanvasJS}.
+For the visualization of the resulting embeddings, a solution based on the web library {\em CanvasJS} was developed for this project.
 Its main advantage is to allow to interactively visualize with scatter plots directly from the output of t-SNE or the neural networks.
-Several features were already provided: coloring points, fast plotting for interactivity but some were added by ourselves: zooming and moving the viewport, display the image of any sample and filtering/highlighting capabilities to our own application.
-All these functionalities gave us the necessary tools to inspect the results and to come with the insights we needed.
+Several features were already provided: coloring points, fast plotting for interactivity but some were added by ourselves: zooming and moving the viewport, display the image of any sample and filtering/highlighting capabilities for the experiments.
+All these functionalities provide the necessary tools to inspect the results and to come with the presented insights.
 
 \subsection{Datasets}
 %introduce datasets: mnist and norb.
-To perform our experiments, we used two different datasets: {\bf MNIST}\cite{lecun1998mnist} (a popular handwritten digit dataset) and {\bf NORB}\cite{lecun2004learning} (a popular dataset of photographed 3D objects).
-We briefly discuss each dataset then we give a few characteristics about their variability and their usual usage in Computer Vision.
+To perform the experiments, two different datasets were used: {\bf MNIST}\cite{lecun1998mnist} (a popular handwritten digit dataset) and {\bf NORB}\cite{lecun2004learning} (a popular dataset of photographed 3D objects).
+Each dataset is briefly discussed then a few characteristics is established regarding their variability and their usual usage in Computer Vision.
 
 The {\bf MNIST} dataset ({\em Modified National Institute of Standards and Technology}) is a gathering of multiple databases of handwritten digits.
 One of the goal of MNIST is to provide a unified benchmark for digit recognition and it is widely used in Computer Vision for many years.
@@ -603,14 +608,14 @@ However it is still a good subject of experiments to try and validate new ideas.
 \end{figure}
 
 The {\bf NORB} dataset ({\em NYU Object Recognition Benchmark}) is a collection of photos of toys taken from continuous poses.
-This dataset has two variants and we picked the normalized-uniform set.
+This dataset has two variants and the normalized-uniform set was retained.
 It is also intended for benchmark usages, in ``large-scale invariant object categorization''.
 It is composed of $48'600$ processed photos of toys, as illustrated by figure~\ref{fig:norb}.
 The dataset is made by combining: $9$ elevation views, $18$ azimuth views, $6$ illumination conditions and $5$ toys categories, each containing $10$ toys.
 The categories are: humans, animals, airplanes, trucks and cars.
 The usual training task is to recognize the toy category whichever viewpoint or illumination is used.
 The DrLIM paper only selected a particular toy of a plane for its experiments and they infer the coherent representation of the camera viewpoint in 3D.
-We will also use this toy to make our results comparable with their work.
+This same toy is used to make the results comparable with their work.
 
 \begin{figure}[t]
     \begin{center}
@@ -621,13 +626,13 @@ We will also use this toy to make our results comparable with their work.
 \end{figure}
 
 %how we create our train/test dataset
-Our experiments require to process the images in a systematic and coherent way.
-Python scripts were used to automatically derive our training and testing set in a predictable way based on the original dataset (MNIST and NORB).
+The experiments require to process the images in a systematic and coherent way.
+Python scripts were used to automatically derive the training and testing sets in a predictable way based on the original dataset (MNIST and NORB).
 The training architecture apply sequentially SGD over the samples in batch and loops over the whole dataset until the number of iterations reaches zero.
-The generation of our datasets depends on multiple parameters related to the experiment.
+The generation of these datasets depends on multiple parameters related to the experiment.
 In the case of the t-SNE visualization, a distorted dataset was created containing each sample plus its distorted versions varying in strength, where each image has only a single transformation at a time.
 The samples are all distorted using the same set of intensities, quantified as follows: translations and shearing using pixel displacement, rotations using positive and negative angles and blurring with averaging radius (examples in figure~\ref{fig:mnist_transfo_tsne}.
-In the case of Siamese training, we create paired datasets: containing two distorted images with their similarity (1 or 0).
+In the case of Siamese training, paired datasets were created containing two distorted images with their similarity (1 or 0).
 Images in a pair can have different distortions and different classes (digit for MNIST, elevation/azimuth for NORB) and still be paired (label 1), depending on the experiment.
 An example of pairs for MNIST is illustrated in figure~\ref{fig:mnist_pairs}.
 
@@ -635,7 +640,7 @@ An example of pairs for MNIST is illustrated in figure~\ref{fig:mnist_pairs}.
     \begin{center}
         \includegraphics{thesis_figures/mnist_transfo_tsne.jpg}
     \end{center}
-    \caption{Illustration of some distortions applied to a random sample included in our data-augmented dataset used in the t-SNE visualization experiment. The following distortions are shown: translations, rotations, blurring and linear deformation}
+    \caption{Illustration of some distortions applied to a random sample included in the data-augmented dataset used in the t-SNE visualization experiment. The following distortions are shown: translations, rotations, blurring and linear deformation}
     \label{fig:mnist_transfo_tsne}
 \end{figure}
 
@@ -643,70 +648,70 @@ An example of pairs for MNIST is illustrated in figure~\ref{fig:mnist_pairs}.
     \begin{center}
         \includegraphics{thesis_figures/mnist_pairs.jpg}
     \end{center}
-    \caption{Illustration of some pairs generated for a random sample with its distortions, neighbors and non-neighbors. The pairs are included in our training dataset for our Siamese network.}
+    \caption{Illustration of some pairs generated for a random sample with its distortions, neighbors and non-neighbors. The pairs are included in the training dataset for the Siamese network.}
     \label{fig:mnist_pairs}
 \end{figure}
 
 \section{Evaluation Metrics}
-We know qualitative results can provide insights regarding the model behavior or the quality of embeddings but it has drawbacks.
+Qualitative results can provide insights regarding the model behavior or the quality of embeddings but it has drawbacks.
 First it requires a human judgement which requires manual efforts, thus it cannot be systematic and automatic.
 Secondly the subjective nature of qualitative measures is subject to different interpretation or can be biased towards certain aspect that people value differently.
 We think qualitative judgements are unreliable and should not be used alone to asses the work in NN.
 However, DrLIM results are lacking objective measures, for example the final loss or any sense of scale of dimensions to relate in the plots nor does it mention any kind of measure to quantify the quality.
-We think that by lacking any form of measures, DrLIM paper does not promote the continuation of its work because there is no common way to measure ``better''.
+By lacking any form of measures, we think that DrLIM paper does not promote the continuation of its work because there is no common way to measure ``better''.
 Evaluation metrics are very important to permit objective comparisons between several results to see how they perform.
 
-Thus we propose a very simple quantitative measure that allows us to compare DrLIM and our models.
+Thus we propose a very simple quantitative measure that allows to compare DrLIM and the new models.
 Models are optimized with respect to their loss functions and indeed the loss is an objective measure that can be directly used to compare models on certain conditions.
 Given the same loss, if its parameters are the same then it is logically fair to compare them.
 %It is logically fair to compare models by computing a common loss function, with the same parameters and on the same dataset.
-Therefore, we can use the contrastive loss of DrLIM on its test set using the original pairing strategy.
+Therefore, the contrastive loss of DrLIM is used on its test set using the original pairing strategy.
 However, DrLIM paper does not provide the margin which is problematic to reproduce their work.
-In our case, we are training our own versions of DrLIM and thus we will use a common margin per dataset for the two models.
+In this work, replicated versions of the DrLIM's models are trained ourself and thus a common margin is chosen per dataset for the two models.
 
 \section{Results and Discussion}
 
-We conclude this chapter by presenting our results and insights, including the plots and quantitative measures.
-Our first experiment is the visualization of the LeNet embedding on the MNIST classification task.
-We compare the structural differences between models trained with and without data-augmentation.
-However the resulting embedding has an unexpected structures that does not fit our requirements.
-Then, we move on with results of directly optimized embedding with models using the contrastive loss.
-We apply DrLIM's methods by replicating the experiments on MNIST and NORB.
-Followed by a throughout detailed discussion of our methods in the same conditions to compare the two.
+This chapter is conclude by presenting the results and insights, including the plots and quantitative measures.
+The first experiment is the visualization of the LeNet embedding on the MNIST classification task.
+The structural differences is compared between models between trained with and without data-augmentation.
+However the resulting embedding has an unexpected structures that does not fit the needed requirements.
+Then, this method is left aside to learn directly optimized embedding with models using the contrastive loss.
+The DrLIM's methods are applied by replicating the experiments on MNIST and NORB.
+Followed by a throughout detailed discussion of the new methods in the same conditions to compare the two.
 
 %tables and graphs: loss of training (for major models), add accuracy for comparison, compare DrLIM with ours (energy-distance).
 
 \subsection{t-SNE on LeNet}
 
-In this experiment, we train two models for classification on MNIST which is once unmodified, the second time it is data-augmented with translations.
+In this experiment, two models for classification are trained on MNIST which is once unmodified, the second time it is data-augmented with translations.
 The {\em data augmentation} process grows a dataset artificially by applying various distortions to train invariant models.
-In our case, it contains each original digit plus many translated copies which are all labeled identically.
-Once we trained our models, we will inspect their underlying embedding by using t-SNE.
+In this case, it contains each original digit plus many translated copies which are all labeled identically.
+After the models are trained, their underlying embedding are inspected by using t-SNE.
 The goal of this experiments is two folds.
 First we would like to understand classifier embeddings and its interaction with t-SNE in a practical manner: testing various data-augmentation methods to see how it impacts the model, its accuracy and how t-SNE adapts.
-Secondly, this experiment tests whether we can get an embedding with our prerequisites properties of predictability with a state-of-the-art method specialized for projecting in 2D.
+Secondly, this experiment tests whether it is possible to get an embedding with the prerequisites properties of predictability with a state-of-the-art method specialized for projecting in 2D.
 
-To create our first model, we train on the MNIST classification task to classify digits without any modification.
+To create the first model, the training is done on the MNIST classification task to predict digits without any modification.
 At this point, all images of the training set are used without data-augmentation, thus there is little invariance.
 The error rate of this model is 1.0\% which is computed over the MNIST test set.
 According to the published results on the MNIST website, this is a reasonable value (LeNet-5: 0.95)\cite{mnist_web}.
-In the following visualization with t-SNE, we remove the classification layers of this this network (SoftMax and 10-outputs inner-product).
+In the following visualization with t-SNE, the classification layers of this this network are removed (SoftMax and 10-outputs inner-product).
 Therefore the last remaining layer is a ReLU which follows the last inner-product of 500 dimensions.
-Our hypothesis at this stage is as follows: this last layer should express high-level concepts of digits and we call it the fingerprint.
-To understand the behavior of the system, we also include a few distorted samples to the test set: for each digit we select five samples and include their distortions.
-We forward this modified test set into the network, apply PCA, then apply t-SNE to create the final embedding.
+The hypothesis at this stage is as follows: this last layer should express high-level concepts of digits and is later mentioned as the fingerprint.
+To understand the behavior of the system, a few distorted samples is included in the test set: for each digit, five samples are selected and their distortions included.
+This modified test set is feed-forwarded into the network, apply PCA, then apply t-SNE to create the final embedding.
 The whole process takes around 45 minutes on a single core.
 The resulting embedding is illustrated in the figures~\ref{fig:mnist_nda_tsne} and ~\ref{fig:mnist_nda_tsne2}.
-We find that most of the original digits are well separated on the first figure where each cluster represents a single class.
+Most of the original digits are well separated on the first figure where each cluster represents a single class.
 The major exception are the 1s spreading on a thin vertical curve over a small part of he 6s.
-Our hypothesis seems validated by the structure on this plot: class separation and coherence inside clusters.
+The hypothesis seems validated by the structure on this plot: class separation and coherence inside clusters.
 Most of the distorted samples on figure~\ref{fig:mnist_nda_tsne2} are part of their respective clusters however they start to drift towards other classes as their distortion increases and the most extreme examples are at the opposite side.
-At this point, we remark that our model is very sensitive to translations and many reside in the wrong clusters.
+At this point, it should be noted that the model is very sensitive to translations and many reside in the wrong clusters.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=\textwidth]{thesis_figures/mnist_nda_tsne.jpg}
-    \caption{The t-SNE representation of the CNN embedding for the MNIST test set using our interactive tool.
+    \caption{The t-SNE representation of the CNN embedding for the MNIST test set using the interactive tool.
     This figure shows a general view of the non-distorted samples.
     Some random samples are shown for each cluster.
     Each color represent a digit class.
@@ -720,7 +725,7 @@ At this point, we remark that our model is very sensitive to translations and ma
 \begin{figure}[t]
     \centering
     \includegraphics[width=\textwidth]{thesis_figures/mnist_nda_tsne2.jpg}
-    \caption{The t-SNE representation of the CNN embedding for the MNIST test set using our interactive tool.
+    \caption{The t-SNE representation of the CNN embedding for the MNIST test set using the interactive tool.
     This figure shows a close view of the cluster for 0s including this time the distorted samples.
     A unique color is given to each digit class as before plus one unique color for each sample's distortions.
     Translated samples quickly end up outside the digit cluster whereas other distortions like rotations are structured into curved lines.
@@ -729,14 +734,14 @@ At this point, we remark that our model is very sensitive to translations and ma
     \label{fig:mnist_nda_tsne2}
 \end{figure}
 
-In the next experiment, we apply the same process with a translation-invariant model.
+In the next experiment, the same process is applied with a translation-invariant model.
 One simple way to achieve invariance is to train the model over a data-augmented training set to classify correctly translated digits as well.
 The augmentation consists of a range of translations applied to all samples which are included into the training set.
 In this case, all translations in $x$ between $-5$ to $+5$ plus translations in $y$ between $-10$ and $+10$ are generated.
 The error rate on the original test set increased up to $3.5\%$, but there is no comparison for this value.
 However this model has a strong translation invariance because its error rate is only $8.5\%$ on the data-augmented test set (it contains extreme translations).
-Our second hypothesis is as follows: As the fingerprint contains many different features, it should also detect translations which was heavily present in the training set.
-We can now compare the embeddings of this new model (see figure~\ref{fig:mnist_da_tsne}) versus the one above.
+The second hypothesis is as follows: As the fingerprint contains many different features, it should also detect translations which was heavily present in the training set.
+The embeddings of this new model can be now compared (see figure~\ref{fig:mnist_da_tsne}) versus the one above.
 From a general perspective, translations are dominating the global structure of the clusters.
 Many centered classes are still in their own clusters but most of the translated digits are grouped disregarding their class.
 However the ``translated'' clusters exhibits coherence: sub-clusters represent digit classes but they are heavily overlapping.
@@ -747,7 +752,7 @@ This is actually a general problem with this plot: many clusters appear but thei
     \begin{center}
         \includegraphics[width=\textwidth]{thesis_figures/mnist_da_tsne.jpg}
     \end{center}
-    \caption{The t-SNE representation of the CNN embedding for the data-augmented MNIST test set using our interactive tool.
+    \caption{The t-SNE representation of the CNN embedding for the data-augmented MNIST test set using the interactive tool.
     A unique color is attributed to each digit class and one for each sample's distortions (as before).
     The illustrated digits were manually picked to represent local trends.
     Global structures are dominated by translations but most of the translated digits are grouped disregarding their class.
@@ -762,73 +767,73 @@ This is actually a general problem with this plot: many clusters appear but thei
 From these two experiments, important knowledge emerges about this classification tasks, the data-augmentations and t-SNE as well.
 Manual experiments confirmed that LeNet is sensitive to the employed distortions and can easily misclassify if no form data-augmentation is used during training.
 As previously said, nearly no natural distortion is present in the original dataset and this is partly due to the heavy prior processing applied to the MNIST dataset
-However small rotations are still present in MNIST which explains why our model is less prone to errors on artificially rotated samples.
+However small rotations are still present in MNIST which explains why the new model is less prone to errors on artificially rotated samples.
 Data-augmentation is an effective way to reduce the error rate on certain type of distortions but it has a cost.
-In our case t-SNE embedding looks ``overcrowded'' and most cluster are not well separated anymore.
+In this case, t-SNE embedding looks ``overcrowded'' and most cluster are not well separated anymore.
 We think it is due to the important difference of energy in the pixel space, \eg: the center of mass is translated.
 One explanation is that the network learned to separate this source of variance and acquired position-specific features to distinguish translated digits which impacts fingerprints of the last layer.
 Then t-SNE is impacted by clustering translations first, then digits as its second major structure.
 One important insight is that t-SNE seem to represent hierarchical structures with decreasing importance thus the most discriminative features are weighted more.
 
-We consider these results unexpected: the clusters are not well separated and they are lacking in coherence even though the task require to separate the digits.
+These results are unexpected: the clusters are not well separated and they are lacking in coherence even though the task require to separate the digits.
 This experiment was meant to create an invariant model for classification but the representation of the fingerprint does not naturally split digits and translations into different axes.
-We have to repeat again that t-SNE is oriented towards visualization whose goal is not formally and universally well defined.
-The current formulation of this method is to preserve distances between the fingerprints of our models which is not sufficient for our application.
+It should be noted again that t-SNE is oriented towards visualization whose goal is not formally and universally well defined.
+The current formulation of this method is to preserve distances between the fingerprints of the new models which is not sufficient for the application.
 There is currently no way to add prior information like supervised methods to guide the optimization to associate particular dimensions to particular variance in the data.
-A possible solution is to modify the objective function of t-SNE to reach our goal but it has the important limitations we discussed in the methodology.
+A possible solution is to modify the objective function of t-SNE but it has the important limitations previously discussed.
 The lack of end-to-end optimization in this method is also important and this can be solved by using layers handling the dimensionality reducing into a single NN.
 
-We present, in the following part, results of our alternative method based on end-to-end and supervised training of a single CNN.
+In the following part, results of an alternative method is presented based on end-to-end and supervised training of a single CNN.
 
 \subsection{Contrastive LeNet (MNIST)}
 %In the two experiments below, we train Siamese networks with the contrastive loss function.
 % FIXME: moved to here, need merge
 % for siamese
-In the two following experiments, we trained Siamese models based on DrLIM settings on both MNIST and NORB so that we can compare our results to the reference paper then our networks with the extension as described below for two-label pairs.
+In the two following experiments, Siamese models were trained based on DrLIM settings on both MNIST and NORB so that the results are comparable between the reference paper and the networks with the extension as described below for two-label pairs.
 The goal of DrLIM is to train a model where points are close together if they are ``visually'' similar without considering distortions depending on the dataset.
 The implementation of their pairing strategy is as follows.
 First they group each sample into a common ``neighborhood'' relation: the 5 most similar ones using the Euclidean distance in pixel space.
 However in practice, neighbors with different digit class would appear and DrLIM's paper did not mention if they considered legit or not.
-In our case, we decided to only consider neighborhood with the same class after a visual inspection (we found such pairs enough dissimilar).
+In this work, only neighborhood with the same class is used because a manual look unveils that they are in fact quite dissimilar.
 The sample and its $n$ translations are all paired with both its 5 neighbors and all its $n$ translations (this sums up to $n \times 5n$ pairs per sample).
 All other pairs are considered dissimilar: when the two samples are not part of the same common translated neighborhood.
 This strategy uses the regular contrastive loss function in 1D with a single similarity per pair.
 
-Our objective is similar in the sense that we want to stay invariant but only in certain dimensions of our choice.
-Our implementation can still quantify distortions by expression them in the other dimensions.
+The objective is comparable in the sense that staying invariant is desirable but only in certain dimensions priorly picked.
+The new implementation can still quantify distortions by expression them in the other dimensions.
 One important advantage is to allow more control, especially in how dimensions are used.
-As we said, we are training a single model which is less expensive and allow to learn reusable features for multiple pairings.
+As said, a single model is trained which is less expensive and allow to learn reusable features for multiple pairings.
 %invariance to distortion but our implementation allow to keep a predictable quantification
-We can use our extension of the contrastive loss function with $p$ labels for each pair.
+The extension of the contrastive loss function can be used with $p$ labels for each pair.
 The definitions of $p$ and $D$ for the two Siamese experiments are described and justified later.
 
-In the case of MNIST, we are using a 3-dimensional embedding space: where the first two dimensions express neighborhood similarity and the last dimension expresses the distortion similarity.
-It is true 2D suffices in this case but to be comparable to DrLIM's 2D embedding, we will use a 2D neighborhood space as well and separate distortions into its own space.
-Making comparisons between 2D space (DrLIM) and 1D neighborhood (our model) would be unfair due to distances increasing very quickly as the number of dimensions increases.
-In this settings, we have: $M=3$ (embedding dimensions), $p = 2$ (two labels) and $D = \left\{ 2, 1 \right\}$ (2D + 1D).
-We train our network using a similar pair strategy to DrLIM but with important differences.
+In the case of MNIST, a 3-dimensional embedding space is used: where the first two dimensions express neighborhood similarity and the last dimension expresses the distortion similarity.
+It is true 2D suffices in this case but to be comparable to DrLIM's 2D embedding, a 2D neighborhood space will be used as well and separate distortions into its own space.
+Making comparisons between 2D space (DrLIM) and 1D neighborhood (this work) would be unfair due to distances increasing very quickly as the number of dimensions increases.
+In this settings, it has: $M=3$ (embedding dimensions), $p = 2$ (two labels) and $D = \left\{ 2, 1 \right\}$ (2D + 1D).
+The network is trained using a similar pair strategy to DrLIM but with important differences.
 The first label is called the ``neighborhood'' similarity and considers a sample with its translations to be similar, the sample with its neighbors to be similar if they have the same translations, and the sample with any non-neighbor sample to be dissimilar with or without translation.
-Our second label is called the ``transformation'' similarity and considers a sample with any other sample with the same translation similar, and any pair without the same translation dissimilar.
-Pairs not mentioned in our descriptions above are not included in our datasets.
-Moreover we reduce the size and the time for training by randomly taking a subset of dissimilar pairs to balance the label ratio instead of including all of them.
+The second label is called the ``transformation'' similarity and considers a sample with any other sample with the same translation similar, and any pair without the same translation dissimilar.
+Pairs not mentioned in this descriptions above are not included in the datasets.
+Moreover the size and the time for training is reduced by randomly taking a subset of dissimilar pairs to balance the label ratio instead of including all of them.
 
-In the case of NORB, we are using a 3D embedding as well: where the first 2D are used for the cyclic azimuth (horizontal angle of the viewpoint) and the last 1D for the non-cyclic elevation (vertical angle).
-DrLIM's work defined similar pairs when the two images are from contiguous elevation or azimuth, we will continue likewise.
+In the case of NORB, a 3D embedding is used as well: where the first 2D are used for the cyclic azimuth (horizontal angle of the viewpoint) and the last 1D for the non-cyclic elevation (vertical angle).
+DrLIM's work defined similar pairs when the two images are from contiguous elevation or azimuth, this work will continue likewise.
 The justification of DrLIM's dimension allocation is as follows: the azimuth viewpoint is cyclic and the shape, to represent such a structure without overlapping, is an ellipsis and this requires at least two dimensions.
 The elevation viewpoint is not cyclic because NORB has only a smaller subset of values, thus only a single dimension is allocated.
-In this case we can directly compare DrLIM's embedding and ours as they work on the same problem.
-Thus again we have: $M=3$ (embedding dimensions), $p = 2$ (two labels) and $D = \left\{ 2, 1 \right\}$ (2D + 1D).
-We train our network based on DrLIM's pairing strategy where we separate the azimuth and elevation into two labels (instead of having them merged).
+A direct comparison with DrLIM's embedding is possible in this case as the models work on the same problem.
+Once again: $M=3$ (embedding dimensions), $p = 2$ (two labels) and $D = \left\{ 2, 1 \right\}$ (2D + 1D).
+The network is trained based on DrLIM's pairing strategy where the azimuth and elevation are separated into two labels (instead of having them merged).
 
-The first dataset is a subset of MNIST containing only 4s and 9s digits which we derive our training and testing set based on our 2D pairing strategy.
+The first dataset is a subset of MNIST containing only 4s and 9s digits which is used to derive the training and testing set based on the 2D pairing strategy.
 Therefore the resulting dataset is composed of each sample plus its translations (±3, ±6 pixels) which is then paired.
 The models are trained until the loss on the respective test set has attained a local minima, which takes around 10 minutes.
 After around $100$ iterations, both models have reasonably converged to a stable solution (see figure~\ref{fig:mnist_cl2d_loss}).
-However, our model has reached a lower solution than DrLIM: comparing them directly is not possible because the two datasets are different but the difference in the loss in our model is more important and converge as quickly.
-Intuitively this means that our problem formulation is easier to solve and the model finds a ``better'' solution, in the sense it could satisfy more our constraints described by the loss.
-The resulting embeddings are shown in figure ~\ref{fig:mnist_cl_drlim} for DrLIM and figures ~\ref{fig:mnist_cl2d_1} and ~\ref{fig:mnist_cl2d_2} for our model.
-The DrLIM embedding we reproduced is very similar to the expected result: a coherent grouping based on translation-invariant similarity but the separation between digits is more pronounced.
-We can look at the DrLIM embedding as a top-down projection of our 3D embedding where the additional vertical dimension quantify the displacement.
+However, this model has reached a lower solution than DrLIM: comparing them directly is not possible because the two datasets are different but the difference in the loss in this model is more important and converge as quickly.
+Intuitively this means that the new problem formulation is easier to solve and the model finds a ``better'' solution, in the sense it could satisfy more the new constraints described by the loss.
+The resulting embeddings are shown in figure ~\ref{fig:mnist_cl_drlim} for DrLIM and figures ~\ref{fig:mnist_cl2d_1} and ~\ref{fig:mnist_cl2d_2} for this model.
+The DrLIM embedding reproduced in this work is very similar to the expected result: a coherent grouping based on translation-invariant similarity but the separation between digits is more pronounced.
+The DrLIM embedding can be considered as a top-down projection of the new 3D embedding where the additional vertical dimension quantify the displacement.
 The different intensity of translations are well separated into their own cluster as demonstrated by a meticulous manual inspection and remarkably they are ordered vertically by their intensity.
 Once again, the space inside clusters is well organized by digit features like DrLIM.
 
@@ -844,18 +849,18 @@ Once again, the space inside clusters is well organized by digit features like D
         \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_3Dc3.jpg}
         %\caption{Loss of our model}
     \end{subfigure}
-    \caption{The model losses for 500 iterations of DrLIM and our model on MNIST.
+    \caption{The model losses for 500 iterations of DrLIM and the new model on MNIST.
     The two losses cannot be compared directly but the speed of convergence and the final difference are key.
-    Both models show sign of convergence after $100$ iterations but our model has reached a simpler solution due to the different pairing strategy we chose.
-    An important point to emphasis is that DrLIM is in 2D whereas our model is in 3D.
+    Both models show sign of convergence after $100$ iterations but the new model has reached a simpler solution due to the different pairing strategy chosen in this work.
+    An important point to emphasis is that DrLIM is in 2D whereas the new model is in 3D.
     }
     \label{fig:mnist_cl2d_loss}
 \end{figure*}
 
-In order to compare the two methods, we present quantitative measures where the contrastive loss is computed on the DrLIM paired test set as described in the methodology.
-Evolutions of this measure during training are plotted in figure~\ref{fig:loss_mnist_test_common} and the final losses after 10'000 iterations are: $0.160023$ (DrLIM) and 0.145418 (our model).
+In order to compare the two methods, quantitative measures are presented where the contrastive loss is computed on the DrLIM paired test set as described in the methodology.
+Evolutions of this measure during training are plotted in figure~\ref{fig:loss_mnist_test_common} and the final losses after 10'000 iterations are: $0.160023$ (DrLIM) and 0.145418 (the new model).
 The two loss series shown in this figure are statistically indistinguishable according to a t-test with a null hypothesis of $\alpha = 0.05$.
-Therefore we can conclude our model learns an equivalent representation in its 2D digit-projection to DrLIM with a slightly different formulation and it can expresses distortions without loosing information in its 3rd dimension at the same time.
+Therefore it can be concluded that the new model learns an equivalent representation in its 2D digit-projection to DrLIM with a slightly different formulation and it can expresses distortions without loosing information in its 3rd dimension at the same time.
 
 \begin{figure}[h]
     \centering
@@ -869,9 +874,9 @@ Therefore we can conclude our model learns an equivalent representation in its 2
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{thesis_figures/mnist_cl2d.jpg}
-    \caption{Our model embedding on the MNIST translation-augmented test set projected into its last two dimensions.
+    \caption{The new model embedding on the MNIST translation-augmented test set projected into its last two dimensions.
     Two samples of different class were picked at random and their distortions are marked as triangles in the figure.
-    Our 3D embedding has an additional vertical dimension compared to DrLIM that quantifies the displacement and the other top-down projection of our embedding would give an identical plot as above for DrLIM.
+    This 3D embedding has an additional vertical dimension compared to DrLIM that quantifies the displacement and the other top-down projection of this embedding would give an identical plot as above for DrLIM.
     Clusters are formed for each translation intensity and each digit class in a well separated manner and remarkably they are logically ordered.
     }
     \label{fig:mnist_cl2d_1}
@@ -880,7 +885,7 @@ Therefore we can conclude our model learns an equivalent representation in its 2
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{thesis_figures/mnist_cl2d2.jpg}
-    \caption{Our model embedding on the MNIST translation-augmented test set projected into its last two dimensions.
+    \caption{The new model embedding on the MNIST translation-augmented test set projected into its last two dimensions.
     General view where many random sample's distortions are displayed to represent the local tendencies.
     The space inside each cluster appears to be also coherent.
     }
@@ -891,41 +896,41 @@ Therefore we can conclude our model learns an equivalent representation in its 2
     \begin{center}
         \includegraphics{thesis_figures/final_loss_test2bv7.jpg}
     \end{center}
-    \caption{Comparison of quantitative measures between DrLIM and our model.
+    \caption{Comparison of quantitative measures between DrLIM and the new model.
     The measures are taken during training iterations over the translation-augmented MNIST test set.
-    The two loss series are statistically indistinguishable and we conclude that both models learned an equivalent representation whereas our model can also expresses distortions without noticeable impact.
+    The two loss series are statistically indistinguishable and it can be concluded that both models learned an equivalent representation whereas the new model can also expresses distortions without noticeable impact.
     }
     \label{fig:loss_mnist_test_common}
 \end{figure}
 
-We tested our model on a data-augmentation of MNIST based on rotations as well to show it works on non-linear deformations as well.
+The new model was tested on a data-augmentation of MNIST based on rotations as well to show it works on non-linear deformations as well.
 Clusters are still arranged in a linear fashion although rotations are non-linear but the cluster separations are smaller, see figure~\ref{fig:mnist_cl2d_rotate}.
-The results are similar to our previous experiment and we only provide the figure for demonstration as we won't discuss it in more details.
+The results are similar to the previous experiment and the figure is provided for demonstration as it won't be discussed further.
 
 \begin{figure}[h]
     \begin{center}
         \includegraphics{thesis_figures/mnist_cl2d_rotate.jpg}
     \end{center}
-    \caption{Our model embedding on the MNIST rotation-augmented test set.
+    \caption{The new model embedding on the MNIST rotation-augmented test set.
     Clusters are remarkably arranged in a linear fashion although rotations are non-linear.
     }
     \label{fig:mnist_cl2d_rotate}
 \end{figure}
 
 \subsection{Contrastive LeNet (NORB)}
-Once again we train our network following our conventions, this time on a subset of the NORB dataset with a single plane.
-As we previously described, this subset is composed of all viewpoint of a single plane which we call thereafter the 1-plane NORB dataset.
-We split this subset into two parts: 660 training samples and 312 test samples.
+Once again, the network is trained following the new conventions, this time on a subset of the NORB dataset with a single plane.
+As previously described, this subset is composed of all viewpoint of a single plane which is later called the 1-plane NORB dataset.
+This subset is split into two parts: 660 training samples and 312 test samples.
 These two sets are both separately paired according to the strategy described in the methodology to form the training and testing sets.
 The models are trained until the loss on the respective test set has attained a reasonable local minima, which takes around 10 minutes.
 After $2'000$ iterations, both models have reasonably converged to a stable solution (see figure~\ref{fig:norb_cl2d_loss}).
-To get the most convincing results, we had to chose $m=1$ for DrLIM and $m=10$ for our model, therefore their loss on the test set should not be compared directly, instead the quantitative measures below should be used instead.
-However we can see DrLIM in figure \ref{fig:norb_drlim_embedding} has an easier formulation this time (smaller margin) and the embedding is very similar to the one presented in the reference paper.
+To get the most convincing results, a margin $m=1$ was picked for DrLIM and $m=10$ for the new model, therefore their loss on the test set should not be compared directly, instead the quantitative measures below should be used instead.
+However, it can seen that DrLIM in figure \ref{fig:norb_drlim_embedding} has an easier formulation this time (smaller margin) and the embedding is very similar to the one presented in the reference paper.
 The most important features of the embedding to represent NORB is: the cyclic structures for the azimuth angle, the continuity along the two axes disregarding lighting illumination and the sharp separation along the axes.
 Indeed, this embedding is a thin cylinder whose long axis represent the elevation and the radius is the azimuth angle.
 However, the cylinder is not perfect: multiples parts are more flat along the elevation axis (like a plane) and the radius is fuzzier than presented in the reference paper.
-The major difference with our solution, as shown in figures \ref{fig:norb_cl2d_embedding_1} and \ref{fig:norb_cl2d_embedding_2}, is the alignment along the plot axes, a more stable radius and a better separation inside the cylinder.
-The predictability of our solution is improved by these properties compared to DrLIM.
+The major difference with the new solution, as shown in figures \ref{fig:norb_cl2d_embedding_1} and \ref{fig:norb_cl2d_embedding_2}, is the alignment along the plot axes, a more stable radius and a better separation inside the cylinder.
+The predictability of the solution is improved by these properties compared to DrLIM.
 
 \begin{figure*}[h]
     \centering
@@ -939,9 +944,9 @@ The predictability of our solution is improved by these properties compared to D
         \includegraphics[width=\textwidth]{thesis_figures/final_loss_testset_2D1g2.jpg}
         %\caption{Loss of our model}
     \end{subfigure}
-    \caption{The model losses for 10'000 iterations of DrLIM and our model $m=10$ on NORB.
+    \caption{The model losses for 10'000 iterations of DrLIM and the new model $m=10$ on NORB.
     After $2'000$ iterations, both models have reasonably converged to a stable solution.
-    DrLIM model has a very low loss and our model faces problems to correctly represent the azimuth dimensions.
+    DrLIM model has a very low loss and the new model faces problems to correctly represent the azimuth dimensions.
     }
     \label{fig:norb_cl2d_loss}
 \end{figure*}
@@ -968,7 +973,7 @@ The predictability of our solution is improved by these properties compared to D
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{thesis_figures/norb_cl2d.jpg}
-    \caption{Our model embedding on the NORB 1-plane complete after $100'000$ iterations.
+    \caption{The new model embedding on the NORB 1-plane complete after $100'000$ iterations.
     2D projection of the first two axes.
     Colors indicate the azimuth angle.
     The major difference with DrLIM is the alignment along the plot axes and a better separation inside the cylinder.
@@ -980,7 +985,7 @@ The predictability of our solution is improved by these properties compared to D
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{thesis_figures/norb_cl2d2.jpg}
-    \caption{Our model embedding on the NORB 1-plane complete after $100'000$ iterations.
+    \caption{The new model embedding on the NORB 1-plane complete after $100'000$ iterations.
     2D projection of the last two axes.
     Colors indicate the elevation angle.
     The relation between elevation and azimuth is well organized in the embedding.
@@ -988,12 +993,12 @@ The predictability of our solution is improved by these properties compared to D
     \label{fig:norb_cl2d_embedding_2}
 \end{figure}
 
-To compare the two models, we computed the contrastive loss on the test set of the 1-plane NORB with the same parameters ($m=1$) as with MNIST.
-The plot of this loss is shown in figure \ref{fig:loss_norb_test_common} where we also added a version of our model with $m=1$.
-The embedding of this new model has many aspects of our other model and the main difference is instead of having a round shape for the azimuth, it is similar to a heart which is also cyclic but less desirable in our opinion.
-We can see a major difference with our model $m=10$ compared to both DrLIM and our second model $m=1$.
-By definition of the loss function, the model is not penalized to put dissimilar pairs further than the margin, therefore it means our model $m=10$ has decided it is better to put similar neighbors further than the other two models.
-Moreover, the loss suggests that our model $m=1$ is better but we find qualitatively that our second model is better, although it has a higher loss.
+To compare the two models, the contrastive loss was computed on the test set of the 1-plane NORB with the same parameters ($m=1$) as with MNIST.
+The plot of this loss is shown in figure \ref{fig:loss_norb_test_common} where a version of the new model was also added with $m=1$.
+The embedding of this model has many aspects of the $m=10$ model and the main difference is instead of having a round shape for the azimuth, it is similar to a heart which is also cyclic but less desirable.
+A major difference can be found with the $m=10$  model compared to both DrLIM and the $m=1$ model.
+By definition of the loss function, the model is not penalized to put dissimilar pairs further than the margin, therefore it means the $m=10$ model has decided it is better to put similar neighbors further than the other two models.
+Moreover, the loss suggests that the $m=1$ model is better but $m=10$ is qualitatively better, although it has a higher loss.
 Unfortunately, the visual quality is not reflected by the loss function in this case.
 
 \begin{figure}[h]
@@ -1001,28 +1006,28 @@ Unfortunately, the visual quality is not reflected by the loss function in this 
         \includegraphics{thesis_figures/final_loss_testv3.jpg}
     \end{center}
     % FIXME: try to plot the two terms separately (see if neighbor is high for our model m=10)
-    \caption{Quantitative measures to compare between DrLIM and our model during training iterations on the 1-plane NORB test set.
-    Our model $m=10$ put less importance to the proximity of similar neighbors than the other two models.
-    This plot suggests that our model $m=1$ is better but we find qualitatively that our second model is better, although it has a higher loss.
+    \caption{Quantitative measures to compare between DrLIM and the new model during training iterations on the 1-plane NORB test set.
+    The $m=10$ model put less importance to the proximity of similar neighbors than the other two models.
+    This plot suggests that the $m=1$ model is better but $m=10$ is qualitatively better, although it has a higher loss.
     The loss function does not seem to reflect the visual quality in this case.
     }
     \label{fig:loss_norb_test_common}
 \end{figure}
 
 \subsection{Remarks}
-To conclude this chapter, we would like to state a few remarks and overview some difficulties in our experiments.
-The primary goal of our experiments using contrastive losses is to show we can expect more predictability in the sense of constraints over the axes and the clustering with a simple extension of the original formulation.
-Our qualitative judgement is positive about the success of our experiments.
-We demonstrated in our first experiment that models based on DrLIM can include more informations concerning the distortions with a minor impact over the original feature space.
-We demonstrated in our second experiment that they can also be guided to represent the NORB space by using dimensions in a certain way with minimal efforts.
-Moreover we had difficulties to reproduce DrLIM on MNIST and especially NORB due to the lack of directives for parameters and due to the initial randomness of model initialization which changes the final embedding consequently.
-During these experiments, we also learned that one if not the most important factor for training a Siamese network comes from the pairing strategy.
+To conclude this chapter, a few remarks should be made and some difficulties are to be noted during the experiments.
+The primary goal of the experiments using contrastive losses is to show more predictability can be expected in the sense of constraints over the axes and the clustering with a simple extension of the original formulation.
+Our qualitative judgement is positive about the success of the experiments.
+The first experiment demonstrated that models based on DrLIM can include more informations concerning the distortions with a minor impact over the original feature space.
+In our second experiment it was also demonstrated that they can also be guided to represent the NORB space by using dimensions in a certain way with minimal efforts.
+Moreover some difficulties were faced to reproduce DrLIM, especially on NORB due to the lack of directives for parameters and due to the initial randomness of model initialization which changes the final embedding consequently.
+During these experiments, one if not the most important factor for training a Siamese network comes from the pairing strategy.
 On this regard, many minor factors can greatly impact the final results such as: the ratio of similar/dissimilar pairs, their ordering (shuffled or not) and the addition/removal of certain pairs.
-We found our models easier to train because they converged to the above results with nearly no effort: the default weights and margin were safely used and our models converged to the expected solutions unlike DrLIM.
+The new models are easier to train because their convergence to the above results required nearly no effort: the default weights and margin were safely used and the models converged to the expected solutions unlike DrLIM.
 
 However there is still room for improvements, especially for the quantitative measures which does not always reflect the structure quality quantified by a visual inspection.
 It is important to keep in mind that the visual quality is not necessarily representative of its real usability as features for further layers in a NN.
-Nonetheless, it shows that our model can create quite interesting and human-friendly representation by simple methods.
+Nonetheless, it shows that the new model can create quite interesting and human-friendly representation by simple methods.
 
 
 % ==============================================================================
@@ -1031,29 +1036,33 @@ Nonetheless, it shows that our model can create quite interesting and human-frie
 
 Neural Networks are widely used in many applications of Computer Vision and their usage is growing every day.
 The recent usage of NN in dimensionality reduction is an important step to create better embeddings.
-Indeed they learn powerful mappings whose relation seems more deeply tied to the dataset: invariance to non-linear distortions and sensibility to certain complex properties unique to the dataset.
-In our experiments, we have found NN to be much faster and reliable than even the state-of-the-art methods such as t-SNE where the only prior-knowledge are labels or viewpoint angles.
-Moreover, many state-of-the-art tricks developed during the past years of researches on NN have helped us in this task: CNN architecture for images, Siamese network and the contrastive loss function to train our specialized networks.
-Thanks to these findings and the current advance in Deep Learning, we benefit from their improvement in the automatic derivation of better features to represent the data.
+Indeed they learn powerful mappings whose relation seems more deeply tied to the dataset.
+In particular they can learn invariance to non-linear distortions (like lighting) while preserving other wanted properties (like camera viewpoint).
+In the experiments, NN were found to be much faster and reliable than even the state-of-the-art methods such as t-SNE where the only prior-knowledge are labels or viewpoint angles.
+Moreover, many state-of-the-art tricks developed during the past years of researches on NN have helped in this task: CNN architectures for images, Siamese networks and the contrastive loss function to train the new specialized networks.
+Thanks to these findings and the current advance in Deep Learning, this work benefited from their improvement in the automatic derivation of better features to represent the data.
 
-In this thesis, we showed how t-SNE performs with data-augmentation with its advantages and shortcomings due to its unsupervised nature.
-We moved to solutions based on NN because they have many advantages, for example they can create very complex embeddings and a functional mapping to it.
-To achieve a more predictable embedding, we introduced an extension to DrLIM.
-Then we experimented with several NN models on different datasets to compare with the state-of-the-art and we demonstrated the effectiveness of our solution.
-We presented our qualitative results with figures which we analyzed to understand our models.
-But we also introduced quantitative measures based on the loss function in particular conditions to compare more objectively past results with our own.
-As we said, there is still room for improvements in this regard as current measures does not seem completely reliable to measure the quality.
-Moreover, we tried to develop a better metric to give a more accurate score to compare clustering and the predictability of our models.
-However, we weren't able to find a simple solution and this would require comparing our models with a simple baseline which does not seem to exist at this day.
+In this thesis, the performance of t-SNE were presented with data-augmentation with its advantages and shortcomings due to its unsupervised nature.
+Another solution was tried based on NN because they have many advantages, in particular that they can represent very complex mappings.
+To achieve a more predictable embedding, an extension to DrLIM was introduced.
+Then, several NN models were experimented on different datasets to compare with the state-of-the-art and the new solution demonstrated similar results, while being more general.
+In particular, with the new method it is possible to quantify distortions in a consistent way, by just looking at the components of the learned feature representation.
+The qualitative results were presented using plots which were analyzed to understand the models.
+But quantitative measures were also introduced based on the loss function to compare more objectively with the previous work.
+As said, there is still room for improvements in this regard as current measures does not seem completely reliable to measure the quality.
+Moreover, a better metric to give a more accurate score was a subject of this research for this work to compare clustering and the predictability of the new models.
+However, such a solution is non-trivial to find and this would require comparing the new models with a simple baseline, which, to the best of our knowledge, does not exist at this day.
 
-The current direction of dimensionality reduction started with DrLIM looks very similar to regression problems and this is also the case for our generalization for N-dimensions.
-However regression is more constrained than the current formulation because: (1) clusters can be moved around, only their relative positions matter whereas their regression counterpart are forced to absolute positions (2) the margin formulation allows to put extra gap to make space between clusters without penalization (like SVM) whereas regression creates a cost in every directions.
+The current direction of dimensionality reduction started with DrLIM looks very similar to regression problems and this is also the case for the proposed generalization for N-dimensions.
+However, regression is more constrained than the current formulation because: (1) in this work, clusters are not constrained to be at a particular position, but only their relative positions matter whereas a regression based approach would set them in absolute positions; (2) the margin formulation allows to put extra gap to make space for clusters without cost whereas regression penalizes in every directions.
 Thus, the current formulation allows more freedom in placement than regression and a possibility is that regression would perform worse due to the addition these artificial constraints but the opposite may be true.
-Future work could compare our models with regression models to see if further restriction would actually help instead.
+Future work could compare the new models with regression models to see if further restriction would actually help instead.
 
-Another aspect future research can try, is to practically test the predictability of our embeddings.
+Another aspect that needs to be explored in future research is to precisely test the predictability of the embeddings.
 For instance by using the produced features in a bigger classification network, for MNIST: the distortion intensity and the digit class; for NORB: the pair of azimuth-elevation angles.
-An other useful contribution would find a measure that quantifies the ``predictability'' of our model for certain application.
+For instance, in the case of MNIST, the learned features could be used in a larger classification network to predict the distortion intensity and the digit class.
+Likewise in NORB, the model could predict the two azimuth-elevation angles.
+Another useful contribution would find a measure that quantifies the ``predictability'' of the new model for certain application.
 One simple example would be to use the accuracy of the classification model above but it would not represent the effective usability in practical applications which combine both distortions and application-specific features.
 A better experiment is to train a regression model, for instance, to predict the distorted inputs' features given a single input's features.
 The accuracy of such a model would serve as a score for predictability.
@@ -1062,15 +1071,15 @@ The accuracy of such a model would serve as a score for predictability.
 % usecase of predictable disto?
 
 % FIXME: to check:
-A possible application of our system is in Biomedical Imaging.
+A possible application of the new model is in Biomedical Imaging.
 Some particular classification tasks in this field (\eg: segmentation) need to detect orientation-dependent structures in images.
 The classification of such images begins by a normalization step with a rotation and a translation to normalize the structure of interest into a centered slice.
 This slice is used to extract orientation-dependant features which are then fed into a classifier like a CNN.
 It is important to understand that the normalization step to extract features is costly especially for 3D images and even specialized FPGAs were designed to compute 3D expensive rotations.
-Our contribution allows theoretically to skip this normalization step to directly create enhanced features.
+The presented contribution allows theoretically to skip this normalization step to directly create enhanced features.
 In this case, the model would learn features predictable with respect to the input distortions (\eg: rotations) which means that the features for other distortions can be derived and classified.
 
-In summary, a basic framework was proposed to create distortion-predictable models and further experiments shall benefit from our method in similar applications.
+In summary, we presented a basic framework to create distortion-predictable models and further experiments shall benefit from this method in similar applications.
 
 % FIXME: more future works? face detection, with features?
 
