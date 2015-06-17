@@ -436,7 +436,6 @@ Fortunately there are new promising alternatives directly harnessing the power o
 Such models is introduced in the following section.
 
 %there is a direct way to learn an embedding with CNN without t-SNE.
-% FIXME: continue conversion: familiar -> neutral
 CNN are mostly used for classification but it can be optimized for other purposes as well.
 Instead of the SoftMax loss function used in classification, a special training architecture with a suitable loss can be used to optimize topological constraints.
 For example to create an embedding with particular properties in the output layer.
@@ -761,7 +760,6 @@ This is actually a general problem with this plot: many clusters appear but thei
     \label{fig:mnist_da_tsne}
 \end{figure}
 
-% FIXME: continue corrections from here
 %discussion.
 %give insights: about t-sne, models, clustering, etc.
 From these two experiments, important knowledge emerges about this classification tasks, the data-augmentations and t-SNE as well.
@@ -787,7 +785,6 @@ In the following part, results of an alternative method is presented based on en
 
 \subsection{Contrastive LeNet (MNIST)}
 %In the two experiments below, we train Siamese networks with the contrastive loss function.
-% FIXME: moved to here, need merge
 % for siamese
 In the two following experiments, Siamese models were trained based on DrLIM settings on both MNIST and NORB so that the results are comparable between the reference paper and the networks with the extension as described below for two-label pairs.
 The goal of DrLIM is to train a model where points are close together if they are ``visually'' similar without considering distortions depending on the dataset.
@@ -953,11 +950,11 @@ The predictability of the solution is improved by these properties compared to D
 
 \begin{figure*}[h]
     \centering
-    \begin{subfigure}{0.7\textwidth}
+    \begin{subfigure}{0.65\textwidth}
         \centering
         \includegraphics[width=\textwidth]{thesis_figures/norb_drlim1.jpg}
     \end{subfigure}
-    \begin{subfigure}{0.7\textwidth}
+    \begin{subfigure}{0.65\textwidth}
         \centering
         \includegraphics[width=\textwidth]{thesis_figures/norb_drlim2.jpg}
     \end{subfigure}
