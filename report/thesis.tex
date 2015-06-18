@@ -1034,31 +1034,32 @@ Nonetheless, it shows that the new model can create quite interesting and human-
 Neural Networks are widely used in many applications of Computer Vision and their usage is growing every day.
 The recent usage of NN in dimensionality reduction is an important step to create better embeddings.
 Indeed they learn powerful mappings whose relation seems more deeply tied to the dataset.
-In particular they can learn invariance to non-linear distortions (like lighting) while preserving other wanted properties (like camera viewpoint).
-In the experiments, NN were found to be much faster and reliable than even the state-of-the-art methods such as t-SNE where the only prior-knowledge are labels or viewpoint angles.
-Moreover, many state-of-the-art tricks developed during the past years of researches on NN have helped in this task: CNN architectures for images, Siamese networks and the contrastive loss function to train the new specialized networks.
+In particular they can learn invariance to non-linear distortions while preserving relations between the other distortions.
+In the experiments, NN were found to be much faster and reliable for our application than even the state-of-the-art methods such as t-SNE and the only prior-knowledge are the labels or the viewpoint angles.
+Moreover, many tricks developed during the past years of researches on NN have helped in this task: CNN architectures for images, Siamese networks and the contrastive loss function to train the new specialized networks.
 Thanks to these findings and the current advance in Deep Learning, this work benefited from their improvement in the automatic derivation of better features to represent the data.
 
-In this thesis, the performance of t-SNE were presented with data-augmentation with its advantages and shortcomings due to its unsupervised nature.
-Another solution was tried based on NN because they have many advantages, in particular that they can represent very complex mappings.
-To achieve a more predictable embedding, an extension to DrLIM was introduced.
-Then, several NN models were experimented on different datasets to compare with the state-of-the-art and the new solution demonstrated similar results, while being more general.
+In this thesis, the performance of t-SNE on data-augmented datasets were presented with its advantages and shortcomings due to its unsupervised nature.
+Another solution was then chosen based on NN because they have many advantages, in particular that they can represent very complex mappings.
+To achieve more predictable embeddings, an extension to DrLIM was designed in this work.
+Then, several NN models were experimented on different datasets to compare the state-of-the-art with this new solution which demonstrated similar results, while being more general.
 In particular, with the new method it is possible to quantify distortions in a consistent way, by just looking at the components of the learned feature representation.
 The qualitative results were presented using plots which were analyzed to understand the models.
 But quantitative measures were also introduced based on the loss function to compare more objectively with the previous work.
 As said, there is still room for improvements in this regard as current measures does not seem completely reliable to measure the quality.
-Moreover, a better metric to give a more accurate score was a subject of this research for this work to compare clustering and the predictability of the new models.
+Moreover, a better metric to give a more accurate score was a subject of our research to compare clustering and the predictability of the new models.
 However, such a solution is non-trivial to find and this would require comparing the new models with a simple baseline, which, to the best of our knowledge, does not exist at this day.
 
 The current direction of dimensionality reduction started with DrLIM looks very similar to regression problems and this is also the case for the proposed generalization for N-dimensions.
 However, regression is more constrained than the current formulation because: (1) in this work, clusters are not constrained to be at a particular position, but only their relative positions matter whereas a regression based approach would set them in absolute positions; (2) the margin formulation allows to put extra gap to make space for clusters without cost whereas regression penalizes in every directions.
-Thus, the current formulation allows more freedom in placement than regression and a possibility is that regression would perform worse due to the addition these artificial constraints but the opposite may be true.
+Thus, the current formulation allows more freedom in placement than regression and a possibility is that regression would perform worse due to the addition of these artificial constraints but the opposite may be true.
 Future work could compare the new models with regression models to see if further restriction would actually help instead.
 
 Another aspect that needs to be explored in future research is to precisely test the predictability of the embeddings.
-For instance by using the produced features in a bigger classification network, for MNIST: the distortion intensity and the digit class; for NORB: the pair of azimuth-elevation angles.
-For instance, in the case of MNIST, the learned features could be used in a larger classification network to predict the distortion intensity and the digit class.
-Likewise in NORB, the model could predict the two azimuth-elevation angles.
+%For instance by using the produced features in a bigger classification network.
+%for MNIST: the distortion intensity and the digit class; for NORB: the pair of azimuth-elevation angles.
+For instance, the learned features could be used in a larger classification network to predict the distortion intensity and the digit class in MNIST.
+%Likewise in NORB, the model could predict the two azimuth-elevation angles.
 Another useful contribution would find a measure that quantifies the ``predictability'' of the new model for certain application.
 One simple example would be to use the accuracy of the classification model above but it would not represent the effective usability in practical applications which combine both distortions and application-specific features.
 A better experiment is to train a regression model, for instance, to predict the distorted inputs' features given a single input's features.
@@ -1068,15 +1069,15 @@ The accuracy of such a model would serve as a score for predictability.
 % usecase of predictable disto?
 
 % FIXME: to check:
-A possible application of the new model is in Biomedical Imaging.
-Some particular classification tasks in this field (\eg: segmentation) need to detect orientation-dependent structures in images.
+%A possible application of the new model is in Biomedical Imaging.
+An application is possible in Biomedical Imaging for classification tasks (\eg: segmentation) which need to detect orientation-dependent structures in images.
 The classification of such images begins by a normalization step with a rotation and a translation to normalize the structure of interest into a centered slice.
 This slice is used to extract orientation-dependant features which are then fed into a classifier like a CNN.
 It is important to understand that the normalization step to extract features is costly especially for 3D images and even specialized FPGAs were designed to compute 3D expensive rotations.
 The presented contribution allows theoretically to skip this normalization step to directly create enhanced features.
-In this case, the model would learn features predictable with respect to the input distortions (\eg: rotations) which means that the features for other distortions can be derived and classified.
+In this case, the model learns features predictable with respect to rotations and the features for other distortions are easily derived and classified.
 
-In summary, we presented a basic framework to create distortion-predictable models and further experiments shall benefit from this method in similar applications.
+%In summary, we presented a basic framework to create distortion-predictable models and further experiments shall benefit from this method in similar applications.
 
 % FIXME: more future works? face detection, with features?
 
