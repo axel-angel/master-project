@@ -1,0 +1,7 @@
+0. summary
+1. intro: CNNs (what they are, how well they work, etc.); CNNs (we don't know why
++they work, unexpected behaviors, etc. );
+2. visualization using t-SNE (continuity/discontinuity wrt trasformations,
++limitations, etc.)
+3. predictable embedding (siamese architecture, generalized contrastive loss, etc.)
+4. conclusion and future work

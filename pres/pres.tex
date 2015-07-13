@@ -1,0 +1,206 @@
+\documentclass[10pt]{beamer}
+\usetheme{Berlin}
+\usecolortheme{lily}
+\usepackage[utf8x]{inputenc}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{lipsum}
+\usepackage{tikz}
+\beamertemplatenavigationsymbolsempty
+
+\usepackage{pgfpages}
+\setbeameroption{show notes}
+\setbeameroption{show notes on second screen=right}
+
+\newcommand{\docauthor}{Axel Angel}
+\newcommand{\doctitle}{Towards Distortion-Predictable Embedding of Neural Networks}
+\newcommand{\docsubtitle}{Defense}
+\newcommand{\eg}{e.g.}
+\newcommand{\reff}[1]{~\ref{#1}}
+\setkeys{Gin}{width=1.0\textwidth}
+
+\author{\docauthor}
+\title{\doctitle \\ \docsubtitle}
+
+\pdfinfo{
+    /Author (\docauthor)
+    /Title (\doctitle)
+    /Subject (\docsubtitle)
+    }
+
+\begin{document}
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\note{\begin{itemize}
+        % Summary (recap what said during presentation)
+    \item brief recap of CNN
+    \item showed that t-SNE is good for visualization
+    \item but not suitable for predictable embeddings
+    \item generalized the contrastive loss
+    \item provide comparisons in qualitative and quantitative forms
+\end{itemize}}
+
+\tableofcontents{}
+
+\section{Motivations}
+\begin{frame}
+    \frametitle{Motivations}
+    \begin{itemize}
+        \item Face recognition
+        \item Develop the theory behind it
+        \item Our work is a start
+    \end{itemize}
+
+    \note{\begin{itemize}
+        \item there are examples of applications for our method.
+        \item ``face recognition'': pose estimation, expression, mouth, identity
+        \item benefit from predictable embeddings.
+        \item face recognition is too hard to start
+        \item we present simpler with mnist and norb
+    \end{itemize}}
+\end{frame}
+
+\section{Review of CNNs}
+\begin{frame}
+    \frametitle{Review of CNNs}
+    \begin{itemize}
+        \item Architecture
+        \item Similar to a blackbox
+        \item We focus on the embedding
+    \end{itemize}
+
+    \note{\begin{itemize}
+        \item architecture:
+            \begin{itemize}
+                \item built-in feature extractor (ConvNets)
+                \item built-in classifier (NeuralNets)
+                \item forward/backward SGD
+            \end{itemize}
+
+        \item unintuitive properties:
+            \begin{itemize}
+                \item adverserial attacks
+                \item conditions of good convergence
+                \item unpredictable embedding
+            \end{itemize}
+        \item this work focus predictability of embedding under transformations.
+        \item can make them learn certain properties
+    \end{itemize}}
+\end{frame}
+
+\section{Visualization with t-SNE}
+\begin{frame}
+    \frametitle{Visualization with t-SNE}
+    \begin{itemize}
+        \item Definition of t-SNE
+        \item Optimized properties (spring model)
+        \item Previous works
+    \end{itemize}
+
+    \note{\begin{itemize}
+        \item define t-SNE: reduce dataset from nD to 2D, with optimisation problem.
+        \item original points are Gaussian, new points are Student distr.
+        \item optimisation make the new repr matches the original: based on points distances
+        \item how we did: train/test MNIST, behead last layers and reduce with t-SNE
+        \item many papers showed this already but few worked on distortions
+        \item kind of distortion: translations, rotations.
+    \end{itemize}}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Visualization with t-SNE}
+    show figure % FIXME
+    \begin{itemize}
+        \item Results are unexpected
+        \item We could adapt t-SNE
+    \end{itemize}
+    However there exist better alternatives.
+
+    \note{\begin{itemize}
+        \item discontinuities, questionable clustering
+            \begin{itemize}
+                \item along some transfo, esp translation
+                \item clusters are dominated by distortions (instead of digits)
+                \item clusters are mixed up, unclear/confusing
+            \end{itemize}
+        \item limitations
+            \begin{itemize}
+                \item lack of control (opti problem is unlabeled)
+                \item cannot add points, recompute from scratch, costly
+            \end{itemize}
+        \item fails to provide concluding results
+        \item could reformulate/adapt t-SNE but better alternative exists
+        \item what we show in the following
+    \end{itemize}}
+\end{frame}
+
+\section{Predictable embeddings}
+\begin{frame}
+    % explain concepts
+    \frametitle{Predictable embeddings}
+    Learn pair relations directly, by using:
+    \begin{itemize}
+        \item Neural networks (CNN or NN)
+        \item Siamese architecture
+        \item Contrastive loss
+    \end{itemize}
+    %many pairing relations can be learned directly into embeddings.
+    % show figure
+
+    \note{\begin{itemize}
+        \item neural networks can express complex non-linear mappings
+        \item previous work by: Raia Hadsell, Sumit Chopra, Yann LeCun
+        \item show neural networks can learn structured embeddings
+        \item they showed can be used for dimensionality reducing
+        \item using siamese for training, contrastive for loss also used for face recognition)
+    \end{itemize}}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Predictable embeddings}
+    In our work we provide:
+    \begin{itemize}
+        \item An extension of this loss for $N$ relations
+        \item Qualitative and quantitative results
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Predictable embeddings}
+    % show figure
+    \begin{itemize}
+        %\item Found it surpasses t-SNE for predictability
+        \item Found it learns multiple relations at once
+        \item Found it learns more predictable structures
+    \end{itemize}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}
+    \frametitle{Future works}
+    \begin{itemize}
+        \item Make experimental comparisons with regression
+        \item Show predictability with auxiliary networks
+        \item Apply to the bio-medical imaging field
+    \end{itemize}
+\end{frame}
+
+% like summary
+\begin{frame}
+    \frametitle{Conclusion}
+    \begin{itemize}
+        \item % recap
+    \end{itemize}
+\end{frame}
+
+\end{document}
