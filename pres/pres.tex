@@ -42,12 +42,15 @@
 \end{frame}
 
 \note{\begin{itemize}
-        % Summary (recap what said during presentation)
+    % Summary (recap what said during presentation)
+    \item present an example of application for our method
     \item brief recap of CNN
-    \item showed that t-SNE is good for visualization
-    \item but not suitable for predictable embeddings
+    \item found t-SNE is good for visualization
+    \item not suitable for predictable embeddings
     \item generalized the contrastive loss
     \item provide comparisons in qualitative and quantitative forms
+    \item several directions for future works
+    \item final thoughts and conclude this work
 \end{itemize}}
 
 \tableofcontents{}
@@ -119,7 +122,7 @@
 
 \begin{frame}
     \frametitle{Visualization with t-SNE}
-    show figure % FIXME
+    % FIXME: show figure
     \begin{itemize}
         \item Results are unexpected
         \item We could adapt t-SNE
@@ -155,14 +158,18 @@
         \item Contrastive loss
     \end{itemize}
     %many pairing relations can be learned directly into embeddings.
-    % show figure
+    % FIXME: show figure
+    % FIXME: show formula contrastive loss
 
     \note{\begin{itemize}
         \item neural networks can express complex non-linear mappings
-        \item previous work by: Raia Hadsell, Sumit Chopra, Yann LeCun
-        \item show neural networks can learn structured embeddings
-        \item they showed can be used for dimensionality reducing
-        \item using siamese for training, contrastive for loss also used for face recognition)
+        \item learn relation: mapping of pairs (2 images) to 1/0 similarity
+        \item previous work {\em Dimensionality Reduction by learning an invariant mapping} (DrLIM) by: Raia Hadsell, Sumit Chopra, Yann LeCun
+        \item showed: neural networks can learn structured embeddings
+        \item showed: can be used for dimensionality reducing
+        \item training with: siamese and contrastive for loss (also used for face recognition, same authors)
+        \item trained networks to represent: MNIST by similarity in 2D, camera viewpoint in 3D
+        \item points similar = close together, similar to t-SNE
     \end{itemize}}
 \end{frame}
 
@@ -171,18 +178,30 @@
     In our work we provide:
     \begin{itemize}
         \item An extension of this loss for $N$ relations
+            % FIXME: show formula our contrastive loss
         \item Qualitative and quantitative results
     \end{itemize}
+
+    \note{\begin{itemize}
+        \item our work is based on the mentioned paper
+        \item we reuse the same concepts but extend contrastive loss
+        \item our goal is: learn more similarities, separately, add more control
+        \item can decide which dimensions express what similarity (align to axes)
+        \item plots serve as qualitative results for human to visually compare
+        \item but we also introduce quantitative measures to compare with previous work (reproduce DrLIM work)
+    \end{itemize}}
 \end{frame}
 
 \begin{frame}
     \frametitle{Predictable embeddings}
-    % show figure
+    % FIXME: show our figure + DrLIM figure
     \begin{itemize}
-        %\item Found it surpasses t-SNE for predictability
         \item Found it learns multiple relations at once
         \item Found it learns more predictable structures
     \end{itemize}
+    \note{\begin{itemize}
+        \item % TODO
+    \end{itemize}}
 \end{frame}
 
 \section{Conclusion}
@@ -199,7 +218,10 @@
 \begin{frame}
     \frametitle{Conclusion}
     \begin{itemize}
-        \item % recap
+        \item We gave applications of our work
+        \item Then presented our results with t-SNE
+        \item Finally offered a alternative with NN
+        \item Further directions are promising
     \end{itemize}
 \end{frame}
 
