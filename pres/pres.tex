@@ -64,12 +64,13 @@
         \item Our work is a start
     \end{itemize}
 
+
     \note{\begin{itemize}
         \item there are examples of applications for our method.
         \item ``face recognition'': pose estimation, expression, mouth, identity
         \item benefit from predictable embeddings.
         \item face recognition is too hard to start
-        \item we present simpler with mnist and norb
+        \item we experimented with simpler datasets (with mnist and norb)
     \end{itemize}}
 \end{frame}
 
@@ -81,6 +82,7 @@
         \item Similar to a blackbox
         \item We focus on the embedding
     \end{itemize}
+
 
     \note{\begin{itemize}
         \item architecture:
@@ -110,6 +112,7 @@
         \item Previous works
     \end{itemize}
 
+
     \note{\begin{itemize}
         \item define t-SNE: reduce dataset from nD to 2D, with optimisation problem.
         \item original points are Gaussian, new points are Student distr.
@@ -128,6 +131,7 @@
         \item We could adapt t-SNE
     \end{itemize}
     However there exist better alternatives.
+
 
     \note{\begin{itemize}
         \item discontinuities, questionable clustering
@@ -161,6 +165,7 @@
     % FIXME: show figure
     % FIXME: show formula contrastive loss
 
+
     \note{\begin{itemize}
         \item neural networks can express complex non-linear mappings
         \item learn relation: mapping of pairs (2 images) to 1/0 similarity
@@ -182,6 +187,7 @@
         \item Qualitative and quantitative results
     \end{itemize}
 
+
     \note{\begin{itemize}
         \item our work is based on the mentioned paper
         \item we reuse the same concepts but extend contrastive loss
@@ -194,13 +200,40 @@
 
 \begin{frame}
     \frametitle{Predictable embeddings}
-    % FIXME: show our figure + DrLIM figure
+    % FIXME: show our figure + DrLIM figure (MNIST)
     \begin{itemize}
-        \item Found it learns multiple relations at once
-        \item Found it learns more predictable structures
+        \item Multiple relations at once
     \end{itemize}
+
+
     \note{\begin{itemize}
-        \item % TODO
+        \item quick recap dataset MNIST
+        \item on this experiment MNIST, we train with two classes like DrLIM
+        \item learn to put similar numbers together
+        \item DrLIM do it in 2D, we do the same but add a new dimension
+        \item it serves to express translations without disturbing the other 2D
+        \item models can learn >1 relations: correctly (quality) and effectively (1 model)
+        \item quality: qualitative measures (in 2D) show it's as good and we cannot tell them apart (good coherence inside clusters)
+        \item effectively: 1 model = train 1 model, share weights/features for both tasks
+        \item we also tried on non-linear transfo (rotations) with same results (similar clustering).
+    \end{itemize}}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Predictable embeddings}
+    % FIXME: show our figure + DrLIM figure (NORB)
+    \begin{itemize}
+        \item More predictable structures
+    \end{itemize}
+
+
+    \note{\begin{itemize}
+        \item quick recap dataset NORB
+        \item on this experiment NORB, same task DrLIM
+        \item found our solution easier to work with (converge to correct shape)
+        \item cylinder: cyclic structure for azimuth, ordered value for elevation
+        \item major difference: alignment with axes, points are more separated.
+        \item quality seems better (wider radius, more separated) but our quantitative measure doesn't show that
     \end{itemize}}
 \end{frame}
 
@@ -210,19 +243,39 @@
     \begin{itemize}
         \item Make experimental comparisons with regression
         \item Show predictability with auxiliary networks
-        \item Apply to the bio-medical imaging field
+        \item Fields applications: Face Recognition, Bio-Medical Imaging.
     \end{itemize}
+
+    \note{\begin{itemize}
+        \item models can learn multiple pairing at once: MNIST (similarity + class + transfo), NORB (azimuth + elevation)
+        \item like regression but major differences (abs/relative pos + hard/soft margins); absolute position is not easily defined in applications like face reco where (eg face expression: smile, sad, chose value? Let the model find what's good); future work should compare our solution to regression on MNIST (more constraints help?)
+        \item direct predictability, train a model to predict other-transfo features given one-transfo features (ex: transl 0 -> trans N for all N); the auxiliary network learn to map features of a particular transfo to all other transfo (accuracy = measure of pred)
+        \item future work can show how our solution works with fields ; like face reco (multiple face features: pose, expression, mouth, eyes, eyebrows, …); like bio medical (instead of all costly rotation of 3D images -> features, compute directly independent features with its rotation).
+    \end{itemize}}
 \end{frame}
 
 % like summary
 \begin{frame}
     \frametitle{Conclusion}
     \begin{itemize}
-        \item We gave applications of our work
-        \item Then presented our results with t-SNE
-        \item Finally offered a alternative with NN
+        \item Motivations of our work
+        \item Unexpected results using t-SNE
+        \item Proposition of an alternative with NN
         \item Further directions are promising
     \end{itemize}
+
+    \note{\begin{itemize}
+        \item began motivation with applications (face reco, bio imaging)
+        \item small overview NN (their unintuitive properties, black box)
+        \item we explore one particular aspect: embeddings predictability
+        \item first try with t-SNE unexpected results, too many limitations
+        \item we decided go to pure NN solutions (aspects of data directly into embedding)))))
+        \item previous work already proposed solutions for 1 relation
+        \item we wanted: more information to be encode and making sure we have a more predictable result by adding more constraints on dimensions
+        \item we extended the contrastive loss to allocate dimensions per relation (more control)
+        \item our good results demonstrated the practicality of our solution on two datasets
+        \item however our work is only a beginning: measures should be defined to capture predictability and experiments should try our solution on practical applications.
+    \end{itemize}}
 \end{frame}
 
 \end{document}
