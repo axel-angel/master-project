@@ -28,7 +28,7 @@
 \setkeys{Gin}{width=1.0\textwidth}
 
 \author{\docauthor}
-\title{\doctitle \\ \docsubtitle}
+\title{\doctitle}
 
 \pdfinfo{
     /Author (\docauthor)
@@ -36,31 +36,23 @@
     /Subject (\docsubtitle)
     }
 
-% FIXME: change color of subtitle
-% FIXME: add epfl logo and teacher name
-
-% fixme: more why = explain why
-% FIXME: explain recap orally the goal: 1-2 sentences
-% study of properties of CNN, embedding,
-% predictable = control over embedding
-% (before title)
-
 \begin{document}
 \begin{frame}
     \titlepage
+    \begin{center}
+        Supervised by: Pascal Fua.
+        \\
+        \vspace{0.5cm}
+        \\
+        \includegraphics[width=3cm]{../report/thesis_figures/epfl_logo.png}
+    \end{center}
 \end{frame}
 
-\note{\begin{itemize}
-    % Summary (recap what said during presentation)
-    \item present an example of application for our method
-    \item brief recap of CNN
-    \item found t-SNE is good for visualization
-    \item not suitable for predictable embeddings
-    \item generalized the contrastive loss
-    \item provide comparisons in qualitative and quantitative forms
-    \item several directions for future works
-    \item final thoughts and conclude this work
-\end{itemize}}
+% more why = explain why
+% explain recap orally the goal: 1-2 sentences
+% study of properties of CNN, embedding,
+% predictable = control over embedding
+% (before title)
 
 \begin{frame}
     \tableofcontents{}
@@ -75,18 +67,9 @@
         \item Our work is a start
     \end{itemize}
 
-    % FIXME: add figure (LeCun, face reco)
-    % FIXME: what we want to do with face reco, not really clear
+    % fixme: add figure (LeCun, face reco)
+    % what we want to do with face reco, not really clear
     % feed person picture into network, now abstract features, but want something more controllable, predictable (pose, expression, identity : separately)
-
-
-    \note{\begin{itemize}
-        \item there are examples of applications for our method.
-        \item ``face recognition'': pose estimation, expression, mouth, identity
-        \item benefit from predictable embeddings.
-        \item face recognition is too hard to start
-        \item we experimented with simpler datasets (with mnist and norb)
-    \end{itemize}}
 \end{frame}
 
 \section{Review of CNNs}
@@ -98,31 +81,17 @@
         \item We focus on the embedding
     \end{itemize}
 
-    % fixme: show by hand neuron/layer
-    % fixme: why conv works in images (less noise, pooling)
-    % fixme: add CNN figure
-    % fixme: maybe add adverserial image
-    % fixme: define ``features'' = last layer output
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[width=1\textwidth]{../report/thesis_figures/conv-net2.jpg}
+        \end{center}
+    \end{figure}
 
-
-    \note{\begin{itemize}
-        \item architecture:
-            \begin{itemize}
-                \item built-in feature extractor (ConvNets)
-                \item built-in classifier (NeuralNets)
-                \item forward/backward SGD
-            \end{itemize}
-
-        \item unintuitive properties:
-            \begin{itemize}
-                \item adverserial attacks
-                \item conditions of good convergence
-                \item unpredictable embedding
-            \end{itemize}
-        \item this work focus predictability of embedding under transformations.
-            % fixme: which transfo
-        \item can make them learn certain properties
-    \end{itemize}}
+    % show by hand neuron/layer
+    % why conv works in images (less noise, pooling)
+    % : add CNN figure
+    % maybe add adversarial image
+    % define ``features'' = last layer output
 \end{frame}
 
 \section{Visualization with t-SNE}
@@ -134,22 +103,18 @@
         \item Previous works
     \end{itemize}
 
-    % fixme: state-of-the-art for dim reduc, why we use it
-    % fixme: already applied on mnist
-
-
-    \note{\begin{itemize}
-        \item define t-SNE: reduce dataset from nD to 2D, with optimisation problem.
-        \item original points are Gaussian, new points are Student distr.
-        \item optimisation make the new repr matches the original: based on points distances
-        \item how we did: train/test MNIST, behead last layers and reduce with t-SNE
-        \item many papers showed this already but few worked on distortions
-        \item kind of distortion: translations, rotations.
-    \end{itemize}}
+    % : state-of-the-art for dim reduc, why we use it
+    % already applied on mnist
 \end{frame}
 
-% fixme: +1 slide to present on mnist without transfo (explain what we do)
-% fixme: then say we add transfo
+\begin{frame}
+    \frametitle{Visualization with t-SNE}
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[width=0.8\textwidth]{../report/thesis_figures/mnist_nda_tsne.jpg}
+        \end{center}
+    \end{figure}
+\end{frame}
 
 \begin{frame}
     \frametitle{Visualization with t-SNE}
@@ -164,122 +129,131 @@
     \end{itemize}
     However there exist better alternatives.
 
-    % fixme: explain mnist
-    % fixme: not really consistency
+    % explain mnist
+    % not really consistent
 
-
-    \note{\begin{itemize}
-        \item discontinuities, questionable clustering
-            \begin{itemize}
-                \item along some transfo, esp translation
-                \item clusters are dominated by distortions (instead of digits)
-                \item clusters are mixed up, unclear/confusing
-            \end{itemize}
-        \item limitations
-            \begin{itemize}
-                \item lack of control (opti problem is unlabeled)
-                \item cannot add points, recompute from scratch, costly
-            \end{itemize}
-        \item fails to provide concluding results
-        \item could reformulate/adapt t-SNE but better alternative exists
-        \item what we show in the following
-    \end{itemize}}
 \end{frame}
 
 \section{Towards Predictable Embeddings}
 \begin{frame}
     % explain concepts
     \frametitle{Dimensionality Reduction with NN}
-    Learn pair relations directly, by using:
     \begin{itemize}
-        \item DrLIM (…) % fixme
-            % fixme: instead of training NN for classification, use for dim redu with certain property
-            % properties are …
-        \item Neural networks (CNN or NN)
-        \item Siamese architecture % fixme: << figure
+        \item DrLIM (Dimensionality Reduction by Learning an Invariant Mapping)
+        \item Learn to reduce dimensionality directly using NN/CNN
+    \end{itemize}
+
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[width=0.65\textwidth]{../report/thesis_figures/mnist_cl_drlim.jpg}
+        \end{center}
+    \end{figure}
+    %many pairing relations can be learned directly into embeddings.
+    % explicit: it's DrLIM, not t-SNE, it's NN mapping, no projection, detail properties of this plot
+\end{frame}
+
+\begin{frame}
+    \frametitle{Dimensionality Reduction with NN}
+    Use:
+    \begin{itemize}
+        \item Siamese architecture % << figure
+    \end{itemize}
+
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[width=0.75\textwidth]{../report/thesis_figures/siamese_network.jpg}
+        \end{center}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Dimensionality Reduction with NN}
+    And
+    \begin{itemize}
         \item Contrastive loss
             \begin{eqnarray}
                 L = \frac{1}{2} Y (D_W)^2 + \frac{1}{2} (1-Y) \max(0, m - D_W)^2
             \end{eqnarray}
     \end{itemize}
-    %many pairing relations can be learned directly into embeddings.
-
-    % fixme: explicit: it's DrLIM, not t-SNE, it's NN mapping, no projection, detail properties of this plot
-    \begin{figure}[h]
-        \begin{center}
-            \includegraphics[width=0.45\textwidth]{../report/thesis_figures/mnist_cl_drlim.jpg}
-        \end{center}
-    \end{figure}
-
-
-    \note{\begin{itemize}
-        \item neural networks can express complex non-linear mappings
-        \item learn relation: mapping of pairs (2 images) to 1/0 similarity
-        \item previous work {\em Dimensionality Reduction by learning an invariant mapping} (DrLIM) by: Raia Hadsell, Sumit Chopra, Yann LeCun
-        \item showed: neural networks can learn structured embeddings
-        \item showed: can be used for dimensionality reducing
-        \item training with: siamese and contrastive for loss (also used for face recognition, same authors)
-        \item trained networks to represent: MNIST by similarity in 2D, camera viewpoint in 3D
-        \item points similar = close together, similar to t-SNE
-    \end{itemize}}
 \end{frame}
 
 \begin{frame}
     \frametitle{Predictable Embeddings}
-    % fixme: first why we extend (we want predictable), why would it work (because more control, constraint component/dimensions correspond to relation)
+    % first why we extend (we want predictable), why would it work (because more control, constraint component/dimensions correspond to relation)
     In our work we present:
     \begin{itemize}
         \item An extension of this loss for $N$ relations
-            % fixme: change color the sum
+            % change color the sum
             \begin{eqnarray}
                 L = \frac{1}{2} \sum_{i=1}^p \left( Y_i (D_{Wi})^2 + (1-Y_i) \max(0, m_i - D_{Wi})^2 \right)
             \end{eqnarray}
         \item Qualitative and quantitative results
     \end{itemize}
-
-
-    \note{\begin{itemize}
-        \item our work is based on the mentioned paper
-        \item we reuse the same concepts but extend contrastive loss
-        \item our goal is: learn more similarities, separately, add more control
-        \item can decide which dimensions express what similarity (align to axes)
-        \item plots serve as qualitative results for human to visually compare
-        \item but we also introduce quantitative measures to compare with previous work (reproduce DrLIM work)
-    \end{itemize}}
 \end{frame}
 
 \begin{frame}
     \frametitle{Results On MNIST}
     \begin{itemize}
-        \item Multiple relations at once
+        \item Multiple parities at once
     \end{itemize}
 
-    % fixme: this is same space, two projections
-    % fixme: left one looks the same but we add the right
+    % this is same space, two projections
+    % left one looks the same but we add the right
 
     \begin{figure}[h]
         \begin{center}
             \includegraphics[width=0.45\textwidth]{../report/thesis_figures/mnist_cl_drlim.jpg}
             \vspace{1cm}
-            \includegraphics[width=0.45\textwidth]{../report/thesis_figures/mnist_cl2d2.jpg}
+            \includegraphics[width=0.5\textwidth]{../report/thesis_figures/mnist_cl2d2.jpg}
         \end{center}
     \end{figure}
-
-
-    \note{\begin{itemize}
-        \item quick recap dataset MNIST
-        \item on this experiment MNIST, we train with two classes like DrLIM
-        \item learn to put similar numbers together
-        \item DrLIM do it in 2D, we do the same but add a new dimension
-        \item it serves to express translations without disturbing the other 2D
-        \item models can learn >1 relations: correctly (quality) and effectively (1 model)
-        \item quality: qualitative measures (in 2D) show it's as good and we cannot tell them apart (good coherence inside clusters)
-        \item effectively: 1 model = train 1 model, share weights/features for both tasks
-        \item we also tried on non-linear transfo (rotations) with same results (similar clustering).
-    \end{itemize}}
 \end{frame}
 
-% fixme: add slide for common loss
+\begin{frame}
+    \frametitle{Results On MNIST}
+    \begin{itemize}
+        \item Common loss function
+    \end{itemize}
+
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[width=0.8\textwidth]{../report/thesis_figures/final_loss_testv3.jpg}
+        \end{center}
+    \end{figure}
+\end{frame}
+
+% add slide for common loss
+
+\begin{frame}
+    \frametitle{Results On NORB}
+    \begin{itemize}
+        \item Comparison with DrLIM
+    \end{itemize}
+
+
+    % separate this slice: * show ours two viewpoints * briefly compare DrLIM and our (same viewpoint)
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[width=0.45\textwidth]{figures/drlim_norb.png}
+            % zoom shape inside figure
+            \vspace{1cm}
+            \includegraphics[width=0.45\textwidth]{../report/thesis_figures/norb_cl2d.jpg}
+        \end{center}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Results On NORB}
+    \begin{itemize}
+        \item Common loss function
+    \end{itemize}
+
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[width=0.8\textwidth]{../report/thesis_figures/final_loss_testv3.jpg}
+        \end{center}
+    \end{figure}
+\end{frame}
 
 \begin{frame}
     \frametitle{Results On NORB}
@@ -287,29 +261,16 @@
         \item More predictable structures
     \end{itemize}
 
-
-    % fixme: separate this slice: * show ours two viewpoints * briefly compare DrLIM and our (same viewpoint)
     \begin{figure}[h]
         \begin{center}
-            \includegraphics[width=0.45\textwidth]{../report/thesis_figures/norb_drlim1.jpg}
-            % fixme: zoom shape inside figure
+            \includegraphics[width=0.45\textwidth]{../report/thesis_figures/norb_cl2d2.jpg}
             \vspace{1cm}
             \includegraphics[width=0.45\textwidth]{../report/thesis_figures/norb_cl2d.jpg}
         \end{center}
     \end{figure}
-
-
-    \note{\begin{itemize}
-        \item quick recap dataset NORB
-        \item on this experiment NORB, same task DrLIM
-        \item found our solution easier to work with (converge to correct shape)
-        \item cylinder: cyclic structure for azimuth, ordered value for elevation
-        \item major difference: alignment with axes, points are more separated.
-        \item quality seems better (wider radius, more separated) but our quantitative measure doesn't show that
-    \end{itemize}}
 \end{frame}
 
-% fixme: add slide for common loss (we proposed quantitaive measures)
+% add slide for common loss (we proposed quantitaive measures)
 % what we choose, why (was not done before)
 
 \section{Conclusion}
@@ -320,13 +281,6 @@
         \item Show predictability with auxiliary networks
         \item Fields applications: Face Recognition, Bio-Medical Imaging.
     \end{itemize}
-
-    \note{\begin{itemize}
-        \item models can learn multiple pairing at once: MNIST (similarity + class + transfo), NORB (azimuth + elevation)
-        \item like regression but major differences (abs/relative pos + hard/soft margins); absolute position is not easily defined in applications like face reco where (eg face expression: smile, sad, chose value? Let the model find what's good); future work should compare our solution to regression on MNIST (more constraints help?)
-        \item direct predictability, train a model to predict other-transfo features given one-transfo features (ex: transl 0 -> trans N for all N); the auxiliary network learn to map features of a particular transfo to all other transfo (accuracy = measure of pred)
-        \item future work can show how our solution works with fields ; like face reco (multiple face features: pose, expression, mouth, eyes, eyebrows, …); like bio medical (instead of all costly rotation of 3D images -> features, compute directly independent features with its rotation).
-    \end{itemize}}
 \end{frame}
 
 % like summary
@@ -338,21 +292,34 @@
         \item Proposition of an alternative with NN
         \item Further directions are promising
     \end{itemize}
-
-    \note{\begin{itemize}
-        \item began motivation with applications (face reco, bio imaging)
-        \item small overview NN (their unintuitive properties, black box)
-        \item we explore one particular aspect: embeddings predictability
-        \item first try with t-SNE unexpected results, too many limitations
-        \item we decided go to pure NN solutions (aspects of data directly into embedding)
-        \item previous work already proposed solutions for 1 relation
-        \item we wanted: more information to be encode and making sure we have a more predictable result by adding more constraints on dimensions
-        \item we extended the contrastive loss to allocate dimensions per relation (more control, share weights, efficient)
-        \item our good results demonstrated the practicality of our solution on two datasets
-        \item however our work is only a beginning: measures should be defined to capture predictability and experiments should try our solution on practical applications.
-    \end{itemize}}
 \end{frame}
 
-% fixme: append slides: t-sne formula
+\begin{frame}
+    \frametitle{Thank you}
+\end{frame}
+
+% appendix slides: t-sne formula
+% fixme: more appendix slides?
+
+\begin{frame}
+    \frametitle{Appendix: t-SNE formula}
+    \begin{eqnarray}
+        L = \sum_{i=1}^n KL(P_i || Q_i) = \sum_{i=1}^n \sum_{j=1}^n p_{j|i} \log\left(\frac{p_{j|i}}{q_{j|i}}\right)
+    \end{eqnarray}
+    \begin{eqnarray}
+        p_{j|i} = \frac{\exp(-|x_i - x_j|^2 / 2 \sigma_i^2)}{\sum_{k \not = i} \exp(-|x_i - x_k|^2 / 2 \sigma_i^2 )}
+        %&
+        %q_{j|i} = \frac{\exp(-|y_i - y_j|^2)}{\sum_{k \not = i} \exp(-|y_i - y_k|^2)}
+        \end{eqnarray}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Appendix: Adversarial}
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[width=0.5\textwidth]{figures/adversarial1.png}
+        \end{center}
+    \end{figure}
+\end{frame}
 
 \end{document}

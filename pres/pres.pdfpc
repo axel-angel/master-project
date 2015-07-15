@@ -2,89 +2,101 @@
 pres.pdf
 [notes]
 ### 1
+welcome, present my master project
+goal/why: study on CNN, add control to embedding -> make predictable
+method/how: extension of state-of-the-art
 ### 2
-present an example of application for our method
-brief recap of CNN
-found t-SNE is good for visualization
-not suitable for predictable embeddings
-generalized the contrastive loss
+example of application (face reco)
+brief recap of CNN (archi, CV)
+goal: predictable embedding
+ (1) t-SNE good visualization (definition, unpredictable, limitations)
+ (2) alternative: pure NN, extend state-of-the-art (contrastive loss)
 provide comparisons in qualitative and quantitative forms
-several directions for future works
-final thoughts and conclude this work
+several directions for future works and final thoughts
 ### 3
 there are examples of applications for our method.
-``face recognition'': pose estimation, expression, mouth, identity
-benefit from predictable embeddings.
-face recognition is too hard to start
-we experimented with simpler datasets (with mnist and norb)
+"face recognition": feed NN, today: blackbox features; our: make predictable
+pose estimation, expression, identity
+face reco too hard, start simpler (mnist/norb)
 ### 4
 architecture:
-  built-in feature extractor (ConvNets)
-  built-in classifier (NeuralNets)
-  forward/backward SGD
-unintuitive properties:
-  adverserial attacks
-  conditions of good convergence
+  feature extractor (ConvNets), CV, pool (noise)
+  classifier (NeuralNets), complex, features = last layer
+  trained with labeled dataset
+properties not well understood:
+  why converge, why good, when?
+  adversarial attacks
   unpredictable embedding
-this work focus predictability of embedding under transformations.
+we focus control/predictability of embedding under transformations.
 can make them learn certain properties
 ### 5
-define t-SNE: reduce dataset from nD to 2D, with optimisation problem.
-original points are Gaussian, new points are Student distr.
-optimisation make the new repr matches the original: based on points distances
-how we did: train/test MNIST, behead last layers and reduce with t-SNE
-many papers showed this already but few worked on distortions
-kind of distortion: translations, rotations.
+why t-sne? state-of-the-art dim-red, used with NN (mnist), good to find clusters
+definition: reduce nD to 2D, optimisation problem, unsupervised.
+make 2D repr matches original: property = points distances
+how: train classify, test features into t-SNE
 ### 6
-discontinuities, questionable clustering
-  along some transfo, esp translation
+handwritten digit: mnist (~60k images, 0-9 classes)
+cluster=class well separated, predictable
+many papers already but few worked with distortions (translations, rotations)
+### 7
+1 class, add transfo (translations, rotations)
+discontinuities, inconsistent (esp. transl)
   clusters are dominated by distortions (instead of digits)
   clusters are mixed up, unclear/confusing
 limitations
-  lack of control (opti problem is unlabeled)
-  cannot add points, recompute from scratch, costly
-fails to provide concluding results
-could reformulate/adapt t-SNE but better alternative exists
-what we show in the following
-### 7
-neural networks can express complex non-linear mappings
-learn relation: mapping of pairs (2 images) to 1/0 similarity
-previous work {\em Dimensionality Reduction by learning an invariant mapping} (DrLIM) by: Raia Hadsell, Sumit Chopra, Yann LeCun
-showed: neural networks can learn structured embeddings
-showed: can be used for dimensionality reducing
-training with: siamese and contrastive for loss (also used for face recognition, same authors)
-trained networks to represent: MNIST by similarity in 2D, camera viewpoint in 3D
-points similar = close together, similar to t-SNE
+  lack of control (unsupervised)
+  cannot add points, recompute scratch, costly
+reformulate/adapt t-SNE? Better alternative
 ### 8
-our work is based on the mentioned paper
-we reuse the same concepts but extend contrastive loss
-our goal is: learn more similarities, separately, add more control
-can decide which dimensions express what similarity (align to axes)
-plots serve as qualitative results for human to visually compare
-but we also introduce quantitative measures to compare with previous work (reproduce DrLIM work)
+neural networks: complex non-linear mappings
+previous work: DrLIM instead of classify class, learn mapping (dim-red)
+NN learn structured emb (from label), figure, MNIST, property?
+structures: MNIST by similarity in 2D, NORB camera viewpoint in 3D
+points similar = paired = close together, like in t-SNE
 ### 9
-quick recap dataset MNIST
-on this experiment MNIST, we train with two classes like DrLIM
-learn to put similar numbers together
-DrLIM do it in 2D, we do the same but add a new dimension
-it serves to express translations without disturbing the other 2D
-models can learn >1 relations: correctly (quality) and effectively (1 model)
-quality: qualitative measures (in 2D) show it's as good and we cannot tell them apart (good coherence inside clusters)
-effectively: 1 model = train 1 model, share weights/features for both tasks
-we also tried on non-linear transfo (rotations) with same results (similar clustering).
+how: train batches of 2 images to learn parity (labels are…)
+siamese: 2 instances of NN (mapping), X1,X2 = 2 images
+compute features, each instance (features)
+loss on distances between 2 features
 ### 10
-quick recap dataset NORB
-on this experiment NORB, same task DrLIM
-found our solution easier to work with (converge to correct shape)
-cylinder: cyclic structure for azimuth, ordered value for elevation
-major difference: alignment with axes, points are more separated.
-quality seems better (wider radius, more separated) but our quantitative measure doesn't show that
+contrastive for loss
+paired points = close, unpaired = far
+don't penalize very far unpaired (margin, SVM)
+also used for face recognition, same authors
 ### 11
+extend, why: still unpredictable, limitations
+goal: learn multiple parity, control alloc dimensions separately
+decide which dimensions express what similarity (align axes)
+efficient: 1 model, multiple parity, share weights
+how: reuse same concepts but generalize, formula diff
+plots = qualitative (human visually compare)
+but also introduce quantitative measures compare DrLIM (explain)
+### 12
+on this experiment MNIST, 2 class (colors) like DrLIM
+group similar numbers together
+figure: our 2D + 1D (2 projections) where DrLIM is 2D
+quality: 2D good, cannot see DrLIM/our (coherent) + 1D good clusters
+express same DrLIM but with translation (no disturb)
+fact: also non-linear transfo (rotations) success (similar clustering).
+### 13
+quantitative measure is common loss
+### 14
+quick recap dataset NORB
+on this experiment NORB, same task DrLIM, compare
+found our solution easier to work with (converge better cylinder)
+cylinder: 2D cyclic structure for azimuth, 1D ordered value for elevation
+major difference: axes alignment, more separated.
+quality seems better: wider radius, more separated
+### 15
+but our quantitative measure doesn't show that
+### 16
+two projections for our results
+### 17
 models can learn multiple pairing at once: MNIST (similarity + class + transfo), NORB (azimuth + elevation)
 like regression but major differences (abs/relative pos + hard/soft margins); absolute position is not easily defined in applications like face reco where (eg face expression: smile, sad, chose value? Let the model find what's good); future work should compare our solution to regression on MNIST (more constraints help?)
 direct predictability, train a model to predict other-transfo features given one-transfo features (ex: transl 0 -> trans N for all N); the auxiliary network learn to map features of a particular transfo to all other transfo (accuracy = measure of pred)
 future work can show how our solution works with fields ; like face reco (multiple face features: pose, expression, mouth, eyes, eyebrows, …); like bio medical (instead of all costly rotation of 3D images -> features, compute directly independent features with its rotation).
-### 12
+### 18
 began motivation with applications (face reco, bio imaging)
 small overview NN (their unintuitive properties, black box)
 we explore one particular aspect: embeddings predictability
@@ -95,9 +107,3 @@ we wanted: more information to be encode and making sure we have a more predicta
 we extended the contrastive loss to allocate dimensions per relation (more control, share weights, efficient)
 our good results demonstrated the practicality of our solution on two datasets
 however our work is only a beginning: measures should be defined to capture predictability and experiments should try our solution on practical applications.
-
-
-
-
-
-
