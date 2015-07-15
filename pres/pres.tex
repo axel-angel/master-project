@@ -16,9 +16,9 @@
 \usepackage{tikz}
 \beamertemplatenavigationsymbolsempty
 
-\usepackage{pgfpages}
-\setbeameroption{show notes}
-\setbeameroption{show notes on second screen=left}
+%\usepackage{pgfpages}
+%\setbeameroption{show notes}
+%\setbeameroption{show notes on second screen=left}
 
 \newcommand{\docauthor}{Axel Angel}
 \newcommand{\doctitle}{Towards Distortion-Predictable Embedding of Neural Networks}
@@ -35,6 +35,15 @@
     /Title (\doctitle)
     /Subject (\docsubtitle)
     }
+
+% FIXME: change color of subtitle
+% FIXME: add epfl logo and teacher name
+
+% fixme: more why = explain why
+% FIXME: explain recap orally the goal: 1-2 sentences
+% study of properties of CNN, embedding,
+% predictable = control over embedding
+% (before title)
 
 \begin{document}
 \begin{frame}
@@ -53,7 +62,9 @@
     \item final thoughts and conclude this work
 \end{itemize}}
 
-\tableofcontents{}
+\begin{frame}
+    \tableofcontents{}
+\end{frame}
 
 \section{Motivations}
 \begin{frame}
@@ -63,6 +74,10 @@
         \item Develop the theory behind it
         \item Our work is a start
     \end{itemize}
+
+    % FIXME: add figure (LeCun, face reco)
+    % FIXME: what we want to do with face reco, not really clear
+    % feed person picture into network, now abstract features, but want something more controllable, predictable (pose, expression, identity : separately)
 
 
     \note{\begin{itemize}
@@ -83,6 +98,12 @@
         \item We focus on the embedding
     \end{itemize}
 
+    % fixme: show by hand neuron/layer
+    % fixme: why conv works in images (less noise, pooling)
+    % fixme: add CNN figure
+    % fixme: maybe add adverserial image
+    % fixme: define ``features'' = last layer output
+
 
     \note{\begin{itemize}
         \item architecture:
@@ -99,18 +120,22 @@
                 \item unpredictable embedding
             \end{itemize}
         \item this work focus predictability of embedding under transformations.
+            % fixme: which transfo
         \item can make them learn certain properties
     \end{itemize}}
 \end{frame}
 
 \section{Visualization with t-SNE}
 \begin{frame}
-    \frametitle{What's t-SNE}
+    \frametitle{Dimensionality Reduction with t-SNE}
     \begin{itemize}
-        \item Definition of t-SNE
+        \item Definition of t-SNE % fixme: give acronym
         \item Optimized properties (spring model)
         \item Previous works
     \end{itemize}
+
+    % fixme: state-of-the-art for dim reduc, why we use it
+    % fixme: already applied on mnist
 
 
     \note{\begin{itemize}
@@ -123,6 +148,9 @@
     \end{itemize}}
 \end{frame}
 
+% fixme: +1 slide to present on mnist without transfo (explain what we do)
+% fixme: then say we add transfo
+
 \begin{frame}
     \frametitle{Visualization with t-SNE}
     \begin{figure}[h]
@@ -131,10 +159,13 @@
         \end{center}
     \end{figure}
     \begin{itemize}
-        \item Results are unexpected
+        \item Results are unpredictable
         \item We could adapt t-SNE
     \end{itemize}
     However there exist better alternatives.
+
+    % fixme: explain mnist
+    % fixme: not really consistency
 
 
     \note{\begin{itemize}
@@ -158,11 +189,14 @@
 \section{Towards Predictable Embeddings}
 \begin{frame}
     % explain concepts
-    \frametitle{Previous Work}
+    \frametitle{Dimensionality Reduction with NN}
     Learn pair relations directly, by using:
     \begin{itemize}
+        \item DrLIM (…) % fixme
+            % fixme: instead of training NN for classification, use for dim redu with certain property
+            % properties are …
         \item Neural networks (CNN or NN)
-        \item Siamese architecture
+        \item Siamese architecture % fixme: << figure
         \item Contrastive loss
             \begin{eqnarray}
                 L = \frac{1}{2} Y (D_W)^2 + \frac{1}{2} (1-Y) \max(0, m - D_W)^2
@@ -170,11 +204,10 @@
     \end{itemize}
     %many pairing relations can be learned directly into embeddings.
 
+    % fixme: explicit: it's DrLIM, not t-SNE, it's NN mapping, no projection, detail properties of this plot
     \begin{figure}[h]
         \begin{center}
             \includegraphics[width=0.45\textwidth]{../report/thesis_figures/mnist_cl_drlim.jpg}
-            \vspace{1cm}
-            \includegraphics[width=0.45\textwidth]{../report/thesis_figures/norb_drlim1.jpg}
         \end{center}
     \end{figure}
 
@@ -193,9 +226,11 @@
 
 \begin{frame}
     \frametitle{Predictable Embeddings}
+    % fixme: first why we extend (we want predictable), why would it work (because more control, constraint component/dimensions correspond to relation)
     In our work we present:
     \begin{itemize}
         \item An extension of this loss for $N$ relations
+            % fixme: change color the sum
             \begin{eqnarray}
                 L = \frac{1}{2} \sum_{i=1}^p \left( Y_i (D_{Wi})^2 + (1-Y_i) \max(0, m_i - D_{Wi})^2 \right)
             \end{eqnarray}
@@ -214,10 +249,13 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{On MNIST}
+    \frametitle{Results On MNIST}
     \begin{itemize}
         \item Multiple relations at once
     \end{itemize}
+
+    % fixme: this is same space, two projections
+    % fixme: left one looks the same but we add the right
 
     \begin{figure}[h]
         \begin{center}
@@ -241,16 +279,20 @@
     \end{itemize}}
 \end{frame}
 
+% fixme: add slide for common loss
+
 \begin{frame}
-    \frametitle{On NORB}
+    \frametitle{Results On NORB}
     \begin{itemize}
         \item More predictable structures
     \end{itemize}
 
 
+    % fixme: separate this slice: * show ours two viewpoints * briefly compare DrLIM and our (same viewpoint)
     \begin{figure}[h]
         \begin{center}
             \includegraphics[width=0.45\textwidth]{../report/thesis_figures/norb_drlim1.jpg}
+            % fixme: zoom shape inside figure
             \vspace{1cm}
             \includegraphics[width=0.45\textwidth]{../report/thesis_figures/norb_cl2d.jpg}
         \end{center}
@@ -266,6 +308,9 @@
         \item quality seems better (wider radius, more separated) but our quantitative measure doesn't show that
     \end{itemize}}
 \end{frame}
+
+% fixme: add slide for common loss (we proposed quantitaive measures)
+% what we choose, why (was not done before)
 
 \section{Conclusion}
 \begin{frame}
@@ -307,5 +352,7 @@
         \item however our work is only a beginning: measures should be defined to capture predictability and experiments should try our solution on practical applications.
     \end{itemize}}
 \end{frame}
+
+% fixme: append slides: t-sne formula
 
 \end{document}

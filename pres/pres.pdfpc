@@ -1,0 +1,103 @@
+[file]
+pres.pdf
+[notes]
+### 1
+### 2
+present an example of application for our method
+brief recap of CNN
+found t-SNE is good for visualization
+not suitable for predictable embeddings
+generalized the contrastive loss
+provide comparisons in qualitative and quantitative forms
+several directions for future works
+final thoughts and conclude this work
+### 3
+there are examples of applications for our method.
+``face recognition'': pose estimation, expression, mouth, identity
+benefit from predictable embeddings.
+face recognition is too hard to start
+we experimented with simpler datasets (with mnist and norb)
+### 4
+architecture:
+  built-in feature extractor (ConvNets)
+  built-in classifier (NeuralNets)
+  forward/backward SGD
+unintuitive properties:
+  adverserial attacks
+  conditions of good convergence
+  unpredictable embedding
+this work focus predictability of embedding under transformations.
+can make them learn certain properties
+### 5
+define t-SNE: reduce dataset from nD to 2D, with optimisation problem.
+original points are Gaussian, new points are Student distr.
+optimisation make the new repr matches the original: based on points distances
+how we did: train/test MNIST, behead last layers and reduce with t-SNE
+many papers showed this already but few worked on distortions
+kind of distortion: translations, rotations.
+### 6
+discontinuities, questionable clustering
+  along some transfo, esp translation
+  clusters are dominated by distortions (instead of digits)
+  clusters are mixed up, unclear/confusing
+limitations
+  lack of control (opti problem is unlabeled)
+  cannot add points, recompute from scratch, costly
+fails to provide concluding results
+could reformulate/adapt t-SNE but better alternative exists
+what we show in the following
+### 7
+neural networks can express complex non-linear mappings
+learn relation: mapping of pairs (2 images) to 1/0 similarity
+previous work {\em Dimensionality Reduction by learning an invariant mapping} (DrLIM) by: Raia Hadsell, Sumit Chopra, Yann LeCun
+showed: neural networks can learn structured embeddings
+showed: can be used for dimensionality reducing
+training with: siamese and contrastive for loss (also used for face recognition, same authors)
+trained networks to represent: MNIST by similarity in 2D, camera viewpoint in 3D
+points similar = close together, similar to t-SNE
+### 8
+our work is based on the mentioned paper
+we reuse the same concepts but extend contrastive loss
+our goal is: learn more similarities, separately, add more control
+can decide which dimensions express what similarity (align to axes)
+plots serve as qualitative results for human to visually compare
+but we also introduce quantitative measures to compare with previous work (reproduce DrLIM work)
+### 9
+quick recap dataset MNIST
+on this experiment MNIST, we train with two classes like DrLIM
+learn to put similar numbers together
+DrLIM do it in 2D, we do the same but add a new dimension
+it serves to express translations without disturbing the other 2D
+models can learn >1 relations: correctly (quality) and effectively (1 model)
+quality: qualitative measures (in 2D) show it's as good and we cannot tell them apart (good coherence inside clusters)
+effectively: 1 model = train 1 model, share weights/features for both tasks
+we also tried on non-linear transfo (rotations) with same results (similar clustering).
+### 10
+quick recap dataset NORB
+on this experiment NORB, same task DrLIM
+found our solution easier to work with (converge to correct shape)
+cylinder: cyclic structure for azimuth, ordered value for elevation
+major difference: alignment with axes, points are more separated.
+quality seems better (wider radius, more separated) but our quantitative measure doesn't show that
+### 11
+models can learn multiple pairing at once: MNIST (similarity + class + transfo), NORB (azimuth + elevation)
+like regression but major differences (abs/relative pos + hard/soft margins); absolute position is not easily defined in applications like face reco where (eg face expression: smile, sad, chose value? Let the model find what's good); future work should compare our solution to regression on MNIST (more constraints help?)
+direct predictability, train a model to predict other-transfo features given one-transfo features (ex: transl 0 -> trans N for all N); the auxiliary network learn to map features of a particular transfo to all other transfo (accuracy = measure of pred)
+future work can show how our solution works with fields ; like face reco (multiple face features: pose, expression, mouth, eyes, eyebrows, …); like bio medical (instead of all costly rotation of 3D images -> features, compute directly independent features with its rotation).
+### 12
+began motivation with applications (face reco, bio imaging)
+small overview NN (their unintuitive properties, black box)
+we explore one particular aspect: embeddings predictability
+first try with t-SNE unexpected results, too many limitations
+we decided go to pure NN solutions (aspects of data directly into embedding)
+previous work already proposed solutions for 1 relation
+we wanted: more information to be encode and making sure we have a more predictable result by adding more constraints on dimensions
+we extended the contrastive loss to allocate dimensions per relation (more control, share weights, efficient)
+our good results demonstrated the practicality of our solution on two datasets
+however our work is only a beginning: measures should be defined to capture predictability and experiments should try our solution on practical applications.
+
+
+
+
+
+
