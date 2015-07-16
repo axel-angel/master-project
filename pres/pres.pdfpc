@@ -15,7 +15,7 @@ goal: control embedding
 several directions for future works and final thoughts
 ### 3
 there are examples of applications for our method.
-"face recognition": feed NN, today: blackbox features; our: make predictable, explain figure
+"face recognition": feed NN, today: blackbox features; our: make controlable, explain figure
 pose estimation, expression, identity
 but we started simpler problem, like digits and 3D objects, translations, rotations, viewpoint
 ### 4
@@ -117,5 +117,8 @@ hope encourage research to continue where we stopped: harder problem (face reco)
 we will release code (train/model) and tools (plot) on github.
 
 Thank you for your attention.
+
+
+
 
 
