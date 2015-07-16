@@ -3,13 +3,14 @@ pres.pdf
 [notes]
 ### 1
 welcome, present my master project
-goal/why: better understand CNN, embedding (auto learn)? add control to embedding -> make predictable
+goal/why: study/better understand CNN, embedding (intern repr auto learn from data)
+add more control to embedding -> interpretable
 method/how: extend previous state-of-the-art dim-red for desired property
 ### 2
-example of application (face reco)
-brief recap of CNN (archi, CV)
-goal: predictable embedding
- (1) t-SNE good visualization (definition, unpredictable, limitations)
+example of application (face reco, charact -> feats)
+brief recap of CNN (archi, train, good CV)
+goal: control embedding
+ (1) t-SNE good visualization (definition, results, limitations)
  (2) alternative: pure NN, extend state-of-the-art (contrastive loss)
 several directions for future works and final thoughts
 ### 3
@@ -25,20 +26,20 @@ architecture:
 properties not well understood:
   why converge, why good, when?
   features repr not real meaning/control
-we focus study/understand embedding, add constrain, can make them learn certain properties under transformations
+we focus study embedding, add constrain, can make them learn certain properties on feats/output when the input is distorted (transl/rotat)
 ### 5
 first, why t-sne? state-of-the-art dim-red, definition: reduce nD to 2D, optimisation problem.
 t-sne on NN features high-dim, make 2D repr keep property = points distances (far/close), visualize
 already done (mnist), good to find clusters, unsupervised
 ### 6
-handwritten digit: mnist (~60k images, 0-9 classes)
+1st exp: handwritten digit: mnist (~60k images, 0-9 classes)
 cluster=class well separated, similar=close
 many papers already but few worked with distortions (translations, rotations) to study embedding/feat repr: how feature change under transfo
 ### 7
-1 class, add transfo (translations, rotations)
+2nd exp: 1 class, add transfo (translations, rotations)
 discontinuities, inconsistent (esp. transl)
   clusters are dominated by distortions (instead of digits)
-  clusters are mixed up, unconsistent
+  clusters are mixed up, inconsistent
 limitations
   lack of control (unsupervised)
   cannot add points, recompute scratch, costly
@@ -46,7 +47,8 @@ reformulate/adapt t-SNE? Better alternative
 ### 8
 neural networks: complex non-linear mappings
 previous work: DrLIM instead of classify class, learn mapping (dim-red), invariant property
-NN learn structured emb supervised, figure, MNIST, property? repeat: it's embedding, not t-SNE
+NN learn structured emb supervised, figure, MNIST, property? ignore transl (invariant)
+repeat: it's embedding, not t-SNE
 structures: MNIST by similarity in 2D, NORB camera viewpoint in 3D
 points similar = paired = close together, like in t-SNE
 ### 9
@@ -61,7 +63,7 @@ don't penalize very far unpaired (margin, SVM)
 also used for face recognition, same authors
 ### 11
 extend, why: to add more control for our goal
-goal: learn multiple charact, control alloc dimensions separately: decide which dimensions express what similarity
+goal: learn multiple charact, control alloc dimensions separately: decide which dimensions in emb express what charact
 efficient: 1 model, many charact, share weights
 how: reuse same concepts but generalize, formula diff, give example p=3 (class/transl/rotate)
 plots = qualitative (human visually compare), no real prev work
@@ -83,7 +85,8 @@ cylinder: 2D cyclic structure for azimuth, 1D ordered value for elevation
 major difference: quality seems better, more separated, axes alignement (assign charact to 2D/1D separate)
 ### 15
 plot: but quantitative measure doesn't show that
-train 2 models,
+figure: show which
+our 2 models,
 higher loss but quality better, fail to capture
 why higher loss
 DrLIM m=10 then fail to converge, like paper, cylinder
@@ -113,5 +116,6 @@ hope encourage research to continue where we stopped: harder problem (face reco)
 ### 19
 we will release code (train/model) and tools (plot) on github.
 
-Thank you for your attentiont.
+Thank you for your attention.
+
 
