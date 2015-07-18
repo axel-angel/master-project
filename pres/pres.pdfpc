@@ -11,13 +11,13 @@ example of application (face reco, charact -> feats)
 brief recap of CNN (archi, train, good CV)
 goal: control embedding
  (1) t-SNE good visualization (definition, results, limitations)
- (2) alternative: pure NN, extend state-of-the-art (contrastive loss)
+ (2) alternative: pure NN, extend state-of-the-art dim-red with NN (contrastive loss)
 several directions for future works and final thoughts
 ### 3
 there are examples of applications for our method.
 "face recognition": feed NN, today: blackbox features; our: make controlable, explain figure
 pose estimation, expression, identity
-but we started simpler problem, like digits and 3D objects, translations, rotations, viewpoint
+but we started simpler problem, like digits and 3D objects; charact like: translations, rotations, viewpoint
 ### 4
 architecture:
   feat extr: conv, pool, visual cues (noise)
@@ -33,7 +33,7 @@ t-sne on NN features high-dim, make 2D repr keep property = points distances (fa
 already done (mnist), good to find clusters, unsupervised
 ### 6
 1st exp: handwritten digit: mnist (~60k images, 0-9 classes)
-cluster=class well separated, similar=close
+cluster=class well separated, similar=close, coherent
 many papers already but few worked with distortions (translations, rotations) to study embedding/feat repr: how feature change under transfo
 ### 7
 2nd exp: 1 class, add transfo (translations, rotations)
@@ -52,7 +52,7 @@ repeat: it's embedding, not t-SNE
 structures: MNIST by similarity in 2D, NORB camera viewpoint in 3D
 points similar = paired = close together, like in t-SNE
 ### 9
-how: train batches of 2 images to learn parity (labels are…)
+how: train with 2 images to learn parity (labels are…)
 siamese: 2 instances of NN (mapping), X1,X2 = 2 images
 compute features, each instance (features)
 loss on distances between 2 features
@@ -60,15 +60,16 @@ loss on distances between 2 features
 contrastive for loss
 paired points = close, unpaired = far
 don't penalize very far unpaired (margin, SVM)
-also used for face recognition, same authors
+also used for face recognition (classify), same authors
 ### 11
 extend, why: to add more control for our goal
 goal: learn multiple charact, control alloc dimensions separately: decide which dimensions in emb express what charact
 efficient: 1 model, many charact, share weights
 how: reuse same concepts but generalize, formula diff, give example p=3 (class/transl/rotate)
-plots = qualitative (human visually compare), no real prev work
+plots = qualitative (human visually compare),
+as far our knowledge, no real prev work -> quantitative
 ### 12
-our: 3D emb, fig 2project: left 2D (similarity) + 1D (translation vertical)
+our: learn 3D emb, fig 2project: left 2D (similarity) + 1D (translation vertical)
 DrLIM particular case (left same) + add info, don't disturb 2D
 explain figure, left/right, good clusters = easy to interpret
 fact: also non-linear transfo (rotations) success (similar clustering).
@@ -97,7 +98,7 @@ right: consistency of azimuth around cyclic shape
 ### 17
 models can learn multiple pairing at once: MNIST (sim/class/transfo), NORB (azi/elev)
 future work compare to regr, similar but major differences (hard constr pos+marg), 
-direct predictability, train a model to derive features of distorted, from a non distorted sample, accu=quantify
+direct predictability, train an aux model to derive features of distorted, from a non distorted sample, accu=quantify
 future work apply fields (face reco/bio medical rotations)
 ### 18
 began motivation applications, small overview NN (unexplained, black box)
@@ -105,18 +106,27 @@ explored one particular aspect (embeddings predictability)
 first try with t-SNE unexpected results, too many limitations
 then pure NN (aspects of data directly into embedding)
 previous work already 1 pairing, wanted more info/control -> predictable (constraint on dimensions)
-extended contrastive to allocate dimensions per relation (more control, share weights, efficient)
-our good results demonstrated the practicality of our solution on two datasets, hard to compare, no previous related work, need better measure
-hope encourage research to continue where we stopped: harder problem (face reco)
+extended contrastive to allocate dimensions per relation (share weights, efficient)
+future work should continue on proposed directions
 
 
 
 
 
 ### 19
-we will release code (train/model) and tools (plot) on github.
+we will release code (script/train/dataset) and tools (plot) on github.
 
 Thank you for your attention.
+
+
+
+
+
+
+
+
+
+
 
 
 
