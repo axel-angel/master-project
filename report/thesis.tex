@@ -27,7 +27,7 @@
 \newcommand{\myname}{Axel Angel}
 \newcommand{\mytitle}{Towards Distortion-Predictable Embedding of Neural Networks}
 \newcommand{\mysubtitle}{Thesis}
-\newcommand{\mydate}{\today}
+\newcommand{\mydate}{June 18, 2015}
 
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
@@ -40,6 +40,7 @@
 \chead{}
 \rfoot{Page \thepage\ of \pageref{LastPage}}
 \lfoot{\mydate}
+\date{\mydate}
 
 \makeatletter
 \AtBeginDocument{
@@ -47,6 +48,7 @@
     pdfauthor = {\myname},
     pdftitle = {\mytitle},
     pdfsubject = {\mysubtitle},
+    pdfcreationdate = {D:20150618000000},
   }
 }
 \makeatother
@@ -96,9 +98,11 @@
 
     École Polytechnique Fédérale de Lausanne (EPFL)
 
+    Switzerland
+
     \vspace{3cm}
 
-    \today
+    \mydate
 
     \vfill
 
@@ -514,6 +518,7 @@ In this chapter, the following sections describe the general environment used to
 The different models are introduced in details with their architecture, then the implementation using Caffe and Python is explained.
 The generation of the datasets by combining samples from MNIST or NORB is also discussed.
 Finally, the idea of quantitative measures is presented and used in the results for comparisons with the previous work.
+The source code is available on GitHub at: \url{https://github.com/axel-angel/master-project}.
 
 \section{Models and parameters}
 
